@@ -1,8 +1,9 @@
 <?php
 /**
- * Webmention Receiver Class
+ * Microsub endpoint class
  *
- * @author Matthias Pfefferle
+ * @author Jack Jamieson
+ *
  */
 class Yarns_Microsub_Endpoint {
 
@@ -64,24 +65,6 @@ class Yarns_Microsub_Endpoint {
 	 * @return true
 	 */
 
-/*
-****
-****
-****
-// USE THIS FOR AUTHENTICATION - USES INDIEAUTH -- FROM MICROPUB PLUGIN
-	if ( class_exists( 'IndieAuth_Plugin' ) ) {
-			$user_id = get_current_user_id();
-
-			// The WordPress IndieAuth plugin uses filters for this
-			static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-			static::$micropub_auth_response = apply_filters( 'indieauth_response',  static::$micropub_auth_response );
-			
-			if ( ! $user_id ) {
-				static::handle_authorize_error( 401, 'Unauthorized' );
-			}
-		} 
-
-*/////
 
 
 	public static function serve_request( $request ) {
@@ -89,57 +72,20 @@ class Yarns_Microsub_Endpoint {
 		$debug = "DEBUGGING INFO: \n";
 		$debug .= "Microsub testing – All params: \n ". json_encode($request->get_params());
 		$debug .= "\n\n" . json_encode($request);
-
-		if ( '/microsub/endpoint' !== $request->get_route() ) {
-			return "test";
-			//return $served;
-		}
 		*/
 		
 		$user_id = get_current_user_id();
-			// The WordPress IndieAuth plugin uses filters for this
-			static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-			static::$microsub_auth_response = apply_filters( 'indieauth_response',  static::$microsub_auth_response );
-			
-			if ( ! $user_id ) {
-				static::handle_authorize_error( 401, 'Unauthorized' );
-			}
-
-/*
-		 $parameters = $request->get_params();
- 
-  // The individual sets of parameters are also available, if needed:
-  $parameters = $request->get_url_params();
-  $parameters = $request->get_query_params();
-  $parameters = $request->get_body_params();
-  $parameters = $request->get_json_params();
-  $parameters = $request->get_default_params();
-*/
-
-  /*
-		switch($request->get_param('action')){
-			case 'channels':
-
-				break;
-			case 'timeline:':
-				break;
-			default:
-				return "No action defined";
-				// The action was not recognized
-				break;
-
+		// The WordPress IndieAuth plugin uses filters for this
+		static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
+		static::$microsub_auth_response = apply_filters( 'indieauth_response',  static::$microsub_auth_response );
+		
+		if ( ! $user_id ) {
+			static::handle_authorize_error( 401, 'Unauthorized' );
 		}
-		if ('channels' === $action){ // channels
-
-		}
-
-		return "test2";
-		//return $served;
-		*/
 	}
 
 
-private static function handle_authorize_error( $code, $msg ) {
+	private static function handle_authorize_error( $code, $msg ) {
 		$home = untrailingslashit( home_url() );
 		if ( 'http://localhost' === $home ) {
 			error_log(
@@ -150,8 +96,6 @@ private static function handle_authorize_error( $code, $msg ) {
 		}
 		static::respond( $code, $msg );
 	}
-
-
 
 
 	
@@ -171,23 +115,9 @@ private static function handle_authorize_error( $code, $msg ) {
 		
 	}
 
-	/**
-	 * Generates webfinger/host-meta links
-	 */
-	/*
-	public static function jrd_ldinks( $array ) {
-		$array['links'][] = array(
-			'rel'  => 'webmention',
-			'href' => get_microsub_endpoint(),
-		);
-
-		return $array;
-	}
-	*/
-
-
 
 	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
+	(Copied from wordpress-micropub plugin)
 	 **/
 	protected static function respond( $code, $resp = null, $args = null ) {
 		status_header( $code );
