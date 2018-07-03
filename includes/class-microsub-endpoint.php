@@ -5,10 +5,37 @@
  * @author Jack Jamieson
  *
  */
+
+/* For debugging purposes this will bypass MICROSUB authentication
+ * in favor of WordPress authentication
+ * Using this to test querying(q=) parameters quickly
+ */
+if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
+	define( 'MICROSUB_LOCAL_AUTH', '0' );
+}
+
+
+
+// Allows for a custom Authentication and Token Endpoint
+if ( ! defined( 'MICROSUB_AUTHENTICATION_ENDPOINT' ) ) {
+	define( 'MICROSUB_AUTHENTICATION_ENDPOINT', 'https://indieauth.com/auth' );
+}
+if ( ! defined( 'MICROSUB_TOKEN_ENDPOINT' ) ) {
+	define( 'MICROSUB_TOKEN_ENDPOINT', 'https://tokens.indieauth.com/token' );
+}
+
+// For debugging purposes this will set all MICROSUB posts to Draft
+if ( ! defined( 'MICROSUB_DRAFT_MODE' ) ) {
+	define( 'MICROSUB_DRAFT_MODE', '0' );
+}
+
 class Yarns_Microsub_Endpoint {
 
 	// Array of Scopes
 	protected static $scopes;
+
+	// associative array
+	public static $request_headers;
 
 	// associative array, populated by authorize().
 	protected static $microsub_auth_response;
@@ -73,17 +100,65 @@ class Yarns_Microsub_Endpoint {
 		$debug .= "Microsub testing – All params: \n ". json_encode($request->get_params());
 		$debug .= "\n\n" . json_encode($request);
 		*/
+
+		/* For debugging: bypass the indieauth plugin and use custom authentication
+		copied from wordpress-MICROSUB plugin */ 
 		
-		$user_id = get_current_user_id();
-		// The WordPress IndieAuth plugin uses filters for this
-		static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-		static::$microsub_auth_response = apply_filters( 'indieauth_response',  static::$microsub_auth_response );
-		
-		if ( ! $user_id ) {
-			static::handle_authorize_error( 401, 'Unauthorized' );
+
+		if (class_exists( 'IndieAuth_Plugin' ) ) {
+
+			$user_id = get_current_user_id();
+			// The WordPress IndieAuth plugin uses filters for this
+			static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
+			static::$microsub_auth_response = apply_filters( 'indieauth_response',  static::$microsub_auth_response );
+			
+			if ( ! $user_id ) {
+				static::handle_authorize_error( 401, 'Unauthorized' );
+			}
+		} else {
+			// indieauth not installed, use authorize() function
+			//$user_id = static::authorize();
+
+			// For testing purposes, bypass the authorization (it currently causes an error)
+			$user_id = 1;
+
+		}
+		switch($request->get_param('action')){
+			case 'channels':
+				return static::get_channels($user_id);
+				break;
+			case 'timeline:':
+				break;
+			default:
+				return "No action defined";
+				// The action was not recognized
+				break;
 		}
 	}
 
+	private static function get_channels($user_id){
+		// For testing purposes, returns a hard-coded list of channels
+		$channels = [];
+
+		$array = [ 
+			"uid"=> "notifications",
+			"name"=> "Notifications", 
+			"unread"=> 0 ];
+
+    	$channels[] = $array;
+
+		$array2 = [
+      		"uid"=> "indieweb",
+			"name"=> "IndieWeb",
+			"unread"=> 0
+    	];
+
+    	$channels[] = $array2;
+
+		return [
+      		'channels' => $channels
+    	];
+	}
 
 	private static function handle_authorize_error( $code, $msg ) {
 		$home = untrailingslashit( home_url() );
@@ -117,7 +192,7 @@ class Yarns_Microsub_Endpoint {
 
 
 	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
-	(Copied from wordpress-micropub plugin)
+	(Copied from wordpress-MICROSUB plugin)
 	 **/
 	protected static function respond( $code, $resp = null, $args = null ) {
 		status_header( $code );
@@ -128,5 +203,111 @@ class Yarns_Microsub_Endpoint {
 	public static function header( $header, $value ) {
 		header( $header . ': ' . $value, false );
 	}
+
+	protected static function get_header( $name ) {
+		if ( ! static::$request_headers ) {
+			$headers                 = getallheaders();
+			static::$request_headers = array();
+			foreach ( $headers as $key => $value ) {
+				static::$request_headers[ strtolower( $key ) ] = $value;
+			}
+		}
+		return static::$request_headers[ strtolower( $name ) ];
+	}
+
+
+	/**
+	*
+	* Authorization - copied from wordpress-MICROSUB plugin
+	*
+	* 
+	***/
+
+
+	/**
+	 * Validate the access token at the token endpoint.
+	 *
+	 * https://indieauth.spec.indieweb.org/#access-token-verification
+	 * If the token is valid, returns the user id to use as the post's author, or
+	 * NULL if the token only matched the site URL and no specific user.
+	 */
+	public static function get( $array, $key, $default = array() ) {
+		if ( is_array( $array ) ) {
+			return isset( $array[ $key ] ) ? $array[ $key ] : $default;
+		}
+		return $default;
+	}
+
+	private static function authorize() {
+		// find the access token
+		$auth  = static::get_header( 'authorization' );
+		$token = self::get( $_POST, 'access_token' );
+		if ( ! $auth && ! $token ) {
+			static::handle_authorize_error( 401, 'missing access token' );
+		}
+
+		$resp = wp_remote_get(
+			get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ), array(
+				'headers' => array(
+					'Accept'        => 'application/json',
+					'Authorization' => $auth ?: 'Bearer ' . $token,
+				),
+			)
+		);
+		if ( is_wp_error( $resp ) ) {
+			static::handle_authorize_error( 502, "couldn't validate token: " . implode( ' , ', $resp->get_error_messages() ) );
+		}
+
+		$code           = wp_remote_retrieve_response_code( $resp );
+		$body           = wp_remote_retrieve_body( $resp );
+		$params         = json_decode( $body, true );
+		static::$scopes = explode( ' ', $params['scope'] );
+
+		if ( (int) ( $code / 100 ) !== 2 ) {
+			static::handle_authorize_error(
+				$code, 'invalid access token: ' . $body
+			);
+		} elseif ( empty( static::$scopes ) ) {
+			static::handle_authorize_error(
+				401, 'access token is missing scope'
+			);
+		}
+
+		$me = untrailingslashit( $params['me'] );
+
+		static::$MICROSUB_auth_response = $params;
+
+		// look for a user with the same url as the token's `me` value.
+		$user = static::user_url( $me );
+		if ( $user ) {
+			return $user;
+		}
+
+		// no user with that url. if the token is for this site itself, allow it and
+		// post as the default user
+		$home = untrailingslashit( home_url() );
+		if ( $home !== $me ) {
+			static::handle_authorize_error(
+				401, 'access token URL ' . $me . " doesn't match site " . $home . ' or any user'
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check scope
+	 *
+	 * @param string $scope
+	 *
+	 * @return boolean
+	**/
+	protected static function check_scope( $scope ) {
+		if ( in_array( 'post', static::$scopes, true ) ) {
+			return true;
+		}
+		return in_array( $scope, static::$scopes, true );
+	}
+
 
 }
