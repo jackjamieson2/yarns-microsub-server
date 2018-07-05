@@ -229,8 +229,8 @@ class Yarns_Microsub_Endpoint {
 		//error_log ("Token: ". $token);
 		if ( ! $auth && ! $token ) {
 			// for debugging - just return 1
-			return 1;
-			//static::handle_authorize_error( 401, 'missing access token' );
+			//return 1;
+			static::handle_authorize_error( 401, 'missing access token' );
 		}
 
 		$resp = wp_remote_get(
