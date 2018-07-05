@@ -14,8 +14,6 @@ if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
 	define( 'MICROSUB_LOCAL_AUTH', '0' );
 }
 
-
-
 // Allows for a custom Authentication and Token Endpoint
 if ( ! defined( 'MICROSUB_AUTHENTICATION_ENDPOINT' ) ) {
 	define( 'MICROSUB_AUTHENTICATION_ENDPOINT', 'https://indieauth.com/auth' );
@@ -24,10 +22,7 @@ if ( ! defined( 'MICROSUB_TOKEN_ENDPOINT' ) ) {
 	define( 'MICROSUB_TOKEN_ENDPOINT', 'https://tokens.indieauth.com/token' );
 }
 
-// For debugging purposes this will set all MICROSUB posts to Draft
-if ( ! defined( 'MICROSUB_DRAFT_MODE' ) ) {
-	define( 'MICROSUB_DRAFT_MODE', '0' );
-}
+
 
 class Yarns_Microsub_Endpoint {
 
@@ -117,15 +112,21 @@ class Yarns_Microsub_Endpoint {
 			}
 		} else {
 			// indieauth not installed, use authorize() function
-			//$user_id = static::authorize();
+			$user_id = static::authorize();
+			error_log("Authorized: user_id == " . $user_id);
 
 			// For testing purposes, bypass the authorization (it currently causes an error)
-			$user_id = 1;
+			//$user_id = 1;
 
 		}
+
+		/**
+		* Call functions based on 'action' parameter of the request
+		* (These functions are in functions-microsub-actions.php)
+		*/
 		switch($request->get_param('action')){
 			case 'channels':
-				return static::get_channels($user_id);
+				return get_channels($user_id);
 				break;
 			case 'timeline:':
 				break;
@@ -136,29 +137,7 @@ class Yarns_Microsub_Endpoint {
 		}
 	}
 
-	private static function get_channels($user_id){
-		// For testing purposes, returns a hard-coded list of channels
-		$channels = [];
 
-		$array = [ 
-			"uid"=> "notifications",
-			"name"=> "Notifications", 
-			"unread"=> 0 ];
-
-    	$channels[] = $array;
-
-		$array2 = [
-      		"uid"=> "indieweb",
-			"name"=> "IndieWeb",
-			"unread"=> 0
-    	];
-
-    	$channels[] = $array2;
-
-		return [
-      		'channels' => $channels
-    	];
-	}
 
 	private static function handle_authorize_error( $code, $msg ) {
 		$home = untrailingslashit( home_url() );
@@ -207,18 +186,22 @@ class Yarns_Microsub_Endpoint {
 	protected static function get_header( $name ) {
 		if ( ! static::$request_headers ) {
 			$headers                 = getallheaders();
+			error_log("Headers " . json_encode($headers));
+			error_log("name " . $name);
 			static::$request_headers = array();
 			foreach ( $headers as $key => $value ) {
 				static::$request_headers[ strtolower( $key ) ] = $value;
 			}
 		}
+		//return 0;
+		
 		return static::$request_headers[ strtolower( $name ) ];
 	}
 
 
 	/**
 	*
-	* Authorization - copied from wordpress-MICROSUB plugin
+	* Authorization - copied from wordpress-micropub plugin
 	*
 	* 
 	***/
@@ -241,9 +224,13 @@ class Yarns_Microsub_Endpoint {
 	private static function authorize() {
 		// find the access token
 		$auth  = static::get_header( 'authorization' );
+		error_log ("Auth: ". $auth);
 		$token = self::get( $_POST, 'access_token' );
+		//error_log ("Token: ". $token);
 		if ( ! $auth && ! $token ) {
-			static::handle_authorize_error( 401, 'missing access token' );
+			// for debugging - just return 1
+			return 1;
+			//static::handle_authorize_error( 401, 'missing access token' );
 		}
 
 		$resp = wp_remote_get(
@@ -254,15 +241,19 @@ class Yarns_Microsub_Endpoint {
 				),
 			)
 		);
+		error_log("Resp: " . json_encode($resp));
 		if ( is_wp_error( $resp ) ) {
 			static::handle_authorize_error( 502, "couldn't validate token: " . implode( ' , ', $resp->get_error_messages() ) );
 		}
 
 		$code           = wp_remote_retrieve_response_code( $resp );
+		error_log("code: " . $code);
 		$body           = wp_remote_retrieve_body( $resp );
+		error_log("body: " . $body);
 		$params         = json_decode( $body, true );
+		error_log("params: " . json_encode($params));
 		static::$scopes = explode( ' ', $params['scope'] );
-
+		error_log("scopes: " . json_encode(static::$scopes) );
 		if ( (int) ( $code / 100 ) !== 2 ) {
 			static::handle_authorize_error(
 				$code, 'invalid access token: ' . $body
@@ -274,11 +265,13 @@ class Yarns_Microsub_Endpoint {
 		}
 
 		$me = untrailingslashit( $params['me'] );
+		error_log("me: " . $me);
 
-		static::$MICROSUB_auth_response = $params;
+		static::$microsub_auth_response = $params;
 
 		// look for a user with the same url as the token's `me` value.
 		$user = static::user_url( $me );
+		error_log("user: " . $user);
 		if ( $user ) {
 			return $user;
 		}
@@ -286,6 +279,7 @@ class Yarns_Microsub_Endpoint {
 		// no user with that url. if the token is for this site itself, allow it and
 		// post as the default user
 		$home = untrailingslashit( home_url() );
+		error_log("home: " . $home);
 		if ( $home !== $me ) {
 			static::handle_authorize_error(
 				401, 'access token URL ' . $me . " doesn't match site " . $home . ' or any user'
@@ -308,6 +302,47 @@ class Yarns_Microsub_Endpoint {
 		}
 		return in_array( $scope, static::$scopes, true );
 	}
+
+	/**
+	 * Try to match a user with a URL with or without trailing slash.
+	 *
+	 * @param string $me URL to match
+	 *
+	 * @return null|int Return user ID if matched or null
+	**/
+	public static function user_url( $me ) {
+		if ( ! isset( $me ) ) {
+			return null;
+		}
+		$search = array(
+			'search'         => $me,
+			'search_columns' => array( 'url' ),
+		);
+		$users  = get_users( $search );
+
+		$search['search'] = $me . '/';
+		$users            = array_merge( $users, get_users( $search ) );
+		foreach ( $users as $user ) {
+			if ( untrailingslashit( $user->user_url ) === $me ) {
+				return $user->ID;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Store the return of the authorization endpoint as post metadata. Details:
+	 * https://tokens.indieauth.com/
+	 */
+	public static function store_micropub_auth_response( $args ) {
+		$micropub_auth_response = static::$micropub_auth_response;
+		if ( $micropub_auth_response || ( is_assoc_array( $micropub_auth_response ) ) ) {
+			$args['meta_input']                           = self::get( $args, 'meta_input' );
+			$args['meta_input']['micropub_auth_response'] = $micropub_auth_response;
+		}
+		return $args;
+	}
+
 
 
 }

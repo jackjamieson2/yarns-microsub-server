@@ -40,6 +40,10 @@ class Yarns_MicroSub_Plugin {
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
 		add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
 
+		// Initialize Microsub endpoint
+		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
+		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
+
 		
 		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
