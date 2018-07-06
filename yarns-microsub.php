@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Microsub testing JJ 2
  * Plugin URI:
- * Description:
+ * Description: Early in progress
  * Author:
  * Author URI:
  * Version:
@@ -13,24 +13,25 @@
  */
 
 
-add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'init' ) );
+add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
+add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 
-// initialize admin settings
-//require_once dirname( __FILE__ ) . '/includes/class-webmention-admin.php';
 
-/**
- * Webmention Plugin Class
- *
- * @author Matthias Pfefferle
- */
 class Yarns_MicroSub_Plugin {
 
+	public static function plugins_loaded() {
+		
+
+	}
+
+
 	/**
-	 * Initialize Webmention Plugin
+	 * Initialize Yarns Microsub Server plugin Plugin
 	 */
 	public static function init() {
-		// Add a new feature type to posts for microsub items
-		// add_post_type_support( 'post', 'microsub_items' );
+		
+
+
 
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
@@ -38,18 +39,32 @@ class Yarns_MicroSub_Plugin {
 
 		// Initialize Microsub endpoint
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
-		add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
+		Yarns_Microsub_Endpoint::init();
+		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
 
-		// Initialize Microsub endpoint
+		// Initialize Microsub posts
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
+		Yarns_Microsub_Posts::init();
+
+
+		// Functions to generate responses to endpoint queries
 		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
 		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
 
 		
 		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
+
+		//Set up cron job to check for posts
+		if ( !wp_next_scheduled( 'yarns_reader_generate_hook' ) ) {            
+			wp_schedule_event( time(), 'sixtymins', 'yarns_reader_generate_hook' );
+		}
+
+		
 		
 	}
 
+	
 	
 
 	/**

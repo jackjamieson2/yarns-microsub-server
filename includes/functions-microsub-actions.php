@@ -6,7 +6,7 @@
  *
  */
 
-function get_channels($user_id){
+function get_channels(){
 	// For testing purposes, returns a hard-coded list of channels
 		$channels = [];
 
@@ -46,7 +46,27 @@ Parameters:
     before={cursor}
 */
 
-function get_timeline($user_id){
+function get_timeline(){
+
+	//Get all the posts of type yarns_microsub_post
+	$query = new WP_Query(array(
+	    'post_type' => 'yarns_microsub_post',
+	    'post_status' => 'publish'
+	));
+
+	$timeline = [];
+	while ($query->have_posts()) {
+	    $query->the_post();
+	    $timeline[] = json_decode(get_the_content());
+	}
+
+	wp_reset_query();
+
+	return [
+      		'items' => $timeline
+    	];
+	 
+
 }
 
 /**

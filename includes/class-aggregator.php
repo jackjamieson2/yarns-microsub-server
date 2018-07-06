@@ -6,6 +6,7 @@
  *
  */
 
+
 class Yarns_Microsub_Aggregator {
 	public $ID; // Id for the post
 	public $post_author; // author for the post - h-card
@@ -14,6 +15,8 @@ class Yarns_Microsub_Aggregator {
 	public $content; // content
 	public $summary; // summary
 	public $url; // This serves as a unique identifier 
+
+	
 
 	
 	/*

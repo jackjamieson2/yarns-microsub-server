@@ -38,6 +38,7 @@ class Yarns_Microsub_Endpoint {
 	 * Initialize the plugin, registering WordPress hooks
 	 */
 	public static function init() {
+
 		add_filter( 'query_vars', array( 'Yarns_Microsub_Endpoint', 'query_var' ) );
 
 		// Configure the REST API route
@@ -75,31 +76,18 @@ class Yarns_Microsub_Endpoint {
 	}
 
 	/**
-	 * Hooks into the REST API output to output a webmention form.
-	 *
-	 * This is only done for the webmention endpoint.
-	 *
-	 * @param bool                      $served  Whether the request has already been served.
-	 * @param WP_HTTP_ResponseInterface $result  Result to send to the client. Usually a WP_REST_Response.
-	 * @param WP_REST_Request           $request Request used to generate the response.
-	 * @param WP_REST_Server            $server  Server instance.
-	 *
-	 * @return true
-	 */
-
-
+	*  Serve requests to the endpoint
+	*  
+	*
+	*/
 
 	public static function serve_request( $request ) {
-		/*
-		$debug = "DEBUGGING INFO: \n";
-		$debug .= "Microsub testing – All params: \n ". json_encode($request->get_params());
-		$debug .= "\n\n" . json_encode($request);
+
+		/* 
+		* Attempt to authorize using indieauth plugin. If it is not installed fallback to
+		* use indieauth.com 
+		* (code for using indieauth.com copied from github.com/snarfed/wordpress-micropub)
 		*/
-
-		/* For debugging: bypass the indieauth plugin and use custom authentication
-		copied from wordpress-MICROSUB plugin */ 
-		
-
 		if (class_exists( 'IndieAuth_Plugin' ) ) {
 
 			$user_id = get_current_user_id();
@@ -113,22 +101,24 @@ class Yarns_Microsub_Endpoint {
 		} else {
 			// indieauth not installed, use authorize() function
 			$user_id = static::authorize();
-			error_log("Authorized: user_id == " . $user_id);
 
-			// For testing purposes, bypass the authorization (it currently causes an error)
+			// For testing purposes, bypass the authorization
 			//$user_id = 1;
 
+			error_log("Authorized: user_id == " . $user_id);
 		}
 
-		/**
+		/* Once authorization is complete, respond to the query:
+		* 
 		* Call functions based on 'action' parameter of the request
 		* (These functions are in functions-microsub-actions.php)
 		*/
 		switch($request->get_param('action')){
 			case 'channels':
-				return get_channels($user_id);
+				return get_channels();
 				break;
-			case 'timeline:':
+			case 'timeline':
+				return get_timeline(); // Later, this will need to send a specific channel to return
 				break;
 			default:
 				return "No action defined";
@@ -154,7 +144,7 @@ class Yarns_Microsub_Endpoint {
 
 	
 	/**
-	 * The Webmention autodicovery meta-tags
+	 * The Microsub autodicovery meta-tags
 	 */
 	public static function html_header() {
 		printf( '<link rel="microsub" href="%s" />' . PHP_EOL, get_microsub_endpoint() );
@@ -162,7 +152,7 @@ class Yarns_Microsub_Endpoint {
 	}
 
 	/**
-	 * The Webmention autodicovery http-header
+	 * The Microsub autodicovery http-header
 	 */
 	public static function http_header() {
 		header( sprintf( 'Link: <%s>; rel="microsub"', get_microsub_endpoint() ), false );
@@ -204,10 +194,6 @@ class Yarns_Microsub_Endpoint {
 	* Authorization - copied from wordpress-micropub plugin
 	*
 	* 
-	***/
-
-
-	/**
 	 * Validate the access token at the token endpoint.
 	 *
 	 * https://indieauth.spec.indieweb.org/#access-token-verification
