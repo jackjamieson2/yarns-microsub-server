@@ -43,6 +43,9 @@ class Yarns_Microsub_Endpoint {
 
 		// Configure the REST API route
 		add_action( 'rest_api_init', array( 'Yarns_Microsub_Endpoint', 'register_routes' ) );
+		// Filter the response to allow a webmention form if no parameters are passed
+		//add_filter( 'rest_pre_serve_request', array( 'Yarns_Microsub_Endpoint', 'serve_request' ));
+
 
 		// endpoint discovery
 		add_action( 'wp_head', array( 'Yarns_Microsub_Endpoint', 'html_header' ), 99 );
@@ -55,13 +58,21 @@ class Yarns_Microsub_Endpoint {
 	/**
 	 * Register the Route.
 	 */
+
+
 	public static function register_routes() {
 		register_rest_route(
 			'microsub', '/endpoint', array(
-				'callback' => array( 'Yarns_Microsub_Endpoint', 'serve_request' )
+				array(
+					//'methods'  => WP_REST_Server::CREATABLE,
+					'methods'  => array('GET','POST'),
+					'callback' => array( 'Yarns_Microsub_Endpoint', 'serve_request' ),
+				)
 			)
 		);
 	}
+
+
 
 		/**
 	 * adds some query vars
@@ -81,7 +92,21 @@ class Yarns_Microsub_Endpoint {
 	*
 	*/
 
+
+
+	public static function log_request($request){
+		$message = "Request:";
+		$message .= "\nmethod: " . $request->get_method();
+		$message .= "\nparams: " . json_encode($request->get_params());
+		error_log($message);
+		
+	}
+
 	public static function serve_request( $request ) {
+		// For debugging, log all requests
+		static::log_request($request);
+
+
 
 		/* 
 		* Attempt to authorize using indieauth plugin. If it is not installed fallback to
@@ -103,7 +128,7 @@ class Yarns_Microsub_Endpoint {
 			$user_id = static::authorize();
 
 			// For testing purposes, bypass the authorization
-			//$user_id = 1;
+			//$user_id = 1; 
 
 			error_log("Authorized: user_id == " . $user_id);
 		}
@@ -115,10 +140,38 @@ class Yarns_Microsub_Endpoint {
 		*/
 		switch($request->get_param('action')){
 			case 'channels':
-				return get_channels();
+				if ('GET' === $request->get_method()){
+					// GET
+					//return a list of the channels
+					return channels::get();	
+					break;
+				} else if ('POST' === $request->get_method()){
+					// POST
+					if ($request->get_param('method') === 'delete'){
+						// delete a channel
+						channels::delete($request->get_param('channel'));
+						break;
+
+					} elseif ($request->get_param('name')){
+						if ($request->get_param('uid')){
+							//update the channel
+							break;
+						} else {
+							//create a new channel
+							//return channels::add("$request->get_param('name')");
+							return channels::add($request->get_param('name'));
+							break;
+						}
+					} 
+				}
 				break;
+
 			case 'timeline':
 				return get_timeline(); // Later, this will need to send a specific channel to return
+				break;
+			case 'debug':
+				return $request->get_method();
+				//return $request->get_params();
 				break;
 			default:
 				return "No action defined";
@@ -158,7 +211,6 @@ class Yarns_Microsub_Endpoint {
 		header( sprintf( 'Link: <%s>; rel="microsub"', get_microsub_endpoint() ), false );
 		
 	}
-
 
 	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
 	(Copied from wordpress-MICROSUB plugin)
@@ -200,7 +252,7 @@ class Yarns_Microsub_Endpoint {
 	 * If the token is valid, returns the user id to use as the post's author, or
 	 * NULL if the token only matched the site URL and no specific user.
 	 */
-	public static function get( $array, $key, $default = array() ) {
+	public static function get_token( $array, $key, $default = array() ) {
 		if ( is_array( $array ) ) {
 			return isset( $array[ $key ] ) ? $array[ $key ] : $default;
 		}
@@ -211,7 +263,7 @@ class Yarns_Microsub_Endpoint {
 		// find the access token
 		$auth  = static::get_header( 'authorization' );
 		error_log ("Auth: ". $auth);
-		$token = self::get( $_POST, 'access_token' );
+		$token = self::get_token( $_POST, 'access_token' );
 		//error_log ("Token: ". $token);
 		if ( ! $auth && ! $token ) {
 			// for debugging - just return 1
