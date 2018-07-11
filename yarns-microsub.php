@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Microsub testing JJ 2
+ * Plugin Name: Yarns Microsub Server
  * Plugin URI:
  * Description: Early in progress
  * Author:

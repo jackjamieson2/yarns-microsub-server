@@ -98,9 +98,232 @@ Class channels {
 		//update_option
 
 	}
+	/*
+	action=timeline
+	Retrieve Entries in a Channel
+
+	GET
+
+	Retrieve the entries in a given channel.
+
+	Parameters:
+
+	    action=timeline
+	    channel={uid}
+	    after={cursor}
+	    before={cursor}
+    */
 
 
+
+	/*	
+	Mark Entries Read
+
+	POST
+
+	To mark one or more individual entries as read:
+
+	Parameters:
+
+	    action=timeline
+	    method=mark_read
+	    channel={uid}
+	    entry={entry-id} or entry[]={entry-id}
+
+	To mark an entry read as well as everything before it in the timeline:
+
+	    action=timeline
+	    method=mark_read
+	    channel={uid}
+	    last_read_entry={entry-id}
+    */
+
+    /*Remove Entry from a Channel
+
+	POST
+
+	Parameters:
+
+	    action=timeline
+	    method=remove
+	    channel={uid}
+	    entry={entry-id} or entry[]={entry-id}*/
+
+	/*Search
+
+	action=search 
+	query = {URI to search}*/
+
+				/*HTTP/1.1 200 Ok
+			Content-type: application/json
+
+			{
+			  "results": [
+			    {
+			      "type": "feed",
+			      "url": "https://aaronparecki.com/",
+			      "name": "Aaron Parecki",
+			      "photo": "https://aaronparecki.com/images/profile.jpg",
+			      "description": "Aaron Parecki's home page"
+			    },
+			    {
+			      "type": "feed",
+			      "url": "https://percolator.today/",
+			      "name": "Percolator",
+			      "photo": "https://percolator.today/images/cover.jpg",
+			      "description": "A Microcast by Aaron Parecki",
+			      "author": {
+			        "name": "Aaron Parecki",
+			        "url": "https://aaronparecki.com/",
+			        "photo": "https://aaronparecki.com/images/profile.jpg"
+			      }
+			    },
+			    { ... }
+			  ]
+			}*/
+
+
+	public static function search($query){
+	
+		// Check if $query is a valid URL, if not try to generate one
+		$url = return_url($query);
+		
+	
+	$html = file_get_contents($url); //get the html returned from the following url
+	$dom = new DOMDocument();
+	libxml_use_internal_errors(TRUE); //disable libxml errors
+	if(!empty($html)){ //if any html is actually returned
+		$dom->loadHTML($html);
+		$thetitle = $dom->getElementsByTagName("title");
+		$returnArray[] = array("type"=>"title", "data"=>$thetitle[0]->nodeValue);		
+		
+		$website_links = $dom->getElementsByTagName("link");
+		// Check for feeds as <link> elements
+		$found_hfeed = FALSE; 
+
+		if($website_links->length > 0){
+			foreach($website_links as $row){
+				// Convert relative feed URL to absolute URL if needed
+				$feedurl = phpUri::parse($siteurl)->join($row->getAttribute("href"));
+
+				if (isRSS($row->getAttribute("type"))){ // Check for rss feeds first
+					//Return the feed type and absolute feed url 
+					$returnArray[] = array("type"=>$row->getAttribute("type"), "data"=>$feedurl);
+				}
+				elseif($row->getAttribute("type")=='text/html'){ // Check for h-feeds declared using a <link> tag
+					$returnArray[] = array("type"=>"h-feed", "data"=>$feedurl);
+					$found_hfeed = TRUE; // H-feed has been found, so we stop looking
+				}
+			}
+		}
+
+		// Also here check for h-feed in the actual html
+			$mf = Mf2\parse($html,$siteurl);
+			$output_log ="Output: <br>";
+
+			foreach ($mf['items'] as $mf_item) {
+				if ($found_hfeed == FALSE) {
+					$output_log .= "A {$mf_item['type'][0]} called {$mf_item['properties']['name'][0]}<br>";
+					if ("{$mf_item['type'][0]}"=="h-feed"||  // check 1
+						"{$mf_item['type'][0]}"=="h-entry"){
+						//Found an h-feed (probably)
+						$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
+						$found_hfeed = TRUE; 
+					} else {
+						$output_log .="Searching children... <br>";
+
+						foreach($mf_item['children'] as $child){
+							if ($found_hfeed == FALSE) {
+								$output_log .= "A CHILD {$child['type'][0]} called {$child['properties']['name'][0]}<br>";
+								if ("{$child['type'][0]}"=="h-feed"|| // check 1
+									"{$child['type'][0]}"=="h-entry"){
+									//Found an h-feed (probably)
+									$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
+									$found_hfeed = TRUE; 
+								}
+							}
+						}
+					}
+				}
+
+			}
+		echo json_encode($returnArray);
+	}
+	wp_die(); // this is required to terminate immediately and return a proper response
 }
+
+
+/*	Preview
+
+	action=preview
+
+	POST
+
+	    action=preview
+	    url={url}*/
+
+	    /*The response includes the list of items in the feed if available, in the same format as returned by the #Timelines API call. */
+
+
+   /* Following
+
+	action=follow
+
+	GET
+
+	    action=follow
+	    channel={uid}*/
+
+
+
+
+	/*POST
+
+	Follow a new URL in a channel.
+
+	    action=follow
+	    channel={uid}
+	    url={url}
+*/
+
+	/*Unfollowing
+
+	action=unfollow
+
+	POST
+
+	    action=unfollow
+	    channel={uid}
+	    url={url}*/
+
+
+
+/*    Muting
+
+	GET
+
+    action=mute
+    channel={uid}
+
+	Retrieve the list of users that are muted in the given channel.*/
+
+	/*POST
+
+    action=mute
+    channel={uid}
+    url={url}
+
+	Mute a user in a channel, or with the uid global mutes the user across every channel. 
+*/
+
+	/*Unmute
+
+POST
+
+To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
+	 */
+
+	}
 
 
 
@@ -143,9 +366,39 @@ function get_timeline(){
 
 }
 
-/**
-* Retrieve the list of feeds being followed in the given channel. 
+
+
+/*
+* UTILITY FUNCTIONS
+*
 */
-function get_follows(){
+
+function return_url($possible_url){
+	//If it is already a valid URL, return as-is
+	if(is_url($possible_url){
+		return $possible_url;
+	} 
+
+	// If just a word was entered, append .com
+ 	if(preg_match('/^[a-z][a-z0-9]+$/', $possible_url)) {
+          // if just a word was entered, append .com
+          $possible_url = $possible_url . '.com';
+    }
+
+	// Check if http:// or https:// is missing
+	if (!preg_match("((https?|ftp)\:\/\/)?",$possible_url){
+		$possible_url = "http://" + $possible_url;	
+	}
+
+	return $possible_url;
+}
+
+function is_url($query){
+	if(filter_var($query, FILTER_VALIDATE_URL){
+		return true; 
+	} else {
+		return false;
+	}
+}
 
 }

@@ -16,9 +16,10 @@
   "extra": {
     "installer-name": "webmention"
   },
-  "require-dev": {
-    "phpunit/phpunit": "5.5.*"
+  "require": {
+    "mf2/mf2": "v0.4.4-alpha"
   },
+
   "scripts": {
     "test": [
       "composer install",
