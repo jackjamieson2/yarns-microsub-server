@@ -106,8 +106,6 @@ class Yarns_Microsub_Endpoint {
 		// For debugging, log all requests
 		static::log_request($request);
 
-
-
 		/* 
 		* Attempt to authorize using indieauth plugin. If it is not installed fallback to
 		* use indieauth.com 
@@ -125,10 +123,10 @@ class Yarns_Microsub_Endpoint {
 			}
 		} else {
 			// indieauth not installed, use authorize() function
-			$user_id = static::authorize();
+			//$user_id = static::authorize();
 
 			// For testing purposes, bypass the authorization
-			//$user_id = 1; 
+			$user_id = 1; 
 
 			error_log("Authorized: user_id == " . $user_id);
 		}
@@ -169,9 +167,11 @@ class Yarns_Microsub_Endpoint {
 			case 'timeline':
 				return get_timeline(); // Later, this will need to send a specific channel to return
 				break;
-			case 'debug':
-				return $request->get_method();
-				//return $request->get_params();
+			case 'search':
+				return channels::search($request->get_param('query'));
+				break;
+			case 'preview':
+				return channels::preview($request->get_param('url'));
 				break;
 			default:
 				return "No action defined";

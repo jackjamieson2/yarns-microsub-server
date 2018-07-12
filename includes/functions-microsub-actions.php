@@ -183,75 +183,128 @@ Class channels {
 			}*/
 
 
+	/*
+	// return dummy results for testing
+	$result1 = [ 
+		"type"			=> 	"feed",
+		"url" 			=>	$url,
+		"name" 			=>	"name",
+		"photo" 		=>	"https://percolator.today/images/cover.jpg",
+		"description"	=> 	"description",
+	];	 
+
+	$result2 = [ 
+		"type"			=> 	"feed",
+		"url" 			=>	$url,
+		"name" 			=>	"name",
+		"photo" 		=>	"https://percolator.today/images/cover.jpg",
+		"description"	=> 	"description",
+		"author"		=> 	array(
+			"name"		=> 	"Aaron Parecki",
+			"url"		=>	"https://aaronparecki.com/",
+			"photo"		=>	"https://aaronparecki.com/images/profile.jpg"
+		)
+		
+	];	 
+	*/
+
+
 	public static function search($query){
-	
 		// Check if $query is a valid URL, if not try to generate one
-		$url = return_url($query);
-		
-	
-	$html = file_get_contents($url); //get the html returned from the following url
-	$dom = new DOMDocument();
-	libxml_use_internal_errors(TRUE); //disable libxml errors
-	if(!empty($html)){ //if any html is actually returned
-		$dom->loadHTML($html);
-		$thetitle = $dom->getElementsByTagName("title");
-		$returnArray[] = array("type"=>"title", "data"=>$thetitle[0]->nodeValue);		
-		
-		$website_links = $dom->getElementsByTagName("link");
-		// Check for feeds as <link> elements
-		$found_hfeed = FALSE; 
+		$url = validate_url($query);
+		$results = [];
 
-		if($website_links->length > 0){
-			foreach($website_links as $row){
-				// Convert relative feed URL to absolute URL if needed
-				$feedurl = phpUri::parse($siteurl)->join($row->getAttribute("href"));
+		$html = file_get_contents($url); //get the html returned from the following url
+		$dom = new DOMDocument();
+		libxml_use_internal_errors(TRUE); //disable libxml errors
 
-				if (isRSS($row->getAttribute("type"))){ // Check for rss feeds first
-					//Return the feed type and absolute feed url 
-					$returnArray[] = array("type"=>$row->getAttribute("type"), "data"=>$feedurl);
-				}
-				elseif($row->getAttribute("type")=='text/html'){ // Check for h-feeds declared using a <link> tag
-					$returnArray[] = array("type"=>"h-feed", "data"=>$feedurl);
-					$found_hfeed = TRUE; // H-feed has been found, so we stop looking
-				}
-			}
-		}
-
-		// Also here check for h-feed in the actual html
-			$mf = Mf2\parse($html,$siteurl);
-			$output_log ="Output: <br>";
-
-			foreach ($mf['items'] as $mf_item) {
-				if ($found_hfeed == FALSE) {
-					$output_log .= "A {$mf_item['type'][0]} called {$mf_item['properties']['name'][0]}<br>";
-					if ("{$mf_item['type'][0]}"=="h-feed"||  // check 1
-						"{$mf_item['type'][0]}"=="h-entry"){
-						//Found an h-feed (probably)
-						$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
-						$found_hfeed = TRUE; 
-					} else {
-						$output_log .="Searching children... <br>";
-
-						foreach($mf_item['children'] as $child){
-							if ($found_hfeed == FALSE) {
-								$output_log .= "A CHILD {$child['type'][0]} called {$child['properties']['name'][0]}<br>";
-								if ("{$child['type'][0]}"=="h-feed"|| // check 1
-									"{$child['type'][0]}"=="h-entry"){
-									//Found an h-feed (probably)
-									$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
-									$found_hfeed = TRUE; 
-								}
-							}
-						}
+		if(!empty($html)){ //if any html is actually returned
+			$dom->loadHTML($html);
+			$hfeed_exists = False;
+			//Check each link for rss/atom feeds
+			$website_links = $dom->getElementsByTagName("link");
+			
+			if($website_links->length > 0){
+				foreach($website_links as $link){
+					if ($link->getAttribute("rel")=="feed"){
+						$feed['url'] = $link->getAttribute("href");
+						$feed['_type'] = "h-feed";
+						$feeds[] = $feed;
+						$hfeed_exists = True;
+					} else if ($link->getAttribute("rel")=="alternate"){
+						$feed['url'] = $link->getAttribute("href");
+						$feed['_type'] = $link->getAttribute('type');
+						$feeds[] = $feed;
 					}
 				}
-
 			}
-		echo json_encode($returnArray);
+
+			// If no h-feed was found as a <link>, then check if the $url itself is an h-feed
+			if ($hfeed_exists == False){
+				if (parser::find_hfeed_in_page($url)){
+
+					// Found an h-feed on the page
+					$feed['url'] = $url;
+					$feed['_type'] = "h-feed";
+					$feed['debug'] = parser::find_hfeed_in_page($url);
+					$feeds[] = $feed;
+
+				}
+			}
+		
+
+		
+			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
+			foreach($feeds as $i=>$feed) {
+				// Convert relative urls to absolute
+				if (parse_url($feeds[$i]['url'],PHP_URL_HOST) == False){
+					$feeds[$i]['url'] = $url . $feeds[$i]['url'];
+					//$feeds[$i]['url'] = parse_url($url,PHP_URL_SCHEME) + parse_url($url,PHP_URL_HOST) + $feeds[$i]['url'];
+				}
+
+				// populate additional info
+				if ($feeds[$i]['_type']=='h-feed'){
+					$mf = Mf2\fetch($feeds[$i]['url']);
+					foreach ($mf['items'] as $mf_item) {
+						if ("{$mf_item['type'][0]}"=="h-feed"){
+							if(array_key_exists('name', $mf_item['properties'])) {
+								$feeds[$i]['name'] = "{$mf_item['properties']['name'][0]}";
+							}
+							if(array_key_exists('photo', $mf_item['properties'])) {
+								$feeds[$i]['photo'] = "{$mf_item['properties']['photo'][0]}";
+							}
+							if(array_key_exists('summary', $mf_item['properties'])) {
+								$feeds[$i]['description'] = "{$mf_item['properties']['summary'][0]}";
+							}							
+						}
+
+						if ("{$mf_item['type'][0]}"=="h-card"){
+							$feeds[$i]['author']= $mf_item['properties'];
+						} 
+					}
+				}
+				$feeds[$i]['type'] = 'feed';
+			}
+			return ['results' => $feeds]; 
+		}
 	}
-	wp_die(); // this is required to terminate immediately and return a proper response
+
+	public static function preview($url){
+
+		return parser::parse_hfeed($url);
+		// Check if this is an h-feed or other
+
+		//if h-feed:
+			// Run h-feed parser
+		// if rss:
+			// Run simplepie parser
+	}
+
+
 }
 
+
+	
 
 /*	Preview
 
@@ -323,7 +376,7 @@ POST
 To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
 	 */
 
-	}
+	
 
 
 
@@ -362,8 +415,6 @@ function get_timeline(){
 	return [
       		'items' => $timeline
     	];
-	 
-
 }
 
 
@@ -373,9 +424,9 @@ function get_timeline(){
 *
 */
 
-function return_url($possible_url){
+function validate_url($possible_url){
 	//If it is already a valid URL, return as-is
-	if(is_url($possible_url){
+	if(is_url($possible_url)){
 		return $possible_url;
 	} 
 
@@ -385,20 +436,28 @@ function return_url($possible_url){
           $possible_url = $possible_url . '.com';
     }
 
-	// Check if http:// or https:// is missing
-	if (!preg_match("((https?|ftp)\:\/\/)?",$possible_url){
-		$possible_url = "http://" + $possible_url;	
-	}
-
-	return $possible_url;
+    // If the URL is missing a trailing '/' add it
+    //$possible_url = wp_slash($possible_url)
+    if(substr($possible_url, -1) != '/'){
+        $possible_url .= '/';
+    }
+	// If missing a scheme, prepend with 'http://', otherwise return as-is
+	 return parse_url($possible_url, PHP_URL_SCHEME) === null ? 'http://' . $possible_url : $possible_url;
 }
 
 function is_url($query){
-	if(filter_var($query, FILTER_VALIDATE_URL){
+	if(filter_var($query, FILTER_VALIDATE_URL)){
 		return true; 
 	} else {
 		return false;
 	}
 }
 
+
+function isRSS($feedtype){
+	$rssTypes = array ('application/rss+xml','application/atom+xml','application/rdf+xml','application/xml','text/xml','text/xml','text/rss+xml','text/atom+xml');
+    if (in_array($feedtype,$rssTypes)){
+    	return True;
+    }
 }
+

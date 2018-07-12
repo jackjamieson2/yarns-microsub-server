@@ -12,6 +12,8 @@
  * Domain Path: /languages
  */
 
+require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+
 
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
@@ -46,6 +48,8 @@ class Yarns_MicroSub_Plugin {
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
 		Yarns_Microsub_Posts::init();
 
+		// Class: Parser 
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
 		// Functions to generate responses to endpoint queries
 		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
