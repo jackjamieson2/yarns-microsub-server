@@ -1,6 +1,6 @@
 {
-  "name": "pfefferle/wordpress-webmention",
-  "description": "A Webmention plugin for WordPress http://wordpress.org/plugins/webmention/",
+  "name": "jackjamieson2/yarns-microsub-server",
+  "description": "In development microsub server for wordpress",
   "require": {
     "php": ">=5.6.0",
     "composer/installers": "~1.0"
@@ -9,12 +9,12 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Matthias Pfefferle",
-      "homepage": "http://notizblog.org"
+      "name": "Jack Jamieson",
+      "homepage": "http://jackjamieson.net"
     }
   ],
   "extra": {
-    "installer-name": "webmention"
+    "installer-name": "yarns-microsub-server"
   },
   "require": {
     "mf2/mf2": "v0.4.4-alpha"

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3ee4cd838ed35fd48732acdf0667b27",
+    "content-hash": "008a31c7e4de9ac1686b1de656dfc2a3",
     "packages": [
         {
             "name": "mf2/mf2",
