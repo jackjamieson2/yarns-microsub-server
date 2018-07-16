@@ -7,14 +7,91 @@
  */
 Class parser {
 
-	public static function parse_hfeed($url){
+	/**
+	 * Parses marked up HTML.
+	 *
+	 * @param string $content HTML marked up content.
+	 */
+	public static function mergeparse( $content, $url ) {
+		// For debugging - get time of the script
+		$time_start = microtime(true); 
+
+		if ( empty( $content ) || empty( $url ) ) {
+			return array();
+		}
+		/* TESTING*/
+		$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		$time_end = microtime(true);
+		$execution_time = ($time_end - $time_start);
+		error_log("Execution time in seconds: " . $execution_time);
+		return $mf2data;
+
+		/* END TESTING*/
+
+
+		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		//return $mf2data;
+
+		$parsethis = new Parse_This();
+		$parsethis->set_source( $content, $url );
+		$metadata = $parsethis->meta_to_microformats();
+		$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		$data     = array_merge( $metadata, $mf2data );
+		$data     = array_filter( $data );
+
+		if ( ! isset( $data['summary'] ) && isset( $data['content'] ) ) {
+			$data['summary'] = substr( $data['content']['text'], 0, 300 );
+			if ( 300 < strlen( $data['content']['text'] ) ) {
+				$data['summary'] .= '...';
+			}
+		}
+		if ( isset( $data['name'] ) ) {
+			if ( isset( $data['summary'] ) ) {
+				if ( false !== stripos( $data['summary'], $data['name'] ) ) {
+					unset( $data['name'] );
+				}
+			}
+		}
+		// Attempt to set a featured image
+		if ( ! isset( $data['featured'] ) ) {
+			if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
+				$data['featured'] = $data['photo'];
+				unset( $data['photo'] );
+			}
+		}
+		$time_end = microtime(true);
+		$execution_time = ($time_end - $time_start);
+		error_log("Execution time in seconds: " . $execution_time);
+		return $data;
+
+
+	}
+
+
+
+	/*
+
+	$url -> the url from which to retrieve a feed
+	$count -> the number of posts to retrieve
+	$preview -> whether to treat the feed as a live preview or a full feed
+		preivew = true -> prioritize speed and just fetch everything from the main url
+		preview = true -> prioritize completion and fetch each post from its own permalink
+	*/
+	public static function parse_hfeed($url, $preview=false){
+
 		error_log("Parsing h-feed");
-		
-		
+		error_log("Preview == " . $preview);
+		$time_start = microtime(true); 
+
+
+	
 		
 		$mf = static::locate_hfeed($url);
-		//return $mf;
+		error_log("located h-feed");
 
+		//return $mf;
+		
+		// Find the key to use
 		if (!$mf){
 			return ([
           		'error' => 'not_found',
@@ -33,64 +110,70 @@ Class parser {
 			 
 			//return $mf_key;
 		}
+		error_log("hfeed item key = " . $mf_key );
+
+		
+
 		//Get permalinks for each item
 		$hfeed_items = array();
-		foreach ($mf[$mf_key] as $item) {
-			if ("{$item['type'][0]}" == 'h-entry' ||
-				"{$item['type'][0]}" == 'h-event' )
-			{
-				if ("{$item['properties']['url'][0]}"){
-					$hfeed_item_urls[] = "{$item['properties']['url'][0]}";
+
+		if ($preview ==true){
+			foreach ($mf[$mf_key] as $key=>$item) {
+				//if ($key >= $count){break;} // Only get up to the specific count of items
+				if ("{$item['type'][0]}" == 'h-entry' ||
+					"{$item['type'][0]}" == 'h-event' ) 
+				{
+					$the_item = Parse_MF2::parse_hentry($item,$mf);
+					$hfeed_items[] = $the_item;
 				}
-				
+
 			}
-		}
+
+
+		} else {
+			// if $preview == false, get the full posts from original permalinks
+			foreach ($mf[$mf_key] as $key=>$item) {
+				//if ($key >= $count){break;} // Only get up to the specific count of items
+				if ("{$item['type'][0]}" == 'h-entry' ||
+					"{$item['type'][0]}" == 'h-event' )
+				{
+					
+					if ("{$item['properties']['url'][0]}"){
+						$hfeed_item_urls[] = "{$item['properties']['url'][0]}" . "?" . $key;
+					}
+				}
+
+			}
+			error_log("Got permalinks");
 		
-		error_log("Parsing individual h-feed items");
-		$hfeed_items = array();
-		foreach ($hfeed_item_urls as $page){
-			$hfeed_items[] = static::parse_hfeed_item($page);
+			error_log("Parsing individual h-feed items");
+			$hfeed_items = array();
+			foreach ($hfeed_item_urls as $page){
+
+				$content = file_get_contents($page);
+				$hfeed_items[] = static::mergeparse($content,$page);
+			}
+			$result = ['items'=> $hfeed_items];
+			error_log("Result: \n" . json_encode($result));
+
+
+
 		}
-		$result = ['items'=> $hfeed_items];
-		error_log("Result: \n" . json_encode($result));
+
+		$time_end = microtime(true);
+		$execution_time = ($time_end - $time_start);
+		error_log("hfeed parsing execution time in seconds: " . $execution_time);
 
 		return [
       		'items' => $hfeed_items
     	];
 
-		//return $hfeed_items;
 	}
 
-		/*
-		//At this point, only proceed if h-feed has been found
-		if ($hfeed == "") {
-			//do nothing
-			yarns_reader_log("no h-feed found");
-		} else {
-			//yarns_reader_log("Parsing h-feed at: ".$hpath);
-			$site_url = $url;
-			
-			//Get permalinks for each item
-			$hfeed_items = array();
-			foreach ($hfeed[$hfeed_path] as $item) {
-				if ("{$item['type'][0]}" == 'h-entry' ||
-					"{$item['type'][0]}" == 'h-event' )
-				{
-					if ("{$item['properties']['url'][0]}"){
-						$hfeed_item_urls[] = "{$item['properties']['url'][0]}";
-					}
-					
-				}
-			}
-
-			
-
-	}
-	*/
-
-
-	public static function parse_hfeed_item($url){
-		$mf = Mf2\fetch($url);
+	/* For now deprecated in favour of mergeparse() */
+	public static function parse_hfeed_item($content,$url){
+		//$mf = Mf2\fetch($url);
+		$mf = Mf2\parse($content,$url);
 		foreach ($mf['items'] as $item){
 			if ("{$item['type'][0]}" == 'h-entry' ||
 				"{$item['type'][0]}" == 'h-event' )
@@ -107,13 +190,15 @@ Class parser {
 					$return_item['published'] = $item['properties']['published'];
 				}
 
+				if(array_key_exists('updated', $item['properties'])) {
+					$return_item['updated'] = $item['properties']['updated'];
+				}
+
 				if(array_key_exists('url', $item['properties'])) {
 					$return_item['url'] = $item['properties']['url'];
 				}
 
-				if(array_key_exists('author', $item['properties'])) {
-					$return_item['author'] = $item['properties']['author'];
-				}
+
 
 				if(array_key_exists('content', $item['properties'])) {
 					$return_item['content'] = $item['properties']['content'];
@@ -249,6 +334,8 @@ Class parser {
 	      }
 	    }
 	}
+
+
 
 	/*
 ** Fetch an H-FEED and return its content

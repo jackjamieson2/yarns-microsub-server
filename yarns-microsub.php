@@ -51,6 +51,10 @@ class Yarns_MicroSub_Plugin {
 		// Class: Parser 
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
+		// MF2 parser from post kinds plugin
+		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
+		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
+
 		// Functions to generate responses to endpoint queries
 		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
 		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );

@@ -11,7 +11,7 @@
  * Using this to test querying(q=) parameters quickly
  */
 if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
-	define( 'MICROSUB_LOCAL_AUTH', '0' );
+	define( 'MICROSUB_LOCAL_AUTH', '1' );
 }
 
 // Allows for a custom Authentication and Token Endpoint
@@ -111,7 +111,13 @@ class Yarns_Microsub_Endpoint {
 		* use indieauth.com 
 		* (code for using indieauth.com copied from github.com/snarfed/wordpress-micropub)
 		*/
-		if (class_exists( 'IndieAuth_Plugin' ) ) {
+		if (MICROSUB_LOCAL_AUTH ==1 ){
+			
+			// For testing purposes, bypass the authorization
+			$user_id = 1; 
+
+		}
+		else if (class_exists( 'IndieAuth_Plugin' ) ) {
 
 			$user_id = get_current_user_id();
 			// The WordPress IndieAuth plugin uses filters for this
@@ -123,10 +129,8 @@ class Yarns_Microsub_Endpoint {
 			}
 		} else {
 			// indieauth not installed, use authorize() function
-			//$user_id = static::authorize();
+			$user_id = static::authorize();
 
-			// For testing purposes, bypass the authorization
-			$user_id = 1; 
 
 			error_log("Authorized: user_id == " . $user_id);
 		}
