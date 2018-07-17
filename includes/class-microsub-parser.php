@@ -77,7 +77,7 @@ Class parser {
 		preivew = true -> prioritize speed and just fetch everything from the main url
 		preview = true -> prioritize completion and fetch each post from its own permalink
 	*/
-	public static function parse_hfeed($url, $preview=false){
+	public static function parse_hfeed($url, $preview=false, $count=2){
 
 		error_log("Parsing h-feed");
 		error_log("Preview == " . $preview);
@@ -118,8 +118,10 @@ Class parser {
 		$hfeed_items = array();
 
 		if ($preview ==true){
+			error_log ("checkpoint 1");
 			foreach ($mf[$mf_key] as $key=>$item) {
-				//if ($key >= $count){break;} // Only get up to the specific count of items
+				error_log ("checkpoint 1.".$key);
+				if ($key >= $count){break;} // Only get up to the specific count of items
 				if ("{$item['type'][0]}" == 'h-entry' ||
 					"{$item['type'][0]}" == 'h-event' ) 
 				{
@@ -128,6 +130,7 @@ Class parser {
 				}
 
 			}
+			error_log ("checkpoint 2");
 
 
 		} else {

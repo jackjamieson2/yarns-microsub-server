@@ -57,7 +57,7 @@ class Yarns_MicroSub_Plugin {
 
 		// Functions to generate responses to endpoint queries
 		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
-		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
+
 
 		
 		// list of various public helper functions

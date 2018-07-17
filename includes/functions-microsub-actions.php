@@ -7,6 +7,8 @@
  */
 Class channels {
 
+
+
 	//Returns a list of the channels
 	public static function get(){ 
 		if (get_site_option("yarns_channels")){
@@ -210,10 +212,10 @@ Class channels {
 
 
 	public static function search($query){
+
 		// Check if $query is a valid URL, if not try to generate one
 		$url = validate_url($query);
 		$results = [];
-
 		$html = file_get_contents($url); //get the html returned from the following url
 		$dom = new DOMDocument();
 		libxml_use_internal_errors(TRUE); //disable libxml errors
@@ -252,15 +254,21 @@ Class channels {
 				}
 			}
 		
-
 		
 			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
+			
+			
 			foreach($feeds as $i=>$feed) {
 				// Convert relative urls to absolute
 				if (parse_url($feeds[$i]['url'],PHP_URL_HOST) == False){
 					$feeds[$i]['url'] = $url . $feeds[$i]['url'];
 					//$feeds[$i]['url'] = parse_url($url,PHP_URL_SCHEME) + parse_url($url,PHP_URL_HOST) + $feeds[$i]['url'];
 				}
+
+				/*
+				// 
+				//  Commenting this out to improve speed
+				//
 
 				// populate additional info
 				if ($feeds[$i]['_type']=='h-feed'){
@@ -283,15 +291,18 @@ Class channels {
 						} 
 					}
 				}
+				*/
 				$feeds[$i]['type'] = 'feed';
 			}
+			
 			return ['results' => $feeds]; 
 		}
 	}
 
 	public static function preview($url){
+		//return get_timeline();
 
-		return parser::parse_hfeed($url);
+		return parser::parse_hfeed($url, $preview=true);
 		// Check if this is an h-feed or other
 
 		//if h-feed:
@@ -301,6 +312,65 @@ Class channels {
 	}
 
 
+	public static function list_follows($query_channel){
+
+		if (get_site_option("yarns_channels")){
+
+
+			//return json_decode(get_site_option("yarns_channels")); // for debugging
+			$channels =  json_decode(get_site_option("yarns_channels"),True);
+
+			
+			foreach ($channels as $key=>$channel){
+				if ($channel['uid'] == $query_channel){
+				//This is the channel to be returned
+					if (isset($channel['items'])){
+						return ['items' => $channel['items']];
+					} else { 
+						// testing
+						
+						return $channel;
+						return; // no subscriptions yet, so return nothign
+					}					
+				}
+			}
+		}
+		return; // no matches, so return nothing
+	}
+
+	public static function follow($query_channel, $url){
+		$new_follow = [
+			"type"=>"feed",
+			"url"=>$url
+		];
+		//$channels = [];
+		if (get_site_option("yarns_channels")){
+			$channels = json_decode(get_site_option("yarns_channels"),True);
+			// Check if the channel has any subscriptions yet
+			foreach ($channels as $key=>$channel){
+				if ($channel['uid'] == $query_channel){
+					if (!array_key_exists('items', $channel)){
+						// no subscritpions in this channel yet
+							$channels[$key]['items'] = [];
+					} else {
+						//Check if the subscription exists in this channel
+						foreach ($channel['items'] as $feed){
+							if ($feed['url'] == $url){
+								// already following this feed, exit early
+								return $new_follow;
+							}
+						}
+					}
+					
+					// Add the new follow to the selected channel
+					$channels[$key]['items'][] = $new_follow;
+					update_option("yarns_channels",json_encode($channels));
+					return $new_follow;
+				}
+			} 
+		} 
+		return; // channel does not exist, so return nothing
+	}
 }
 
 
@@ -461,3 +531,7 @@ function isRSS($feedtype){
     }
 }
 
+
+function get_dummy_hentry(){
+
+}
