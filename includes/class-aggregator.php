@@ -8,30 +8,61 @@
 
 
 class Yarns_Microsub_Aggregator {
-	public $ID; // Id for the post
-	public $post_author; // author for the post - h-card
-	public $published; // time published 
-	public $updated; // time updated
-	public $content; // content
-	public $summary; // summary
-	public $url; // This serves as a unique identifier 
 
-	
+	/* Check if a post exists */
 
-	
-	/*
-	** Defines the interval for the cron job (60 minutes) 
-	*/
-	public static function yarns_reader_cron_definer($schedules){
-		$schedules['sixtymins'] = array(
-			'interval'=> 3600,
-			'display'=>  __('Once Every 60 Minutes')
-		);
-		return $schedules;
+	public static function exists($permalink){
+
+		if (get_page_by_title( $permalink, OBJECT, "yarns_microsub_post" )){
+			return true;
+		}
 	}
 
-	
 
+	/* Poll for new posts */ 
+	public static function poll(){
+		error_log("Polling for new posts");
+		//return "polling disabled for now";
+
+		// foreach channel
+		// foreach feed in the channel
+			// poll h-feeds
+			// poll rss feeds
+		$channels =  json_decode(get_site_option("yarns_channels"),True);
+		if ($channels){
+			foreach ($channels as $channel){
+				$channel_uid = $channel['uid'];
+				if (isset($channel['items'])){
+					foreach ($channel['items'] as $item){
+						if (isset($item['url'])){
+							$mf2_items = parser::parse_hfeed($item['url'], $preview=true)['items'];
+							// get new posts from this feed.
+								// TO DO - revise parse_hfeed to be able to handle both rss and h-feed
+							// Check if the posts already exist
+							foreach ($mf2_items as $item){
+								if (isset($item['url'])){
+									$permalink= $item['url'];
+									$permalink = "https://aaronparecki.com/2018/07/16/10/owasp";
+									// Check if the post already exists
+									if (!static::exists($permalink)){
+										$content = file_get_contents($permalink);
+										//return $content;
+										$full_post = parser::mergeparse($content,$permalink);
+										return Yarns_Microsub_Posts::add_post($permalink, $full_post,$channel_uid);
+
+
+										//return "does not exist";
+									} 
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+	}
+	
 	
 	/* Add a post to the yarns_reader_posts table in the database */
 	function yarns_reader_add_feeditem($item){
@@ -119,95 +150,6 @@ class Yarns_Microsub_Aggregator {
 
 
 
-
-
-
-/*
-** Identify and return feeds at a given url 
-*/
-add_action( 'wp_ajax_yarns_reader_findFeeds', 'yarns_reader_findFeeds' );
-//add_action( 'wp_ajax_read_me_later', array( $this, 'yarns_reader_new_subscription' ) );
-function yarns_reader_findFeeds($siteurl){
-	$siteurl = $_POST['siteurl'];
-	yarns_reader_log("Searching for feeds and site title at ". $siteurl);
-
-	$html = file_get_contents($siteurl); //get the html returned from the following url
-	$dom = new DOMDocument();
-	libxml_use_internal_errors(TRUE); //disable libxml errors
-	if(!empty($html)){ //if any html is actually returned
-		$dom->loadHTML($html);
-		$thetitle = $dom->getElementsByTagName("title");
-		$returnArray[] = array("type"=>"title", "data"=>$thetitle[0]->nodeValue);		
-		
-		$website_links = $dom->getElementsByTagName("link");
-		// Check for feeds as <link> elements
-		$found_hfeed = FALSE; 
-
-		if($website_links->length > 0){
-			foreach($website_links as $row){
-				// Convert relative feed URL to absolute URL if needed
-				$feedurl = phpUri::parse($siteurl)->join($row->getAttribute("href"));
-
-				if (isRSS($row->getAttribute("type"))){ // Check for rss feeds first
-					//Return the feed type and absolute feed url 
-					$returnArray[] = array("type"=>$row->getAttribute("type"), "data"=>$feedurl);
-				}
-				elseif($row->getAttribute("type")=='text/html'){ // Check for h-feeds declared using a <link> tag
-					$returnArray[] = array("type"=>"h-feed", "data"=>$feedurl);
-					$found_hfeed = TRUE; // H-feed has been found, so we stop looking
-				}
-			}
-		}
-
-		// Also here check for h-feed in the actual html
-			$mf = Mf2\parse($html,$siteurl);
-			$output_log ="Output: <br>";
-
-			foreach ($mf['items'] as $mf_item) {
-				if ($found_hfeed == FALSE) {
-					$output_log .= "A {$mf_item['type'][0]} called {$mf_item['properties']['name'][0]}<br>";
-					if ("{$mf_item['type'][0]}"=="h-feed"||  // check 1
-						"{$mf_item['type'][0]}"=="h-entry"){
-						//Found an h-feed (probably)
-						$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
-						$found_hfeed = TRUE; 
-					} else {
-						$output_log .="Searching children... <br>";
-
-						foreach($mf_item['children'] as $child){
-							if ($found_hfeed == FALSE) {
-								$output_log .= "A CHILD {$child['type'][0]} called {$child['properties']['name'][0]}<br>";
-								if ("{$child['type'][0]}"=="h-feed"|| // check 1
-									"{$child['type'][0]}"=="h-entry"){
-									//Found an h-feed (probably)
-									$returnArray[] = array("type"=>"h-feed", "data"=>$siteurl);
-									$found_hfeed = TRUE; 
-								}
-							}
-						}
-					}
-				}
-
-			}
-		echo json_encode($returnArray);
-	}
-	wp_die(); // this is required to terminate immediately and return a proper response
-}
-
-
-/*
-** Unsubscribe from a feed
-*/
-add_action( 'wp_ajax_yarns_reader_unsubscribe', 'yarns_reader_unsubscribe' );
-function yarns_reader_unsubscribe ($feed_id){	
-//$wpdb->update($wpdb->prefix . 'yarns_reader_posts', array('liked'=>get_permalink($the_post_id)), array('id'=>$feed_item_id));
-//$wpdb->delete( 'table', array( 'ID' => 1 ) );
-	$feed_id = $_POST['feed_id'];
-	global $wpdb;
-	$unsubscribe = $wpdb->delete( $wpdb->prefix . "yarns_reader_following", array( 'ID' => $feed_id ) );
-	echo $unsubscribe;
-	wp_die();
-}
 
 
 /*
@@ -583,133 +525,8 @@ function findPhotos($html){
 	return $returnArray;
 } 
 
-//Log changes to the database (adding sites, fetching posts, etc.)
-function yarns_reader_log($message){
-	global $wpdb;
-	$table_name = $wpdb->prefix . 'yarns_reader_log';
-
-	$wpdb->insert( 
-		$table_name, 
-		array( 
-			'date' => current_time( 'mysql' ), 
-			'log' => $message, 
-		) 
-	);
-
-}
-
-function yarns_item_exists($permalink){
-	global $wpdb;
-	$items = $wpdb->get_results(
-		'SELECT * 
-		FROM  `'.$wpdb->prefix . 'yarns_reader_posts` 
-		ORDER BY  `id`  DESC;'  
-	);
-	if ( !empty( $items ) ) { 			
-		foreach ( $items as $item ) {
-			if ($permalink == $item->permalink) {
-				yarns_reader_log("MATCH: " . $permalink. " is same as " . $item->permalink);
-				return True;
-			}
-		}
-	} 
-	return False;
-}
-
-/* Remove titles for posts where the title is equal to the content (e.g. notes, asides, microblogs) */
-//In many rss feeds and h-feeds, the only indication of whether a title is redunant is that it duplicates 
-function clean_the_title($title,$content,$content_plain=''){
-	if (compare_cleaned_html($title, $content) >0 || compare_cleaned_html($title, $content_plain)>0){
-		$title = "";
-	} 
-	return $title;
-}
-
-function compare_cleaned_html($string1,$string2){
-	//$string1 = html_entity_decode($string1); // First convert html entities to text (to ensure consistent comparision)
-	$string1 = strip_tags(rtrim($string1,".")); // remove trailing "..."
-	$string1 = htmlentities($string1, ENT_QUOTES); // Convert quotation marks to HTML entities
-	$string1 = str_replace(array("\r", "\n"), '', $string1); // remove line breaks 
-	$string1 = str_replace("&nbsp;", "", $string1); // replace $nbsp; with a space character
-	$string1 = strip_tags(trim($string1)); // remove white space on either side
-	
-	//$string2 = html_entity_decode($string2); // First convert html entities to text (to ensure consistent comparision)
-	$string2 = strip_tags(rtrim($string2,".")); // remove trailing "..."
-	$string2 = htmlentities($string2, ENT_QUOTES); // Convert quotation marks to HTML entities
-	$string2 = str_replace(array("\r", "\n"), '', $string2); // remove line breaks
-	$string2 = str_replace("&nbsp;", "", $string2); // replace $nbsp; with a space character
-	$string2 = strip_tags(trim($string2)); // remove white space on either side
-	
-	if ($string1 === $string2) {
-		return 2; // 2 == full match
-	} else if (strpos($string1,$string2)===0 ) {
-		return 1; // 1 = same start	
-	} 
-	return 0; // 0 == no match
-}
-
-/* 
-** Returns true is the feed is of type rss 
-*/
-
-function isRSS($feedtype){
-	$rssTypes = array ('application/rss+xml','application/atom+xml','application/rdf+xml','application/xml','text/xml','text/xml','text/rss+xml','text/atom+xml');
-    if (in_array($feedtype,$rssTypes)){
-    	return True;
-    }
-}
-
-
-/* 
-** Returns a datetime formatted with user's preferences (for timezone, date format, & time format)
-*/
-
-function User_datetime($datetime){
-	$output_log = "Converting datetime... \n";
-	$user_datetime_format = get_option('date_format') . " " . get_option('time_format');
-	$user_datetime = get_date_from_gmt($datetime, $user_datetime_format);
-	return $user_datetime ;
-}
 
 
 
-/*
-**
-**   Runs upon deactivating the plugin
-**
-*/
-function yarns_reader_deactivate() {
-	// on deactivation remove the cron job 
-	if ( wp_next_scheduled( 'yarns_reader_generate_hook' ) ) {
-		wp_clear_scheduled_hook( 'yarns_reader_generate_hook' );
-	}
-	yarns_reader_log("deactivated plugin");
-}
 
-
-/*
-**
-**   Hooks and filters
-**
-*/
-
-/* Functions to run upon installation */ 
-register_activation_hook(__FILE__,'yarns_reader_install');
-register_activation_hook(__FILE__,'yarns_reader_create_tables');
-add_filter('cron_schedules','yarns_reader_cron_definer');
-add_action( 'yarns_reader_generate_hook', 'yarns_reader_aggregator' );
-
-/* Functions to run upon deactivation */ 
-register_deactivation_hook( __FILE__, 'yarns_reader_deactivate' );
-
-
-
-/* Check if the database version has changed when plugin is updated */ 
-add_action( 'plugins_loaded', 'yarns_reader_update_db_check' );
-
-/* Hook to display admin notice */ 
-/*
-add_action( 'admin_notices', 'initial_setup_admin_notice' );
-*/
-	
 ?>

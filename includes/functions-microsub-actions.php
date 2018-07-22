@@ -128,6 +128,11 @@ Class channels {
 		$timeline = [];
 		while ($query->have_posts()) {
 		    $query->the_post();
+		    $item = json_decode(get_the_content(),True);
+		    if (isset($item['content']['html'])){
+		    	$item['content']['html'] = html_entity_decode($item['content']['html']);
+		    }
+		    //$timeline[] = get_the_content();
 		    $timeline[] = json_decode(get_the_content());
 		}
 

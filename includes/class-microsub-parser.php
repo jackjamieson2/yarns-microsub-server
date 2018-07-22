@@ -7,6 +7,8 @@
  */
 Class parser {
 
+
+
 	/**
 	 * Parses marked up HTML.
 	 *
@@ -293,7 +295,7 @@ Class parser {
 				}	
 			}
 		}
-		return "fail";
+		return false;
 
 	}
 

@@ -19,6 +19,14 @@ add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' )
 add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 
 
+/* Functions to run upon installation */ 
+//register_activation_hook(__FILE__,'yarns_reader_install');
+/* Functions to run upon deactivation */ 
+register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
+
+//register_activation_hook(__FILE__,'yarns_reader_create_tables');
+
+
 class Yarns_MicroSub_Plugin {
 
 	public static function plugins_loaded() {
@@ -26,6 +34,15 @@ class Yarns_MicroSub_Plugin {
 
 	}
 
+	/**
+	* To be run on deactivation
+	*/
+	public static function deactivate(){
+		// Disable the aggregation cron job
+		if ( wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
+			wp_clear_scheduled_hook( 'yarns_microsub_server_cron' );
+		} 
+	}
 
 	/**
 	 * Initialize Yarns Microsub Server plugin Plugin
@@ -51,6 +68,10 @@ class Yarns_MicroSub_Plugin {
 		// Class: Parser 
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
+		// Class: Aggregator 
+		require_once dirname( __FILE__ ) . '/includes/class-aggregator.php';
+
+
 		// MF2 parser from post kinds plugin
 		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
 		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
@@ -63,11 +84,13 @@ class Yarns_MicroSub_Plugin {
 		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
-		//Set up cron job to check for posts
-		if ( !wp_next_scheduled( 'yarns_reader_generate_hook' ) ) {            
-			wp_schedule_event( time(), 'sixtymins', 'yarns_reader_generate_hook' );
-		}
 
+
+		//Set up cron job to check for posts
+		if ( !wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {            
+			wp_schedule_event( time(), 'hourly', 'yarns_microsub_server_cron' );
+		}
+		add_action ('yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' )); 
 		
 		
 	}
