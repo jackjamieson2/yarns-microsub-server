@@ -9,6 +9,8 @@ Class channels {
 
 
 
+
+
 	//Returns a list of the channels
 	public static function get(){ 
 		if (get_site_option("yarns_channels")){
@@ -115,6 +117,29 @@ Class channels {
 	    after={cursor}
 	    before={cursor}
     */
+	public static function timeline($channel, $after, $before){
+			//Get all the posts of type yarns_microsub_post
+		$query = new WP_Query(array(
+		    'post_type' => 'yarns_microsub_post',
+		    'post_status' => 'publish',
+		    'yarns_microsub_post_channel' => $channel
+		));
+
+		$timeline = [];
+		while ($query->have_posts()) {
+		    $query->the_post();
+		    $timeline[] = json_decode(get_the_content());
+		}
+
+		wp_reset_query();
+
+		return [
+	      		'items' => $timeline
+	    	];
+
+	} 
+
+
 
 
 

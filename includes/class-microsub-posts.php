@@ -23,6 +23,23 @@ class Yarns_Microsub_Posts {
 	            'rewrite' => array('slug' => 'yarns_post'),
 	        )
 	    );
+
+	    // register custom taxonomy to group aggregated posts by channel
+	    register_taxonomy(  
+        	'yarns_microsub_post_channel',  //The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces). 
+        	'yarns_microsub_post',       //post type name
+	        array(  
+	            'hierarchical' => false,  
+	            'label' => 'Channel',  //Display name
+	            'query_var' => true,
+	            'rewrite' => array(
+	                'slug' => 'channel' // This controls the base slug that will display before each term
+	            )
+	        )  
+	    );  
+
+
+
 	    
 	}
 	

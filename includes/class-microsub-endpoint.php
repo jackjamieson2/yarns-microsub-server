@@ -169,7 +169,7 @@ class Yarns_Microsub_Endpoint {
 				break;
 
 			case 'timeline':
-				return get_timeline(); // Later, this will need to send a specific channel to return
+				return channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
 				break;
 			case 'search':
 				return channels::search($request->get_param('query'));
@@ -177,10 +177,20 @@ class Yarns_Microsub_Endpoint {
 			case 'preview':
 				return channels::preview($request->get_param('url'));
 				break;
+			case 'follow':
+				if ('GET' === $request->get_method()){
+					// return a list of feeds being followed in the given channel
+					return channels::list_follows($request->get_param('channel'));
+				} else if ('POST' === $request->get_method()){
+					// follow a new URL in the channel
+					return channels::follow($request->get_param('channel'), $request->get_param('url'));
+				}
+ 
 			default:
 				return "No action defined";
 				// The action was not recognized
 				break;
+
 		}
 	}
 
