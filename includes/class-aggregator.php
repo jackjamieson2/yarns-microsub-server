@@ -11,9 +11,9 @@ class Yarns_Microsub_Aggregator {
 
 	/* Check if a post exists */
 
-	public static function exists($permalink){
+	public static function exists($permalink,$channel){
 
-		if (get_page_by_title( $permalink, OBJECT, "yarns_microsub_post" )){
+		if (get_page_by_title( $channel."|".$permalink, OBJECT, "yarns_microsub_post" )){
 			return true;
 		}
 	}
@@ -22,17 +22,15 @@ class Yarns_Microsub_Aggregator {
 	/* Poll for new posts */ 
 	public static function poll(){
 		error_log("Polling for new posts");
-		//return "polling disabled for now";
 
-		// foreach channel
-		// foreach feed in the channel
-			// poll h-feeds
-			// poll rss feeds
+	
+		// For each channel
 		$channels =  json_decode(get_site_option("yarns_channels"),True);
 		if ($channels){
 			foreach ($channels as $channel){
 				$channel_uid = $channel['uid'];
 				if (isset($channel['items'])){
+					// For each feed in this channel
 					foreach ($channel['items'] as $item){
 						if (isset($item['url'])){
 							$mf2_items = parser::parse_hfeed($item['url'], $preview=true)['items'];
@@ -42,17 +40,19 @@ class Yarns_Microsub_Aggregator {
 							foreach ($mf2_items as $item){
 								if (isset($item['url'])){
 									$permalink= $item['url'];
-									$permalink = "https://aaronparecki.com/2018/07/16/10/owasp";
+									//$permalink = "http://tantek.com/2018/190/b1/scrollbar-gutter-move-to-css-scrollbars";
 									// Check if the post already exists
-									if (!static::exists($permalink)){
+
+									//if (!static::exists($permalink,$channel_uid)){
 										$content = file_get_contents($permalink);
-										//return $content;
 										$full_post = parser::mergeparse($content,$permalink);
+										
+										//return $full_post;
 										return Yarns_Microsub_Posts::add_post($permalink, $full_post,$channel_uid);
 
 
-										//return "does not exist";
-									} 
+										
+									//} 
 								}
 							}
 						}

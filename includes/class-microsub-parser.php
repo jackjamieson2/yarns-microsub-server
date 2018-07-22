@@ -16,16 +16,12 @@ Class parser {
 	 */
 	public static function mergeparse( $content, $url ) {
 		// For debugging - get time of the script
-		$time_start = microtime(true); 
 
 		if ( empty( $content ) || empty( $url ) ) {
 			return array();
 		}
 		/* TESTING*/
 		$mf2data  = Parse_MF2::mf2parse( $content, $url );
-		$time_end = microtime(true);
-		$execution_time = ($time_end - $time_start);
-		error_log("Execution time in seconds: " . $execution_time);
 		return $mf2data;
 
 		/* END TESTING*/
@@ -61,6 +57,8 @@ Class parser {
 				unset( $data['photo'] );
 			}
 		}
+
+
 		$time_end = microtime(true);
 		$execution_time = ($time_end - $time_start);
 		error_log("Execution time in seconds: " . $execution_time);
@@ -79,7 +77,7 @@ Class parser {
 		preivew = true -> prioritize speed and just fetch everything from the main url
 		preview = true -> prioritize completion and fetch each post from its own permalink
 	*/
-	public static function parse_hfeed($url, $preview=false, $count=2){
+	public static function parse_hfeed($url, $preview=false, $count=20){
 
 		error_log("Parsing h-feed");
 		error_log("Preview == " . $preview);
