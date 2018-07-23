@@ -117,7 +117,7 @@ Class channels {
 	    after={cursor}
 	    before={cursor}
     */
-	public static function timeline($channel, $after, $before){
+	public static function timeline($channel, $after, $before){ 
 			//Get all the posts of type yarns_microsub_post
 		$query = new WP_Query(array(
 		    'post_type' => 'yarns_microsub_post',
@@ -132,8 +132,8 @@ Class channels {
 		    if (isset($item['content']['html'])){
 		    	$item['content']['html'] = html_entity_decode($item['content']['html']);
 		    }
-		    //$timeline[] = get_the_content();
-		    $timeline[] = json_decode(get_the_content());
+		    $id = get_the_ID();
+			$timeline [] = json_decode(get_post_meta($id, 'yarns_microsub_json', true));
 		}
 
 		wp_reset_query();

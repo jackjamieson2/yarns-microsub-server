@@ -21,8 +21,8 @@ Class parser {
 			return array();
 		}
 		/* TESTING*/
-		$mf2data  = Parse_MF2::mf2parse( $content, $url );
-		return $mf2data;
+		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		//return $mf2data;
 
 		/* END TESTING*/
 
@@ -59,9 +59,9 @@ Class parser {
 		}
 
 
-		$time_end = microtime(true);
-		$execution_time = ($time_end - $time_start);
-		error_log("Execution time in seconds: " . $execution_time);
+		//$time_end = microtime(true);
+		//$execution_time = ($time_end - $time_start);
+		//error_log("Execution time in seconds: " . $execution_time);
 		return $data;
 
 
@@ -73,16 +73,20 @@ Class parser {
 
 	$url -> the url from which to retrieve a feed
 	$count -> the number of posts to retrieve
+	$return_type -> The type of results to return_type
+		"urls" => a list of urls
+		"preview" => return basic metadata
+		"full" = run mergeparse on each item
 	$preview -> whether to treat the feed as a live preview or a full feed
-		preivew = true -> prioritize speed and just fetch everything from the main url
+		preview = true -> prioritize speed and just fetch everything from the main url
 		preview = true -> prioritize completion and fetch each post from its own permalink
 	*/
-	public static function parse_hfeed($url, $preview=false, $count=20){
+	public static function parse_hfeed($url, $preview=false, $count=5){
 
 		error_log("Parsing h-feed");
 		error_log("Preview == " . $preview);
-		$time_start = microtime(true); 
 
+		$time_start = microtime(true); 
 
 	
 		
@@ -110,27 +114,30 @@ Class parser {
 			 
 			//return $mf_key;
 		}
-		error_log("hfeed item key = " . $mf_key );
+		//error_log("hfeed item key = " . $mf_key );
 
 		
 
 		//Get permalinks for each item
 		$hfeed_items = array();
 
+
+
 		if ($preview ==true){
-			error_log ("checkpoint 1");
+			//error_log ("checkpoint 1");
 			foreach ($mf[$mf_key] as $key=>$item) {
-				error_log ("checkpoint 1.".$key);
+				//error_log ("checkpoint 1.".$key);
 				if ($key >= $count){break;} // Only get up to the specific count of items
 				if ("{$item['type'][0]}" == 'h-entry' ||
 					"{$item['type'][0]}" == 'h-event' ) 
 				{
+					//$the_item = Parse_MF2::mf2parse($item,$mf);
 					$the_item = Parse_MF2::parse_hentry($item,$mf);
 					$hfeed_items[] = $the_item;
 				}
 
 			}
-			error_log ("checkpoint 2");
+			//error_log ("checkpoint 2");
 
 
 		} else {
@@ -147,9 +154,9 @@ Class parser {
 				}
 
 			}
-			error_log("Got permalinks");
+			//error_log("Got permalinks");
 		
-			error_log("Parsing individual h-feed items");
+			//error_log("Parsing individual h-feed items");
 			$hfeed_items = array();
 			foreach ($hfeed_item_urls as $page){
 
@@ -157,7 +164,7 @@ Class parser {
 				$hfeed_items[] = static::mergeparse($content,$page);
 			}
 			$result = ['items'=> $hfeed_items];
-			error_log("Result: \n" . json_encode($result));
+			//error_log("Result: \n" . json_encode($result));
 
 
 
@@ -165,10 +172,13 @@ Class parser {
 
 		$time_end = microtime(true);
 		$execution_time = ($time_end - $time_start);
-		error_log("hfeed parsing execution time in seconds: " . $execution_time);
+		//error_log("hfeed parsing execution time in seconds: " . $execution_time);
 
 		return [
-      		'items' => $hfeed_items
+      		'items' => $hfeed_items,
+      		'start' => $time_start,
+      		'end' => $time_end,
+      		'execution time' => $execution_time
     	];
 
 	}

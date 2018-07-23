@@ -46,17 +46,12 @@ class Yarns_Microsub_Posts {
 
 
 	public static function add_post($permalink, $post, $channel){
-
-	
-
 		$my_post = array(
 		  'post_type'	  => 'yarns_microsub_post',
 		  'post_title'    => $channel."|".$permalink,
-		  'post_content'  => json_encode($post),
 		  'post_status'   => 'publish'
 
 		);
-
 
 		if (isset($post['published'])){
 			//return $post['published'];
@@ -70,20 +65,18 @@ class Yarns_Microsub_Posts {
 
 		}
 
-		return $post;
-
 		// Create the post
 		$post_id = wp_insert_post( $my_post );
 
 		// Set the channel of the post 
 		wp_set_post_terms( $post_id, $channel, 'yarns_microsub_post_channel' );
 
+		// Save the post JSON as a custom meta field
+		update_post_meta($post_id, 'yarns_microsub_json', json_encode($post));
+
 		// Return the post id
 		return $post_id;
-
 	}
-
-	
 }
 
 ?>

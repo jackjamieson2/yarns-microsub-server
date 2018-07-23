@@ -22,8 +22,9 @@ class Yarns_Microsub_Aggregator {
 	/* Poll for new posts */ 
 	public static function poll(){
 		error_log("Polling for new posts");
-
-	
+		
+		// for debugging, return a list of URLs and post IDs
+		$results = [];
 		// For each channel
 		$channels =  json_decode(get_site_option("yarns_channels"),True);
 		if ($channels){
@@ -43,16 +44,17 @@ class Yarns_Microsub_Aggregator {
 									//$permalink = "http://tantek.com/2018/190/b1/scrollbar-gutter-move-to-css-scrollbars";
 									// Check if the post already exists
 
-									//if (!static::exists($permalink,$channel_uid)){
+									if (!static::exists($permalink,$channel_uid)){
 										$content = file_get_contents($permalink);
 										$full_post = parser::mergeparse($content,$permalink);
+										//return $full_post;										
 										
-										//return $full_post;
-										return Yarns_Microsub_Posts::add_post($permalink, $full_post,$channel_uid);
+										Yarns_Microsub_Posts::add_post($permalink, $full_post,$channel_uid);
+										$results[][] = "added " . $permalink;
+									}  else {
+										$results[][] = "already exists " . $permalink;
+									}
 
-
-										
-									//} 
 								}
 							}
 						}
@@ -61,6 +63,7 @@ class Yarns_Microsub_Aggregator {
 				}
 			}
 		}
+		return $results;
 	}
 	
 	
