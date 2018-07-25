@@ -69,6 +69,155 @@ Class parser {
 
 
 
+	/*Search
+
+	action=search 
+	query = {URI to search}*/
+
+				/*HTTP/1.1 200 Ok
+			Content-type: application/json
+
+			{
+			  "results": [
+			    {
+			      "type": "feed",
+			      "url": "https://aaronparecki.com/",
+			      "name": "Aaron Parecki",
+			      "photo": "https://aaronparecki.com/images/profile.jpg",
+			      "description": "Aaron Parecki's home page"
+			    },
+			    {
+			      "type": "feed",
+			      "url": "https://percolator.today/",
+			      "name": "Percolator",
+			      "photo": "https://percolator.today/images/cover.jpg",
+			      "description": "A Microcast by Aaron Parecki",
+			      "author": {
+			        "name": "Aaron Parecki",
+			        "url": "https://aaronparecki.com/",
+			        "photo": "https://aaronparecki.com/images/profile.jpg"
+			      }
+			    },
+			    { ... }
+			  ]
+			}*/
+
+
+	public static function search($query){
+
+		// Check if $query is a valid URL, if not try to generate one
+		$url = validate_url($query);
+		$results = [];
+		$html = file_get_contents($url); //get the html returned from the following url
+		$dom = new DOMDocument();
+		libxml_use_internal_errors(TRUE); //disable libxml errors
+
+		if(!empty($html)){ //if any html is actually returned
+			$dom->loadHTML($html);
+			$hfeed_exists = False;
+			//Check each link for rss/atom feeds
+			$website_links = $dom->getElementsByTagName("link");
+			
+			if($website_links->length > 0){
+				foreach($website_links as $link){
+					if ($link->getAttribute("rel")=="feed"){
+						$feed['url'] = $link->getAttribute("href");
+						$feed['_type'] = "h-feed";
+						$feeds[] = $feed;
+						$hfeed_exists = True;
+					} else if ($link->getAttribute("rel")=="alternate"){
+						$feed['url'] = $link->getAttribute("href");
+						$feed['_type'] = $link->getAttribute('type');
+						$feeds[] = $feed;
+					}
+				}
+			}
+
+			// If no h-feed was found as a <link>, then check if the $url itself is an h-feed
+			if ($hfeed_exists == False){
+				if (parser::find_hfeed_in_page($url)){
+
+					// Found an h-feed on the page
+					$feed['url'] = $url;
+					$feed['_type'] = "h-feed";
+					$feed['debug'] = parser::find_hfeed_in_page($url);
+					$feeds[] = $feed;
+
+				}
+			}
+		
+		
+			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
+			
+			
+			foreach($feeds as $i=>$feed) {
+				// Convert relative urls to absolute
+				if (parse_url($feeds[$i]['url'],PHP_URL_HOST) == False){
+					$feeds[$i]['url'] = $url . $feeds[$i]['url'];
+					//$feeds[$i]['url'] = parse_url($url,PHP_URL_SCHEME) + parse_url($url,PHP_URL_HOST) + $feeds[$i]['url'];
+				}
+
+				/*
+				// 
+				//  Commenting this out to improve speed
+				//
+
+				// populate additional info
+				if ($feeds[$i]['_type']=='h-feed'){
+					$mf = Mf2\fetch($feeds[$i]['url']);
+					foreach ($mf['items'] as $mf_item) {
+						if ("{$mf_item['type'][0]}"=="h-feed"){
+							if(array_key_exists('name', $mf_item['properties'])) {
+								$feeds[$i]['name'] = "{$mf_item['properties']['name'][0]}";
+							}
+							if(array_key_exists('photo', $mf_item['properties'])) {
+								$feeds[$i]['photo'] = "{$mf_item['properties']['photo'][0]}";
+							}
+							if(array_key_exists('summary', $mf_item['properties'])) {
+								$feeds[$i]['description'] = "{$mf_item['properties']['summary'][0]}";
+							}							
+						}
+
+						if ("{$mf_item['type'][0]}"=="h-card"){
+							$feeds[$i]['author']= $mf_item['properties'];
+						} 
+					}
+				}
+				*/
+				$feeds[$i]['type'] = 'feed';
+			}
+			
+			return ['results' => $feeds]; 
+		}
+	}
+
+	/*	Preview
+
+	action=preview
+
+	POST
+
+	    action=preview
+	    url={url}*/
+
+	    /*The response includes the list of items in the feed if available, in the same format as returned by the #Timelines API call. */
+
+
+	public static function preview($url){
+		//return get_timeline();
+
+		return parser::parse_hfeed($url, $preview=true);
+		// Check if this is an h-feed or other
+
+		//if h-feed:
+			// Run h-feed parser
+		// if rss:
+			// Run simplepie parser
+	}
+
+
+
+
 	/*
 
 	$url -> the url from which to retrieve a feed
@@ -349,20 +498,51 @@ Class parser {
 	}
 
 
-
-	/*
-** Fetch an H-FEED and return its content
+/*
+* UTILITY FUNCTIONS
+*
 */
-function yarns_reader_fetch_hfeed($url,$feedtype) {
-	yarns_reader_log('fetching h-feed at '. $url);
-	//Parse microformats at the feed-url
-	$mf = Mf2\fetch($url);
-	//Identify the h-feed within the parsed MF2
-	$hfeed = "";
-	$hfeed_path = "children"; // (default) in most cases, items within the h-feed will be 'children' 
-	
 
-	
-}
+	public static function validate_url($possible_url){
+		//If it is already a valid URL, return as-is
+		if(is_url($possible_url)){
+			return $possible_url;
+		} 
+
+		// If just a word was entered, append .com
+	 	if(preg_match('/^[a-z][a-z0-9]+$/', $possible_url)) {
+	          // if just a word was entered, append .com
+	          $possible_url = $possible_url . '.com';
+	    }
+
+	    // If the URL is missing a trailing '/' add it
+	    //$possible_url = wp_slash($possible_url)
+	    if(substr($possible_url, -1) != '/'){
+	        $possible_url .= '/';
+	    }
+		// If missing a scheme, prepend with 'http://', otherwise return as-is
+		 return parse_url($possible_url, PHP_URL_SCHEME) === null ? 'http://' . $possible_url : $possible_url;
+	}
+
+	public static function is_url($query){
+		if(filter_var($query, FILTER_VALIDATE_URL)){
+			return true; 
+		} else {
+			return false;
+		}
+	}
+
+
+	public static function isRSS($feedtype){
+		$rssTypes = array ('application/rss+xml','application/atom+xml','application/rdf+xml','application/xml','text/xml','text/xml','text/rss+xml','text/atom+xml');
+	    if (in_array($feedtype,$rssTypes)){
+	    	return True;
+	    }
+	}
+
+
+
+
+
 
 }

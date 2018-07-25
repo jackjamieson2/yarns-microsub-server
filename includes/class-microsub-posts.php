@@ -77,6 +77,39 @@ class Yarns_Microsub_Posts {
 		// Return the post id
 		return $post_id;
 	}
+
+	/*	
+	Mark Entries Read
+
+	POST
+
+	To mark one or more individual entries as read:
+
+	Parameters:
+
+	    action=timeline
+	    method=mark_read
+	    channel={uid}
+	    entry={entry-id} or entry[]={entry-id}
+
+	To mark an entry read as well as everything before it in the timeline:
+
+	    action=timeline
+	    method=mark_read
+	    channel={uid}
+	    last_read_entry={entry-id}
+    */
+
+    /*Remove Entry from a Channel
+
+	POST
+
+	Parameters:
+
+	    action=timeline
+	    method=remove
+	    channel={uid}
+	    entry={entry-id} or entry[]={entry-id}*/
 }
 
 ?>

@@ -172,10 +172,10 @@ class Yarns_Microsub_Endpoint {
 				return channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
 				break;
 			case 'search':
-				return channels::search($request->get_param('query'));
+				return parser::search($request->get_param('query'));
 				break;
 			case 'preview':
-				return channels::preview($request->get_param('url'));
+				return parser::preview($request->get_param('url'));
 				break;
 			case 'follow':
 				if ('GET' === $request->get_method()){

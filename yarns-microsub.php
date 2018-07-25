@@ -65,6 +65,9 @@ class Yarns_MicroSub_Plugin {
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
 		Yarns_Microsub_Posts::init();
 
+		// Class: channels 
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-channels.php';
+
 		// Class: Parser 
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
@@ -75,9 +78,6 @@ class Yarns_MicroSub_Plugin {
 		// MF2 parser from post kinds plugin
 		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
 		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
-
-		// Functions to generate responses to endpoint queries
-		require_once dirname( __FILE__ ) . '/includes/functions-microsub-actions.php';
 
 
 		
