@@ -186,7 +186,7 @@ class Yarns_Microsub_Endpoint {
 					return channels::follow($request->get_param('channel'), $request->get_param('url'));
 				}
 			case 'poll-test':
-				return Yarns_Microsub_Aggregator::poll();
+				return Yarns_Microsub_Aggregator::test_aggregator($request->get_param('url'));
 			default:
 				return "No action defined";
 				// The action was not recognized

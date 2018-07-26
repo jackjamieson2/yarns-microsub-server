@@ -808,7 +808,7 @@ class Parse_MF2 {
 		$data['summary'] = self::get_summary( $entry, $data['content'] );
 		if ( isset( $data['name'] ) ) {
 			$data['name'] = trim( preg_replace( '/https?:\/\/([^ ]+|$)/', '', $data['name'] ) );
-		}
+        }
 		if ( isset( $mf['rels']['syndication'] ) ) {
 			if ( isset( $data['syndication'] ) ) {
 				$data['syndication'] = array_unique( array_merge( $data['syndication'], $mf['rels']['syndication'] ) );
@@ -841,7 +841,9 @@ class Parse_MF2 {
 		$data = array_filter( $data );
 		if ( array_key_exists( 'name', $data ) ) {
 			if ( ! array_key_exists( 'summary', $data ) || ! array_key_exists( 'content', $data ) ) {
-				unset( $data['name'] );
+				// unset( $data['name'] ); // disabling this for now - this removes post names in cases where the name
+                // seems reasonable to include (e.g. photo posts, checkins, etc. may have names
+
 			}
 		}
 		if ( isset( $data['name'] ) && isset( $data['summary'] ) ) {

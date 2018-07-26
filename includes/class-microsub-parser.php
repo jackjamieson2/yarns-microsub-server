@@ -5,7 +5,7 @@
  * @author Jack Jamieson
  *
  */
-Class parser {
+class parser {
 
 
 
@@ -30,13 +30,13 @@ Class parser {
 		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
 		//return $mf2data;
 
-		$parsethis = new Parse_This();
-		$parsethis->set_source( $content, $url );
-		$metadata = $parsethis->meta_to_microformats();
+		//$parsethis = new Parse_This();
+		//$parsethis->set_source( $content, $url );
+		//$metadata = $parsethis->meta_to_microformats();
 		$mf2data  = Parse_MF2::mf2parse( $content, $url );
-		$data     = array_merge( $metadata, $mf2data );
-		$data     = array_filter( $data );
-
+		//$data     = array_merge( $metadata, $mf2data );
+		//$data     = array_filter( $data );
+        $data = $mf2data;
 		if ( ! isset( $data['summary'] ) && isset( $data['content'] ) ) {
 			$data['summary'] = substr( $data['content']['text'], 0, 300 );
 			if ( 300 < strlen( $data['content']['text'] ) ) {
@@ -57,6 +57,11 @@ Class parser {
 				unset( $data['photo'] );
 			}
 		}
+
+		// Convert special characters to html entities in content['html']
+        if (isset ($data['content']['html'])){
+		    $data['content']['html'] = htmlspecialchars( $data['content']['html']);
+        }
 
 
 		//$time_end = microtime(true);
@@ -204,7 +209,6 @@ Class parser {
 
 
 	public static function preview($url){
-		//return get_timeline();
 
 		return parser::parse_hfeed($url, $preview=true);
 		// Check if this is an h-feed or other
@@ -414,6 +418,7 @@ Class parser {
 	// Find the root feed
 	public static function locate_hfeed($url){
 		$mf = Mf2\fetch($url);
+
 		foreach ($mf['items'] as $mf_item) {
 			if(in_array('h-feed', $mf_item['type'])) {
 

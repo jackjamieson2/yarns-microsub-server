@@ -5,7 +5,7 @@
  * @author Jack Jamieson
  *
  */
-Class channels {
+class channels {
 
 
 
@@ -132,7 +132,15 @@ Class channels {
 		    	$item['content']['html'] = html_entity_decode($item['content']['html']);
 		    }
 		    $id = get_the_ID();
-			$timeline [] = json_decode(get_post_meta($id, 'yarns_microsub_json', true));
+		    $item = json_decode(get_post_meta($id, 'yarns_microsub_json', true),true);
+            // Convert special characters FROM html entities in content['html']
+            if (isset ($item['content']['html'])){
+                $item['content']['html'] = htmlspecialchars_decode( $item['content']['html']);
+            }
+		    // Decode html special characters in content['html']
+            $timeline [] = $item;
+		    //$timeline [] = json_decode(get_post_meta($id, 'yarns_microsub_json', true));
+			//$timeline [] = get_post_meta($id, 'yarns_microsub_json', true);
 		}
 
 		wp_reset_query();

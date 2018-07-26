@@ -74,6 +74,8 @@ class Yarns_Microsub_Posts {
 		// Save the post JSON as a custom meta field
 		update_post_meta($post_id, 'yarns_microsub_json', json_encode($post));
 
+		return $post;
+
 		// Return the post id
 		return $post_id;
 	}

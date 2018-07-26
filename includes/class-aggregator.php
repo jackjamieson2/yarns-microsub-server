@@ -18,6 +18,12 @@ class Yarns_Microsub_Aggregator {
 		}
 	}
 
+	public static function test_aggregator($url){
+        $content = file_get_contents($url);
+        $full_post = parser::mergeparse($content,$url);
+        return Yarns_Microsub_Posts::add_post($url, $full_post,'test');
+        return $full_post;
+    }
 
 	/* Poll for new posts */ 
 	public static function poll(){
