@@ -118,13 +118,26 @@ class channels {
     */
 	public static function timeline($channel, $after, $before){ 
 			//Get all the posts of type yarns_microsub_post
-		$query = new WP_Query(array(
-		    'post_type' => 'yarns_microsub_post',
-		    'post_status' => 'publish',
-		    'yarns_microsub_post_channel' => $channel
-		));
 
-		$timeline = [];
+        $args = array(
+            'post_type' => 'yarns_microsub_post',
+            'post_status' => 'publish',
+            'yarns_microsub_post_channel' => $channel,
+            'posts_per_page' => 20
+        );
+		$query = new WP_Query($args);
+
+		// Pagination (to be implemented)
+		if ($after){
+
+        }
+        if ($before){
+
+        }
+
+        // notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
+        $ids = []; // store a list of post ids returned by the query
+        $timeline_items = [];
 		while ($query->have_posts()) {
 		    $query->the_post();
 		    $item = json_decode(get_the_content(),True);
@@ -133,23 +146,46 @@ class channels {
 		    }
 		    $id = get_the_ID();
 		    $item = json_decode(get_post_meta($id, 'yarns_microsub_json', true),true);
-            // Convert special characters FROM html entities in content['html']
+            // Decode html special characters in content['html']
             if (isset ($item['content']['html'])){
                 $item['content']['html'] = htmlspecialchars_decode( $item['content']['html']);
             }
-		    // Decode html special characters in content['html']
-            $timeline [] = $item;
-		    //$timeline [] = json_decode(get_post_meta($id, 'yarns_microsub_json', true));
-			//$timeline [] = get_post_meta($id, 'yarns_microsub_json', true);
-		}
 
-		wp_reset_query();
+            $timeline_items [] = $item;
+            $ids[] = $id;
+        }
 
-		return [
-	      		'items' => $timeline
-	    	];
 
-	} 
+        wp_reset_query();
+
+
+        $timeline['items'] = $timeline_items;
+        $timeline['before'] = max($ids);
+        // Only add 'after' if there are older posts
+        if (self::older_posts_exist(min($ids),$channel)){
+            $timeline['after'] = min($ids);
+        }
+        return $timeline;
+
+
+	}
+
+	/* Check if the channel has any posts older than $id */
+	private static function older_posts_exist($id, $channel){
+	    // see https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
+	    $post_ids = range(1, $id -1);
+
+        $args = array(
+            'post__in' => $post_ids,
+            'post_type' => 'yarns_microsub_post',
+            'post_status' => 'publish',
+            'yarns_microsub_post_channel' => $channel,
+            'posts_per_page' => 1
+        );
+        if (get_posts($args)) {
+            return true;
+        }
+    }
 
 
 	/* Following
