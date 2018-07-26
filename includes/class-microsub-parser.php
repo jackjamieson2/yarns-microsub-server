@@ -111,7 +111,7 @@ class parser {
 	public static function search($query){
 
 		// Check if $query is a valid URL, if not try to generate one
-		$url = validate_url($query);
+		$url = static::validate_url($query);
 		$results = [];
 		$html = file_get_contents($url); //get the html returned from the following url
 		$dom = new DOMDocument();
@@ -510,7 +510,7 @@ class parser {
 
 	public static function validate_url($possible_url){
 		//If it is already a valid URL, return as-is
-		if(is_url($possible_url)){
+		if(static::is_url($possible_url)){
 			return $possible_url;
 		} 
 

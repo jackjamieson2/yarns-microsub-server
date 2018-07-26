@@ -158,16 +158,16 @@ class channels {
 
         wp_reset_query();
 
-
-        $timeline['items'] = $timeline_items;
-        $timeline['before'] = max($ids);
-        // Only add 'after' if there are older posts
-        if (self::older_posts_exist(min($ids),$channel)){
-            $timeline['after'] = min($ids);
-        }
-        return $timeline;
-
-
+		if ($timeline_items) {
+            $timeline['items'] = $timeline_items;
+            $timeline['before'] = max($ids);
+            // Only add 'after' if there are older posts
+            if (self::older_posts_exist(min($ids),$channel)){
+                $timeline['after'] = min($ids);
+            }
+            return $timeline;
+		}
+		return;
 	}
 
 	/* Check if the channel has any posts older than $id */
