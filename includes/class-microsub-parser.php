@@ -108,12 +108,12 @@ class parser {
 		// Check if $query is a valid URL, if not try to generate one
 		$url = static::validate_url($query);
 		$results = [];
-		$html = file_get_contents($url); //get the html returned from the following url
+		$content = file_get_contents($url); //get the html returned from the following url
 		$dom = new DOMDocument();
 		libxml_use_internal_errors(TRUE); //disable libxml errors
 
-		if(!empty($html)){ //if any html is actually returned
-			$dom->loadHTML($html);
+		if(!empty($content)){ //if any html is actually returned
+			$dom->loadHTML($content);
 			$hfeed_exists = False;
 			//Check each link for rss/atom feeds
 			$website_links = $dom->getElementsByTagName("link");
@@ -135,21 +135,16 @@ class parser {
 
 			// If no h-feed was found as a <link>, then check if the $url itself is an h-feed
 			if ($hfeed_exists == False){
-				if (parser::find_hfeed_in_page($url)){
+                if (static::locate_hfeed($content, $url)){
+                    $feed['url'] = $url;
+                    $feed['_type'] = "h-feed";
+                    $feeds[] = $feed;
+                }
 
-					// Found an h-feed on the page
-					$feed['url'] = $url;
-					$feed['_type'] = "h-feed";
-					$feed['debug'] = parser::find_hfeed_in_page($url);
-					$feeds[] = $feed;
-
-				}
 			}
 		
-		
 			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
-			
-			
+
 			foreach($feeds as $i=>$feed) {
 				// Convert relative urls to absolute
 				if (parse_url($feeds[$i]['url'],PHP_URL_HOST) == False){
@@ -204,19 +199,12 @@ class parser {
 
 
 	public static function preview($url){
-
-
         return parser::parse_feed($url, $preview=true);
-		//return parser::parse_hfeed($url, $preview=true);
-		// Check if this is an h-feed or other
-
-		//if h-feed:
-			// Run h-feed parser
-		// if rss:
-			// Run simplepie parser
 	}
 
 	public static function parse_feed($url,$preview = false, $count = 5){
+	    // For testing, parse all feeds in preview mode
+
         $content = file_get_contents($url);
 
         // Try to parse h-feed
@@ -258,8 +246,37 @@ class parser {
                 $post['type'] = 'entry';
                 $post['name'] = $item->get_title();
 
-                $post['summary'] = html_entity_decode ($item->get_description());
-                $post['content'] = html_entity_decode ($item->get_content());
+
+                $post['author']['name'] = $feed->get_title();
+                $post['author']['photo'] = $feed->get_image_url();
+                $post['author']['url'] = $feed->get_link();
+
+                // If the individual post has an author with different info from the feed, use that info
+                $post_author = $item->get_author();
+                if ($post_author->get_name()){
+                    if ($post_author->get_name() != $post['author']['name']){
+                        $post['author']['name'] = $post_author->get_name() . " | " . $post['author']['name'];
+                    }
+                }
+
+                if ($post_author->get_link()){
+                    if ($post_author->get_link() != $post['author']['url']){
+                        $post['author']['url'] = $post_author->get_link();
+                    }
+                }
+
+
+
+
+                $post['summary'] = strip_tags($item->get_description());
+
+
+                $post['content']['html'] = htmlspecialchars($item->get_content());
+                $post['content']['text'] = strip_tags($item->get_content());
+
+
+
+                //$post['content'] = html_entity_decode ($item->get_content());
                 $post['published']=gmdate("Y-m-d H:i:sO", $item->get_date('U'));
 
 

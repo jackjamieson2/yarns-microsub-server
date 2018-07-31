@@ -142,14 +142,16 @@ class channels {
 		    $query->the_post();
 		    $item = json_decode(get_the_content(),True);
 		    if (isset($item['content']['html'])){
-		    	$item['content']['html'] = html_entity_decode($item['content']['html']);
+		    	//$item['content']['html'] = html_entity_decode($item['content']['html']);
 		    }
 		    $id = get_the_ID();
-		    $item = json_decode(get_post_meta($id, 'yarns_microsub_json', true),true);
+		    $item = decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
             // Decode html special characters in content['html']
+            /*
             if (isset ($item['content']['html'])){
                 $item['content']['html'] = htmlspecialchars_decode( $item['content']['html']);
             }
+            */
 
             $timeline_items [] = $item;
             $ids[] = $id;

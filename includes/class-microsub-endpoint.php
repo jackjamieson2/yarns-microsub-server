@@ -187,6 +187,9 @@ class Yarns_Microsub_Endpoint {
 				}
 			case 'poll-test':
 				return Yarns_Microsub_Aggregator::test_aggregator($request->get_param('url'));
+				break;
+            case 'test':
+                return test();
 			default:
 				return "No action defined";
 				// The action was not recognized
