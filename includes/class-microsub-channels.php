@@ -95,27 +95,61 @@ class channels {
 		$channels[] = $new_channel;
 		update_option("yarns_channels",json_encode($channels));
 
-		return json_decode(json_encode($new_channel));
+		return $new_channel;
   
 		//get_site_option
 		//update_option
 
 	}
+
+
+
 	/*
-	action=timeline
-	Retrieve Entries in a Channel
+	UPDATE A CHANNEL
+	action=channels
+    channel={uid}
+    name={channel name}
 
-	GET
+	*/
+    public static function update($channel, $name){
+        if (get_site_option("yarns_channels")){
+            $channels = json_decode(get_site_option("yarns_channels"),True);
+            //check if the channel already exists
+            foreach ($channels as $key=>$item){
+                if($item){
+                    if ($item['uid'] == $channel){
+                        $channels[$key]['name'] = $name;
+                        update_option("yarns_channels",json_encode($channels));
+                        return $channels[$key];
 
-	Retrieve the entries in a given channel.
+                        // Update this item
+                        //item already exists, so return existing item
+                       // return $item;
+                    }
+                }
+            }
+        } else {
+            static::add($channel_name);
+        }
 
-	Parameters:
+    }
 
-	    action=timeline
-	    channel={uid}
-	    after={cursor}
-	    before={cursor}
-    */
+
+        /*
+        action=timeline
+        Retrieve Entries in a Channel
+
+        GET
+
+        Retrieve the entries in a given channel.
+
+        Parameters:
+
+            action=timeline
+            channel={uid}
+            after={cursor}
+            before={cursor}
+        */
 	public static function timeline($channel, $after, $before){ 
 			//Get all the posts of type yarns_microsub_post
 

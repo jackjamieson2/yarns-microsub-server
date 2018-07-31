@@ -155,8 +155,10 @@ class Yarns_Microsub_Endpoint {
 						break;
 
 					} elseif ($request->get_param('name')){
-						if ($request->get_param('uid')){
+						if ($request->get_param('channel')){
+						    return channels::update($request->get_param('channel'), $request->get_param('name'));
 							//update the channel
+
 							break;
 						} else {
 							//create a new channel
