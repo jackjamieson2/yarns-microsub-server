@@ -20,11 +20,6 @@ class parser {
 		if ( empty( $content ) || empty( $url ) ) {
 			return array();
 		}
-		/* TESTING*/
-		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
-		//return $mf2data;
-
-		/* END TESTING*/
 
 
 		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
@@ -113,12 +108,12 @@ class parser {
 		// Check if $query is a valid URL, if not try to generate one
 		$url = static::validate_url($query);
 		$results = [];
-		$html = file_get_contents($url); //get the html returned from the following url
+		$content = file_get_contents($url); //get the html returned from the following url
 		$dom = new DOMDocument();
 		libxml_use_internal_errors(TRUE); //disable libxml errors
 
-		if(!empty($html)){ //if any html is actually returned
-			$dom->loadHTML($html);
+		if(!empty($content)){ //if any html is actually returned
+			$dom->loadHTML($content);
 			$hfeed_exists = False;
 			//Check each link for rss/atom feeds
 			$website_links = $dom->getElementsByTagName("link");
@@ -140,21 +135,16 @@ class parser {
 
 			// If no h-feed was found as a <link>, then check if the $url itself is an h-feed
 			if ($hfeed_exists == False){
-				if (parser::find_hfeed_in_page($url)){
+                if (static::locate_hfeed($content, $url)){
+                    $feed['url'] = $url;
+                    $feed['_type'] = "h-feed";
+                    $feeds[] = $feed;
+                }
 
-					// Found an h-feed on the page
-					$feed['url'] = $url;
-					$feed['_type'] = "h-feed";
-					$feed['debug'] = parser::find_hfeed_in_page($url);
-					$feeds[] = $feed;
-
-				}
 			}
 		
-		
 			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
-			
-			
+
 			foreach($feeds as $i=>$feed) {
 				// Convert relative urls to absolute
 				if (parse_url($feeds[$i]['url'],PHP_URL_HOST) == False){
@@ -209,18 +199,104 @@ class parser {
 
 
 	public static function preview($url){
-
-		return parser::parse_hfeed($url, $preview=true);
-		// Check if this is an h-feed or other
-
-		//if h-feed:
-			// Run h-feed parser
-		// if rss:
-			// Run simplepie parser
+        return parser::parse_feed($url, $preview=true);
 	}
 
+	public static function parse_feed($url,$preview = false, $count = 5){
+	    // For testing, parse all feeds in preview mode
+
+        $content = file_get_contents($url);
+
+        // Try to parse h-feed
+        $feed = parser::parse_hfeed($content, $url, $preview, $count);
+        if ($feed){
+            return $feed;
+        }
+
+        // If there is no h-feed, Try to parse rss
+        $feed = static::parse_rss($content,$url, $count);
+        if ($feed){
+            return $feed;
+        }
+
+        // Failed, so return nothing
+	    return;
+    }
+
+    public static function parse_rss($content,$url){
+        include_once( ABSPATH . WPINC . '/feed.php' );
+
+        // Get a SimplePie feed object from the specified feed source.
+        $feed = fetch_feed( $url );
 
 
+        if (is_wp_error( $feed ) ){
+            return;
+        } else {
+            $rss_items = [];
+
+            // Parse the feed
+            $feed->enable_cache(false);
+            $feed->strip_htmltags(false);
+            $items = $feed->get_items();
+
+
+            foreach ($items as $item){
+                $post = [];
+                $post['type'] = 'entry';
+                $post['name'] = $item->get_title();
+
+
+                $post['author']['name'] = $feed->get_title();
+                $post['author']['photo'] = $feed->get_image_url();
+                $post['author']['url'] = $feed->get_link();
+
+                // If the individual post has an author with different info from the feed, use that info
+                $post_author = $item->get_author();
+                if ($post_author->get_name()){
+                    if ($post_author->get_name() != $post['author']['name']){
+                        $post['author']['name'] = $post_author->get_name() . " | " . $post['author']['name'];
+                    }
+                }
+
+                if ($post_author->get_link()){
+                    if ($post_author->get_link() != $post['author']['url']){
+                        $post['author']['url'] = $post_author->get_link();
+                    }
+                }
+
+
+
+
+                $post['summary'] = strip_tags($item->get_description());
+
+
+                $post['content']['html'] = htmlspecialchars($item->get_content());
+                $post['content']['text'] = strip_tags($item->get_content());
+
+
+
+                //$post['content'] = html_entity_decode ($item->get_content());
+                $post['published']=gmdate("Y-m-d H:i:sO", $item->get_date('U'));
+
+
+
+                $post['url'] = $item->get_permalink();
+
+                $rss_items[] = $post;
+            }
+
+
+
+
+
+            return [
+                'items' => $rss_items
+            ];
+
+        }
+
+    }
 
 	/*
 
@@ -234,17 +310,11 @@ class parser {
 		preview = true -> prioritize speed and just fetch everything from the main url
 		preview = true -> prioritize completion and fetch each post from its own permalink
 	*/
-	public static function parse_hfeed($url, $preview=false, $count=5){
+	public static function parse_hfeed($content, $url, $preview=false, $count=5){
 
-		error_log("Parsing h-feed");
-		error_log("Preview == " . $preview);
-
-		$time_start = microtime(true); 
-
-	
-		
-		$mf = static::locate_hfeed($url);
-		error_log("located h-feed");
+		$mf = static::locate_hfeed($content, $url);
+		//If no h-feed was found, return
+        if(!$mf){return;}
 
 		//return $mf;
 		
@@ -323,15 +393,8 @@ class parser {
 
 		}
 
-		$time_end = microtime(true);
-		$execution_time = ($time_end - $time_start);
-		//error_log("hfeed parsing execution time in seconds: " . $execution_time);
-
 		return [
-      		'items' => $hfeed_items,
-      		'start' => $time_start,
-      		'end' => $time_end,
-      		'execution time' => $execution_time
+      		'items' => $hfeed_items
     	];
 
 	}
@@ -416,8 +479,13 @@ class parser {
 
 
 	// Find the root feed
-	public static function locate_hfeed($url){
-		$mf = Mf2\fetch($url);
+	public static function locate_hfeed($content, $url){
+		$mf = Mf2\parse($content, $url);
+
+		if (!$mf){
+		    // If no microformats could be parsed, there is no h-feed
+		    return;
+        }
 
 		foreach ($mf['items'] as $mf_item) {
 			if(in_array('h-feed', $mf_item['type'])) {
@@ -457,7 +525,7 @@ class parser {
 				}	
 			}
 		}
-		return false;
+		return;
 
 	}
 
