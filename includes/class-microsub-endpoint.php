@@ -43,6 +43,7 @@ class Yarns_Microsub_Endpoint {
 
 		// Configure the REST API route
 		add_action( 'rest_api_init', array( 'Yarns_Microsub_Endpoint', 'register_routes' ) );
+		static::register_routes();
 		// Filter the response to allow a webmention form if no parameters are passed
 		//add_filter( 'rest_pre_serve_request', array( 'Yarns_Microsub_Endpoint', 'serve_request' ));
 
@@ -183,15 +184,18 @@ class Yarns_Microsub_Endpoint {
 				if ('GET' === $request->get_method()){
 					// return a list of feeds being followed in the given channel
 					return channels::list_follows($request->get_param('channel'));
+					break;
 				} else if ('POST' === $request->get_method()){
 					// follow a new URL in the channel
 					return channels::follow($request->get_param('channel'), $request->get_param('url'));
+					break;
 				}
 			case 'poll-test':
 				return Yarns_Microsub_Aggregator::test_aggregator($request->get_param('url'));
 				break;
             case 'test':
                 return test();
+                break;
 			default:
 				return "No action defined";
 				// The action was not recognized
@@ -220,7 +224,7 @@ class Yarns_Microsub_Endpoint {
 	 * The Microsub autodicovery meta-tags
 	 */
 	public static function html_header() {
-		printf( '<link rel="microsub" href="%s" />' . PHP_EOL, get_microsub_endpoint() );
+		printf( '<link rel="microsub" href="%s" />' . PHP_EOL, static::get_microsub_endpoint() );
 		
 	}
 
@@ -228,12 +232,13 @@ class Yarns_Microsub_Endpoint {
 	 * The Microsub autodicovery http-header
 	 */
 	public static function http_header() {
-		header( sprintf( 'Link: <%s>; rel="microsub"', get_microsub_endpoint() ), false );
-		
+
+		header( sprintf( 'Link: <%s>; rel="microsub"', static::get_microsub_endpoint() ), false );
+
 	}
 
 	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
-	(Copied from wordpress-MICROSUB plugin)
+	(Copied from wordpress-micropub plugin)
 	 **/
 	protected static function respond( $code, $resp = null, $args = null ) {
 		status_header( $code );
@@ -401,6 +406,17 @@ class Yarns_Microsub_Endpoint {
 		return $args;
 	}
 
+
+    /**
+     * Return Webmention Endpoint
+     *
+     * @see https://www.w3.org/TR/webmention/#sender-discovers-receiver-webmention-endpoint
+     *
+     * @return string the Webmention endpoint
+     */
+    public static function get_microsub_endpoint() {
+        return apply_filters( 'microsub_endpoing', get_rest_url( null, '/microsub/endpoint' ) );
+    }
 
 
 }
