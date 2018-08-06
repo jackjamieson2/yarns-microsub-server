@@ -150,14 +150,14 @@ class channels {
             after={cursor}
             before={cursor}
         */
-	public static function timeline($channel, $after, $before){ 
+	public static function timeline($channel, $after, $before, $num_posts=20){
 			//Get all the posts of type yarns_microsub_post
 
         $args = array(
             'post_type' => 'yarns_microsub_post',
             'post_status' => 'publish',
             'yarns_microsub_post_channel' => $channel,
-            'posts_per_page' => 20
+            'posts_per_page' => $num_posts
         );
 		$query = new WP_Query($args);
 
@@ -179,7 +179,9 @@ class channels {
 		    	//$item['content']['html'] = html_entity_decode($item['content']['html']);
 		    }
 		    $id = get_the_ID();
-		    $item = decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
+            $item = Yarns_Microsub_Posts::get_single_post($id);
+
+		    //$item = decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
             // Decode html special characters in content['html']
             /*
             if (isset ($item['content']['html'])){
@@ -203,7 +205,7 @@ class channels {
             }
             return $timeline;
 		}
-		return;
+		return "error";
 	}
 
 	/* Check if the channel has any posts older than $id */

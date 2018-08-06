@@ -172,6 +172,34 @@ class Yarns_Microsub_Endpoint {
 				break;
 
 			case 'timeline':
+			    //If method is 'mark_read' then mark post(s) as READ
+			    if ($request->get_param('method') == 'mark_read'){
+			        //mark one or more individual entries as read
+                    if ($request->get_param('entry')){
+                        Yarns_Microsub_Posts::toggle_read($request->get_param('entry'),true );
+                        break;
+                    }
+			        //mark an entry read as well as everything before it in the timeline
+                    if ($request->get_param('last_read_entry')){
+                        return Yarns_Microsub_Posts::toggle_last_read($request->get_param('last_read_entry'), $request->get_param('channel'),true);
+                        break;
+                    }
+                }
+                // If method is 'mark_unreadthen mark post(s) as UNREAD
+                if ($request->get_param('method') == 'mark_unread'){
+                    //mark one or more individual entries as read
+                    if ($request->get_param('entry')){
+                        Yarns_Microsub_Posts::toggle_read($request->get_param('entry'), false);
+                        break;
+                    }
+                    //mark an entry read as well as everything before it in the timeline
+                    if ($request->get_param('last_read_entry')){
+                        Yarns_Microsub_Posts::toggle_last_read($request->get_param('last_read_entry'), $request->get_param('channel'),false);
+                        break;
+                    }
+                }
+
+                // Return a timeline of the channel
 				return channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
 				break;
 			case 'search':
@@ -195,6 +223,9 @@ class Yarns_Microsub_Endpoint {
 				break;
             case 'test':
                 return test();
+                break;
+            case 'delete_all':
+                return Yarns_Microsub_Posts::delete_all_posts($request->get_param('channel'));
                 break;
 			default:
 				return "No action defined";

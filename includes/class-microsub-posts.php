@@ -69,6 +69,12 @@ class Yarns_Microsub_Posts {
 		// Create the post
 		$post_id = wp_insert_post( $my_post );
 
+        // Add '_id' to the post
+        $post['_id'] = $post_id;
+        // Mark the post as 'unread'
+        $post['_is_read'] = false;
+
+
 		// Set the channel of the post 
 		wp_set_post_terms( $post_id, $channel, 'yarns_microsub_post_channel' );
 
@@ -95,24 +101,102 @@ class Yarns_Microsub_Posts {
 	    channel={uid}
 	    entry={entry-id} or entry[]={entry-id}
 
-	To mark an entry read as well as everything before it in the timeline:
+    */
+
+	public static function toggle_read($entry_id, $read_status){
+	    // If $entry_id is an array, recursively process each item
+        if (is_array($entry_id)){
+            foreach ($entry_id as $single_entry){
+                static::toggle_read($single_entry, $read_status);
+            }
+        } else {
+            // Get the post json
+            $post = Yarns_Microsub_Posts::get_single_post($entry_id);
+            //$post = json_decode(get_post_meta($entry_id, 'yarns_microsub_json'), true);
+
+            // Set '_is_read' to true if (a) the post exists, and (b) is unread
+            if ($post){
+                if ($post['_is_read'] != $read_status){
+                    $post['_is_read'] = $read_status;
+                    update_post_meta($entry_id, 'yarns_microsub_json', json_encode(encode_array($post)));
+                }
+            }
+        }
+        return;
+    }
+
+    /*
+     * 	To mark an entry read as well as everything before it in the timeline:
 
 	    action=timeline
 	    method=mark_read
 	    channel={uid}
 	    last_read_entry={entry-id}
-    */
+     */
+    public static function toggle_last_read($entry_id, $channel, $read_status){
+        // Get the timeline
+        $timeline = channels::timeline($channel, $before=$entry_id+1, $after=null, $num_posts = -1);
+        //return $timeline;
+        foreach ($timeline['items'] as $item){
+            //return $item;
+            if ($item['_id']){
+                static::toggle_read($item['_id'],$read_status);
+            }
+        }
+        return $timeline;
 
-    /*Remove Entry from a Channel
 
-	POST
 
-	Parameters:
+        //return "not yet implemented";
+    }
 
-	    action=timeline
-	    method=remove
-	    channel={uid}
-	    entry={entry-id} or entry[]={entry-id}*/
+
+
+        /*Remove Entry from a Channel
+
+        POST
+
+        Parameters:
+
+            action=timeline
+            method=remove
+            channel={uid}
+            entry={entry-id} or entry[]={entry-id}*/
+
+
+    /* Delete all posts -- for debugging */
+    public static function delete_alL_posts($channel){
+        // This function is only available in local auth mode
+        if (!MICROSUB_LOCAL_AUTH == 1){return "not authorized";}
+        $args = array(
+            'post_type' => 'yarns_microsub_post',
+            'post_status' => 'publish',
+            'yarns_microsub_post_channel' => $channel,
+            'posts_per_page' => -1
+        );
+
+        if ($channel){
+            $args['yarns_microsub_post_channel'] = $channel;
+        }
+
+        $query = new WP_Query($args);
+
+        while ($query->have_posts()) {
+            $query->the_post();
+            wp_delete_post(get_the_ID(), true);
+        }
+        return "deleted posts";
+    }
+
+    // Parses json and returns array for a single post
+    public static function get_single_post($id){
+        return decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
+    }
+
+
+
+
 }
+
 
 ?>
