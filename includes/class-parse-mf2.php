@@ -246,9 +246,23 @@ class Parse_MF2 {
 	 * @return null|array
 	 */
 	public static function get_prop_array( array $mf, $properties, $fallback = null ) {
+	    /*** Jack's error handling -- needs further testing  ***/
+
+
+	    if (!is_array($mf)){
+	        error_log("not array: ". json_encode($mf));
+	        return;
+        }
+        if (!array_key_exists('properties', $mf)){
+            error_log("properties does not exist: ". json_encode($mf));
+	        return;
+        }
+        /*** End of Jack's error handling -- needs further testing  ***/
+
+
 		$data = array();
 		foreach ( $properties as $p ) {
-			if ( array_key_exists( $p, $mf['properties'] ) ) {
+            if ( array_key_exists( $p, $mf['properties'] ) ) {
 				foreach ( $mf['properties'][ $p ] as $v ) {
 					if ( is_string( $v ) ) {
 						if ( ! array_key_exists( $p, $data ) ) {
@@ -822,7 +836,10 @@ class Parse_MF2 {
 				$data['author'] = self::parse_hcard( $author, $mf );
 			} else {
 				$author = array_filter( $author );
+                $data['author'] = $author;
+                /*
 				if ( ! isset( $author['name'] ) && isset( $author['url'] ) ) {
+
 					$content = self::fetch( $author['url'] );
 					if ( is_wp_error( $content ) ) {
 						$content = '';
@@ -833,12 +850,13 @@ class Parse_MF2 {
 						$hcard = $hcard[0];
 					}
 					$data['author'] = self::parse_hcard( $hcard, $parsed, $author['url'] );
+
+
 				} else {
 					$data['author'] = $author;
-				}
+				}*/
 			}
 		}
-		$data = array_filter( $data );
 		if ( array_key_exists( 'name', $data ) ) {
 			if ( ! array_key_exists( 'summary', $data ) || ! array_key_exists( 'content', $data ) ) {
 				// unset( $data['name'] ); // disabling this for now - this removes post names in cases where the name
@@ -854,8 +872,13 @@ class Parse_MF2 {
 		return $data;
 	}
 
-	private static function parse_hcard( $hcard, $mf, $authorurl = false ) {
-		// If there is a matching author URL, use that one
+	public static function parse_hcard( $hcard, $mf, $authorurl = false ) {
+        /*** Jack's error handling -- needs further testing ***/
+        if (!$hcard){return;}
+        /*** End of Jack's error handling -- needs further testing ***/
+
+
+        // If there is a matching author URL, use that one
 		$data = array(
 			'type'  => 'card',
 			'name'  => null,
@@ -864,37 +887,55 @@ class Parse_MF2 {
 		);
 		// Possible Nested Values
 		$properties = array( 'org', 'location' );
-		$data       = array_merge( $data, self::get_prop_array( $hcard, $properties ) );
-		// Single Values
-		$properties = array( 'url', 'name', 'photo', 'latitude', 'longitude', 'note', 'uid', 'bday', 'role', 'locality', 'region', 'country' );
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $hcard, $p );
-			if ( 'url' === $p && $authorurl ) {
-				// If there is a matching author URL, use that one
-				$found = false;
-				foreach ( $hcard['properties']['url'] as $url ) {
-					if ( self::is_url( $url ) ) {
-						if ( $url === $authorurl ) {
-							$data['url'] = $url;
-							$found       = true;
-						}
-					}
-				}
-				if ( ! $found && self::is_url( $hcard['properties']['url'][0] ) ) {
-					$data['url'] = $hcard['properties']['url'][0];
-				}
-			} elseif ( null !== $v ) {
-				// Make sure the URL property is actually a URL
-				if ( 'url' === $p || 'photo' === $p ) {
-					if ( self::is_url( $v ) ) {
-						$data[ $p ] = $v;
-					}
-				} else {
-					$data[ $p ] = $v;
-				}
-			}
-		}
-		return array_filter( $data );
+		/*** Jack's error handling -- needs further testing ***/
+		$prop_array = self::get_prop_array($hcard,$properties);
+		if ($prop_array){  /// Only merge arrays if h-card has a valid property array
+            $data       = array_merge( $data, $prop_array );
+        }
+        /*** End of Jack's error handling -- needs further testing ***/
+
+
+//        $data       = array_merge( $data, self::get_prop_array( $hcard, $properties ) );
+
+        // Single Values
+            $properties = array( 'url', 'name', 'photo', 'latitude', 'longitude', 'note', 'uid', 'bday', 'role', 'locality', 'region', 'country' );
+            foreach ( $properties as $p ) {
+                $v = self::get_plaintext( $hcard, $p );
+                if ( 'url' === $p && $authorurl ) {
+                    // If there is a matching author URL, use that one
+                    $found = false;
+                    /*** Jack's error handling -- needs further testing ***/
+                    if (array_key_exists('properties',$hcard) && is_array($hcard['properties'])){ // These functions only work if there is an array of hcard properties
+                    /***End of  Jack's error handling -- needs further testing ***/
+
+                        foreach ( $hcard['properties']['url'] as $url ) {
+                            if ( self::is_url( $url ) ) {
+                                if ( $url === $authorurl ) {
+                                    $data['url'] = $url;
+                                    $found       = true;
+                                }
+                            }
+                        }
+                        if ( ! $found && self::is_url( $hcard['properties']['url'][0] ) ) {
+                            $data['url'] = $hcard['properties']['url'][0];
+                        }
+                    }
+                } elseif ( null !== $v ) {
+                    // Make sure the URL property is actually a URL
+                    if ( 'url' === $p || 'photo' === $p ) {
+                        if ( self::is_url( $v ) ) {
+                            $data[ $p ] = $v;
+                        }
+                    } else {
+                        $data[ $p ] = $v;
+                    }
+                }
+            }
+
+
+
+
+        return array_filter( $data );
 	}
 
 	private static function parse_hadr( $hadr, $mf ) {

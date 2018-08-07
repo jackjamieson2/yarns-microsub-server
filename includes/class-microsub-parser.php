@@ -8,6 +8,39 @@
 class parser {
 
 
+    public static function clean_post($data){
+        // dedupe name with summary
+        if ( isset( $data['name'] ) ) {
+            if (isset($data['summary'])) {
+                if (false !== stripos($data['summary'], $data['name'])) {
+                    unset($data['name']);
+                }
+            }
+        }
+        // dedupe name with content['text']
+        if ( isset( $data['name'] ) ) {
+            if ( isset( $data['content']['text'] ) ) {
+                if ( false !== stripos( $data['content']['text'], $data['name'] ) ) {
+                    unset( $data['name'] );
+                }
+            }
+        }
+        // Attempt to set a featured image
+        if ( ! isset( $data['featured'] ) ) {
+            if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
+                $data['featured'] = $data['photo'];
+                unset( $data['photo'] );
+            }
+        }
+
+        // Convert special characters to html entities in content['html']
+        if (isset ($data['content']['html'])){
+            //$data['content']['html'] = htmlspecialchars( $data['content']['html']);
+        }
+
+        $data = array_filter($data);
+        return $data;
+    }
 
 	/**
 	 * Parses marked up HTML.
@@ -202,10 +235,12 @@ class parser {
         return parser::parse_feed($url, $preview=true);
 	}
 
-	public static function parse_feed($url,$preview = false, $count = 5){
+	public static function parse_feed($url,$preview = true, $count = 20){
 	    // For testing, parse all feeds in preview mode
 
         $content = file_get_contents($url);
+        // only proceed if content could be found
+        if (!$content){return;}
 
         // Try to parse h-feed
         $feed = parser::parse_hfeed($content, $url, $preview, $count);
@@ -266,8 +301,6 @@ class parser {
                 }
 
 
-
-
                 $post['summary'] = strip_tags($item->get_description());
 
 
@@ -291,7 +324,8 @@ class parser {
 
 
             return [
-                'items' => $rss_items
+                'items' => $rss_items,
+                '_feed_type' =>'rss'
             ];
 
         }
@@ -339,7 +373,10 @@ class parser {
 		}
 		//error_log("hfeed item key = " . $mf_key );
 
-		
+        // Get feed author
+        // (For posts with no author, use the feed author instead)
+        $feed_author = static::get_feed_author($content, $url);
+
 
 		//Get permalinks for each item
 		$hfeed_items = array();
@@ -354,9 +391,39 @@ class parser {
 				if ("{$item['type'][0]}" == 'h-entry' ||
 					"{$item['type'][0]}" == 'h-event' ) 
 				{
-					//$the_item = Parse_MF2::mf2parse($item,$mf);
+
 					$the_item = Parse_MF2::parse_hentry($item,$mf);
-					$hfeed_items[] = $the_item;
+
+
+					if (is_array($the_item)){
+                        //return $the_item;
+
+
+                        /* Merge feed author and post author if:
+                         *  (1) feed_author was found AND
+                         *  (2) there is no post author OR (3) post author has same url as feed author
+                         */
+
+                        if ($feed_author){
+                            if (!isset($the_item['author'])){
+
+                                //if(!array_key_exists('author', $the_item)) {
+                                $the_item['author'] = $feed_author;
+                            } else if (array_key_exists('url',$the_item['author']) && array_key_exists('url', $feed_author)){
+                                if ($the_item['author']['url'] == $feed_author['url']){
+                                    $the_item['author'] = array_merge($feed_author, $the_item['author']);
+                                }
+                            }
+
+                        }
+
+
+
+                        $the_item = static::clean_post($the_item);
+                        $hfeed_items[] = $the_item;
+
+                    }
+
 				}
 
 			}
@@ -394,10 +461,35 @@ class parser {
 		}
 
 		return [
-      		'items' => $hfeed_items
+      		'items' => $hfeed_items,
+            '_feed_type' =>'h-feed',
     	];
 
 	}
+
+	private static function get_feed_author($content, $url){
+        $mf = Mf2\parse($content, $url);
+
+        if ( ! is_array( $mf ) ) {
+            return array();
+        }
+
+        $count = count( $mf['items'] );
+        if ( 0 === $count ) {
+            return array();
+        }
+        foreach ($mf['items'] as $item) {
+            // Check if the item is an h-card
+            if (in_array('h-card', $item['type'], true)) {
+                return Parse_MF2::parse_hcard( $item, $mf, $url );
+            }
+        }
+    }
+
+
+
+
+
 
 	/* For now deprecated in favour of mergeparse() */
 	public static function parse_hfeed_item($content,$url){

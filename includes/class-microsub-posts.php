@@ -74,12 +74,21 @@ class Yarns_Microsub_Posts {
         // Mark the post as 'unread'
         $post['_is_read'] = false;
 
+        // Add a permalink field for debugging
+        $post['_permalink'] = $permalink;
+
+        $post = encode_array($post);
+        //$post = json_encode($post);
+        //return $post;
 
 		// Set the channel of the post 
 		wp_set_post_terms( $post_id, $channel, 'yarns_microsub_post_channel' );
 
 		// Save the post JSON as a custom meta field
-		update_post_meta($post_id, 'yarns_microsub_json', json_encode(encode_array($post)));
+		update_post_meta($post_id, 'yarns_microsub_json', $post);
+
+		return get_post_meta($post_id, 'yarns_microsub_json');
+
 
 		return $post;
 
@@ -190,7 +199,19 @@ class Yarns_Microsub_Posts {
 
     // Parses json and returns array for a single post
     public static function get_single_post($id){
-        return decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
+        /* For some reason, some items are retrieved as encoded. Not sure why */
+        $post = get_post_meta($id,'yarns_microsub_json',true);
+
+        if (!is_array($post)){
+            $post = stripcslashes($post);
+            //$post = json_decode($post);
+        }
+
+        //$post = json_decode(get_post_meta($id,'yarns_microsub_json',true),true);
+
+        //$post = decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
+
+        return $post;
     }
 
 

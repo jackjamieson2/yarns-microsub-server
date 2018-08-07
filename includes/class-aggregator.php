@@ -18,65 +18,59 @@ class Yarns_Microsub_Aggregator {
 		}
 	}
 
-	public static function test_aggregator($url){
-	    $channel_uid = 'test-2';
-        $feed = parser::parse_feed($url)['items'];
-        foreach ($feed as $item){
-            if (isset($item['url'])){
-                $permalink= $item['url'];
-                if (!static::exists($permalink,$channel_uid)){
-                    return Yarns_Microsub_Posts::add_post($permalink, $item,$channel_uid);
-                }
-            }
-        }
+	public static function test_aggregator(){
 
+
+        //$channels =  json_decode(get_site_option("yarns_channels"),True);
+	    return self::poll();
     }
 
 	/* Poll for new posts */ 
 	public static function poll(){
+
 		error_log("Polling for new posts");
-		
-		// for debugging, return a list of URLs and post IDs
 		$results = [];
 		// For each channel
 		$channels =  json_decode(get_site_option("yarns_channels"),True);
 		if ($channels){
 			foreach ($channels as $channel){
+			    //return $channel;
 				$channel_uid = $channel['uid'];
 				if (isset($channel['items'])){
 					// For each feed in this channel
-					foreach ($channel['items'] as $item){
-						if (isset($item['url'])){
-							$feed = parser::parse_feed($item['url'], $preview=true)['items'];
+                    foreach ($channel['items'] as $channel_item){
+                        if (isset($channel_item['url'])) {
+                            $feed = parser::parse_feed($channel_item['url']);
+                            //return $feed;
+                            foreach ($feed['items'] as $post) {
+                                if (isset($post['url'])) {
+                                    $permalink = $post['url'];
+                                    if (!static::exists($permalink, $channel_uid)) {
+                                        // For RSS posts, use the parsed post from $feed
+                                        if ($feed['_feed_type'] == 'rss') {
 
-							// get new posts from this feed.
-								// TO DO - revise parse_hfeed to be able to handle both rss and h-feed
-							// Check if the posts already exist
-							foreach ($feed as $item){
-								if (isset($item['url'])){
-									$permalink= $item['url'];
-									if (!static::exists($permalink,$channel_uid)){
-										$content = file_get_contents($permalink);
-										$full_post = parser::mergeparse($content,$permalink);
-										//return $full_post;										
-										
-										Yarns_Microsub_Posts::add_post($permalink, $full_post,$channel_uid);
-										$results[][] = "added " . $permalink;
-									}  else {
-										$results[][] = "already exists " . $permalink;
-									}
-
-								}
-							}
-						}
-					}
-
-				}
-			}
-		}
+                                            Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
+                                        } else {
+                                            /*// Try just loading the post from the feed rather than fetching the individual permalink
+                                            * $content = file_get_contents($permalink);
+                                            * $full_post = parser::mergeparse($content, $permalink);
+                                            * Yarns_Microsub_Posts::add_post($permalink, $full_post, $channel_uid);
+                                            */
+                                            Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
+                                        }
+                                        $results[] = "added " . $permalink;
+                                    } else {
+                                        $results[] = "already exists " . $permalink;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        error_log("finished polling. Results = \n" . json_encode($results));
 		return $results;
 	}
-	
-
 }
 
