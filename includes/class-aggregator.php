@@ -49,16 +49,16 @@ class Yarns_Microsub_Aggregator {
                                         // For RSS posts, use the parsed post from $feed
                                         if ($feed['_feed_type'] == 'rss') {
 
-                                            Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
+                                            $results[] = Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
                                         } else {
                                             /*// Try just loading the post from the feed rather than fetching the individual permalink
                                             * $content = file_get_contents($permalink);
                                             * $full_post = parser::mergeparse($content, $permalink);
                                             * Yarns_Microsub_Posts::add_post($permalink, $full_post, $channel_uid);
                                             */
-                                            Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
+                                            $results[] = Yarns_Microsub_Posts::add_post($permalink, $post, $channel_uid);
                                         }
-                                        $results[] = "added " . $permalink;
+
                                     } else {
                                         $results[] = "already exists " . $permalink;
                                     }
