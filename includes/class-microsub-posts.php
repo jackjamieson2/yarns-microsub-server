@@ -89,11 +89,6 @@ class Yarns_Microsub_Posts {
 
 		return get_post_meta($post_id, 'yarns_microsub_json');
 
-
-		return $post;
-
-		// Return the post id
-		return $post_id;
 	}
 
 	/*	
@@ -127,7 +122,7 @@ class Yarns_Microsub_Posts {
             if ($post){
                 if ($post['_is_read'] != $read_status){
                     $post['_is_read'] = $read_status;
-                    update_post_meta($entry_id, 'yarns_microsub_json', json_encode(encode_array($post)));
+                    update_post_meta($entry_id, 'yarns_microsub_json', $post);
                 }
             }
         }
