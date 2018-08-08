@@ -12,28 +12,20 @@ class channels {
 	//Returns a list of the channels
 	public static function get(){ 
 		if (get_site_option("yarns_channels")){
-			$channels =  json_decode(get_site_option("yarns_channels"));
-		}  else {
-			// For testing purposes, returns a hard-coded list of channels
-			/*
-			$channels = [];
-
-			$array = [ 
-				"uid"=> "notifications",
-				"name"=> "Notifications", 
-				"unread"=> 0 ];
-
-	    	$channels[] = $array;
-
-			$array2 = [
-	      		"uid"=> "indieweb",
-				"name"=> "IndieWeb2",
-				"unread"=> 0
-	    	];
-
-	    	$channels[] = $array2;
-	    	*/
+			$channels =  json_decode(get_site_option("yarns_channels"), true);
 		}
+		// The channels list also includes a list of feeds for each channel, so remove them before returning
+        foreach ($channels as $key=>$channel) {
+                if (array_key_exists('items',$channel)){
+                    unset($channels[$key]['items']);
+            }
+        }
+
+        // for testing, hardcode an 'unread' value for each channel
+        foreach ($channels as $key=>$channel) {
+		    //$channels[$key]['unread'] = 10;
+        }
+
 		return [
       		'channels' => $channels
     	];
@@ -129,7 +121,7 @@ class channels {
                 }
             }
         } else {
-            static::add($channel_name);
+            static::add($name);
         }
 
     }
@@ -153,41 +145,46 @@ class channels {
 	public static function timeline($channel, $after, $before, $num_posts=20){
 			//Get all the posts of type yarns_microsub_post
 
+
         $args = array(
             'post_type' => 'yarns_microsub_post',
             'post_status' => 'publish',
             'yarns_microsub_post_channel' => $channel,
             'posts_per_page' => $num_posts
         );
-		$query = new WP_Query($args);
 
-		// Pagination (to be implemented)
+        $id_list = [];
+		// Pagination
 		if ($after){
-
+		    // Fetch additional posts older (lower id) than $after
+            $id_list = array_merge($id_list,range(1, (int)$after -1) );
         }
         if ($before){
-
+		    // Check for additional posts newer (higher id) than $before
+            $id_list = array_merge($id_list,static::find_newer_posts($before, $args) );
+            //$id_list[] = static::find_newer_posts($before, $args);
         }
+        // use rsort to sort the list of ids in descending order
+        if ($id_list){
+            if (is_array($id_list)){
+                rsort($id_list);
+            }
+            $args['post__in'] = $id_list;
+        }
+
+
+        //return $args;
 
         // notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
         $ids = []; // store a list of post ids returned by the query
         $timeline_items = [];
-		while ($query->have_posts()) {
+        $query = new WP_Query($args);
+
+        while ($query->have_posts()) {
 		    $query->the_post();
-		    $item = json_decode(get_the_content(),True);
-		    if (isset($item['content']['html'])){
-		    	//$item['content']['html'] = html_entity_decode($item['content']['html']);
-		    }
+
 		    $id = get_the_ID();
             $item = Yarns_Microsub_Posts::get_single_post($id);
-
-		    //$item = decode_array(json_decode(get_post_meta($id, 'yarns_microsub_json', true),true));
-            // Decode html special characters in content['html']
-            /*
-            if (isset ($item['content']['html'])){
-                $item['content']['html'] = htmlspecialchars_decode( $item['content']['html']);
-            }
-            */
 
             $timeline_items [] = $item;
             $ids[] = $id;
@@ -198,10 +195,10 @@ class channels {
 
 		if ($timeline_items) {
             $timeline['items'] = $timeline_items;
-            $timeline['before'] = max($ids);
+            $timeline['paging']['before'] = (string)max($ids);
             // Only add 'after' if there are older posts
             if (self::older_posts_exist(min($ids),$channel)){
-                $timeline['after'] = min($ids);
+                $timeline['paging']['after'] = (string)min($ids);
             }
             return $timeline;
 		}
@@ -341,5 +338,38 @@ class channels {
 
 	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
 	 */
-	
+
+
+
+	// Returns a list of post ids that are newer
+    public static function find_newer_posts($before, $args){
+
+        $args['posts_per_page'] = -1;
+
+        $query = new WP_Query($args);
+
+        while ($query->have_posts()) {
+            $query->the_post();
+
+            $id = get_the_ID();
+            $ids[] = $id;
+        }
+        wp_reset_query();
+
+
+        // Only keep ids that are newer (higher) than $before
+        foreach ($ids as $key=>$id){
+            if (!$id>$before){
+                unset($ids['$key']);
+            }
+        }
+
+        return $ids;
+
+
+
+
+    }
+
+
 }
