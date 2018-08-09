@@ -268,7 +268,9 @@ class channels {
 	    url={url}
 	*/
 
-	public static function follow($query_channel, $url){
+	public static function follow($query_channel, $url, $unfollow=false ){
+	    $url = stripslashes($url);
+	    error_log("converted to {$url}");
 		$new_follow = [
 			"type"=>"feed",
 			"url"=>$url
@@ -276,26 +278,44 @@ class channels {
 		//$channels = [];
 		if (get_site_option("yarns_channels")){
 			$channels = json_decode(get_site_option("yarns_channels"),True);
+
 			// Check if the channel has any subscriptions yet
 			foreach ($channels as $key=>$channel){
 				if ($channel['uid'] == $query_channel){
 					if (!array_key_exists('items', $channel)){
-						// no subscritpions in this channel yet
+						// no subscriptions in this channel yet
 							$channels[$key]['items'] = [];
 					} else {
 						//Check if the subscription exists in this channel
-						foreach ($channel['items'] as $feed){
+						foreach ($channel['items'] as $channel_key=>$feed){
 							if ($feed['url'] == $url){
-								// already following this feed, exit early
-								return $new_follow;
+							    error_log("already following feed");
+                                error_log("unfollow = {$unfollow}");
+								// already following this feed
+
+                                if ($unfollow == true){
+                                    // if $unfollow == true then remove the feed
+                                    //return "key = {$key} | channel_key = {$channel_key}";
+                                    unset($channels[$key]['items'][$channel_key]);
+                                    update_option("yarns_channels",json_encode($channels));
+                                    return;
+
+                                } else {
+                                    // if $unfollow == false then exit early because the subscription already exists
+                                    return;
+                                }
+
 							}
 						}
 					}
 					
 					// Add the new follow to the selected channel
-					$channels[$key]['items'][] = $new_follow;
-					update_option("yarns_channels",json_encode($channels));
-					return $new_follow;
+					if ($unfollow==false){
+                        $channels[$key]['items'][] = $new_follow;
+                        update_option("yarns_channels",json_encode($channels));
+                        return $new_follow;
+                    }
+
 				}
 			} 
 		} 
@@ -311,17 +331,21 @@ class channels {
 	    action=unfollow
 	    channel={uid}
 	    url={url}*/
+    public static function unfollow($query_channel, $url){
+
+    }
 
 
 
-	/*    Muting
 
-	GET
+        /*    Muting
 
-    action=mute
-    channel={uid}
+        GET
 
-	Retrieve the list of users that are muted in the given channel.*/
+        action=mute
+        channel={uid}
+
+        Retrieve the list of users that are muted in the given channel.*/
 
 	/*POST
 

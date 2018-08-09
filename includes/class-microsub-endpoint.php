@@ -218,6 +218,9 @@ class Yarns_Microsub_Endpoint {
 					return channels::follow($request->get_param('channel'), $request->get_param('url'));
 					break;
 				}
+            case 'unfollow':
+                return channels::follow($request->get_param('channel'), $request->get_param('url'), $unfollow=true);
+                break;
 			case 'poll-test':
 				return Yarns_Microsub_Aggregator::test_aggregator($request->get_param('url'));
 				break;
