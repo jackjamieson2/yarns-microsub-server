@@ -11,7 +11,7 @@
  * Using this to test querying(q=) parameters quickly
  */
 if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
-	define( 'MICROSUB_LOCAL_AUTH', '1' );
+	define( 'MICROSUB_LOCAL_AUTH', '0' );
 }
 
 // Allows for a custom Authentication and Token Endpoint
