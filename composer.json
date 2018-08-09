@@ -1,10 +1,6 @@
 {
   "name": "jackjamieson2/yarns-microsub-server",
-  "description": "In development microsub server for wordpress",
-  "require": {
-    "php": ">=5.6.0",
-    "composer/installers": "~1.0"
-  },
+  "description": "A Microsub server plugin for WordPress",
   "type": "wordpress-plugin",
   "license": "MIT",
   "authors": [
@@ -17,14 +13,21 @@
     "installer-name": "yarns-microsub-server"
   },
   "require": {
-    "mf2/mf2": "v0.4.4-alpha"
+    "php": ">=5.6.0",
+    "composer/installers": "~1.0",
+    "mf2/mf2": "dev-master",
+    "masterminds/html5": "^2.3"
   },
-
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
+    "squizlabs/php_codesniffer": "^2.2 || ^3.0.2",
+    "wimg/php-compatibility": "dev-master",
+    "wp-coding-standards/wpcs": "dev-master"
+  },
   "scripts": {
-    "test": [
-      "composer install",
-      "bin/install-wp-tests.sh wordpress wordpress wordpress",
-      "vendor/bin/phpunit"
+    "lint": "phpcs",
+    "install-codestandards": [
+      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ]
   }
 }

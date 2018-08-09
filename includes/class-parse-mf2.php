@@ -6,7 +6,7 @@
  * and https://github.com/pfefferle/wordpress-semantic-linkbacks/blob/master/includes/class-linkbacks-mf2-handler.php
  **/
 
-class Parse_MF2 {
+class Parse_MF2_yarns {
 
 
 

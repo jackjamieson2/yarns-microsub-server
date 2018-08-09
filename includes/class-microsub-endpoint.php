@@ -146,25 +146,25 @@ class Yarns_Microsub_Endpoint {
 				if ('GET' === $request->get_method()){
 					// GET
 					//return a list of the channels
-					return channels::get();	
+					return Yarns_Microsub_Channels::get();
 					break;
 				} else if ('POST' === $request->get_method()){
 					// POST
 					if ($request->get_param('method') === 'delete'){
 						// delete a channel
-						channels::delete($request->get_param('channel'));
+                        Yarns_Microsub_Channels::delete($request->get_param('channel'));
 						break;
 
 					} elseif ($request->get_param('name')){
 						if ($request->get_param('channel')){
-						    return channels::update($request->get_param('channel'), $request->get_param('name'));
+						    return Yarns_Microsub_Channels::update($request->get_param('channel'), $request->get_param('name'));
 							//update the channel
 
 							break;
 						} else {
 							//create a new channel
-							//return channels::add("$request->get_param('name')");
-							return channels::add($request->get_param('name'));
+							//return Yarns_Microsub_Channels::add("$request->get_param('name')");
+							return Yarns_Microsub_Channels::add($request->get_param('name'));
 							break;
 						}
 					} 
@@ -200,26 +200,26 @@ class Yarns_Microsub_Endpoint {
                 }
 
                 // Return a timeline of the channel
-				return channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
+				return Yarns_Microsub_Channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
 				break;
 			case 'search':
-				return parser::search($request->get_param('query'));
+				return Yarns_Microsub_Parser::search($request->get_param('query'));
 				break;
 			case 'preview':
-				return parser::preview($request->get_param('url'));
+				return Yarns_Microsub_Parser::preview($request->get_param('url'));
 				break;
 			case 'follow':
 				if ('GET' === $request->get_method()){
 					// return a list of feeds being followed in the given channel
-					return channels::list_follows($request->get_param('channel'));
+					return Yarns_Microsub_Channels::list_follows($request->get_param('channel'));
 					break;
 				} else if ('POST' === $request->get_method()){
 					// follow a new URL in the channel
-					return channels::follow($request->get_param('channel'), $request->get_param('url'));
+					return Yarns_Microsub_Channels::follow($request->get_param('channel'), $request->get_param('url'));
 					break;
 				}
             case 'unfollow':
-                return channels::follow($request->get_param('channel'), $request->get_param('url'), $unfollow=true);
+                return Yarns_Microsub_Channels::follow($request->get_param('channel'), $request->get_param('url'), $unfollow=true);
                 break;
 			case 'poll-test':
 				return Yarns_Microsub_Aggregator::test_aggregator($request->get_param('url'));

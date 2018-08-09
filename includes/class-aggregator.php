@@ -40,7 +40,7 @@ class Yarns_Microsub_Aggregator {
 					// For each feed in this channel
                     foreach ($channel['items'] as $channel_item){
                         if (isset($channel_item['url'])) {
-                            $feed = parser::parse_feed($channel_item['url']);
+                            $feed = Yarns_Microsub_Parser::parse_feed($channel_item['url']);
                             //return $feed;
                             foreach ($feed['items'] as $post) {
                                 if (isset($post['url'])) {
