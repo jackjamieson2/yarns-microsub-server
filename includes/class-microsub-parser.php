@@ -5,7 +5,7 @@
  * @author Jack Jamieson
  *
  */
-class parser {
+class Yarns_Microsub_Parser {
 
 
     public static function clean_post($data){
@@ -55,13 +55,13 @@ class parser {
 		}
 
 
-		//$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		//$mf2data  = Parse_MF2_yarns::mf2parse( $content, $url );
 		//return $mf2data;
 
-		//$parsethis = new Parse_This();
+		//$parsethis = new Yarns_Microsub_Parse_This();
 		//$parsethis->set_source( $content, $url );
 		//$metadata = $parsethis->meta_to_microformats();
-		$mf2data  = Parse_MF2::mf2parse( $content, $url );
+		$mf2data  = Parse_MF2_yarns::mf2parse( $content, $url );
 		//$data     = array_merge( $metadata, $mf2data );
 		//$data     = array_filter( $data );
         $data = $mf2data;
@@ -232,7 +232,7 @@ class parser {
 
 
 	public static function preview($url){
-        return parser::parse_feed($url, $preview=true);
+        return static::parse_feed($url, $preview=true);
 	}
 
 	public static function parse_feed($url,$preview = true, $count = 20){
@@ -243,7 +243,7 @@ class parser {
         if (!$content){return;}
 
         // Try to parse h-feed
-        $feed = parser::parse_hfeed($content, $url, $preview, $count);
+        $feed = static::parse_hfeed($content, $url, $preview, $count);
         if ($feed){
             return $feed;
         }
@@ -392,7 +392,7 @@ class parser {
 					"{$item['type'][0]}" == 'h-event' ) 
 				{
 
-					$the_item = Parse_MF2::parse_hentry($item,$mf);
+					$the_item = Parse_MF2_yarns::parse_hentry($item,$mf);
 
 
 					if (is_array($the_item)){
@@ -481,7 +481,7 @@ class parser {
         foreach ($mf['items'] as $item) {
             // Check if the item is an h-card
             if (in_array('h-card', $item['type'], true)) {
-                return Parse_MF2::parse_hcard( $item, $mf, $url );
+                return Parse_MF2_yarns::parse_hcard( $item, $mf, $url );
             }
         }
     }

@@ -5,7 +5,7 @@
  * @author Jack Jamieson
  *
  */
-class channels {
+class Yarns_Microsub_Channels {
 
 
 

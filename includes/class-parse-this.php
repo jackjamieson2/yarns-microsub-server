@@ -13,7 +13,7 @@
  *
  * @since x.x.x
  */
-class Parse_This {
+class Yarns_Microsub_Parse_This {
 	private $images = array();
 
 	private $embeds = array();
