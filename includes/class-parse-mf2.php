@@ -821,7 +821,7 @@ class Parse_MF2_yarns {
 		$data['content'] = self::parse_html_value( $entry, 'content' );
 		$data['summary'] = self::get_summary( $entry, $data['content'] );
 		if ( isset( $data['name'] ) ) {
-			$data['name'] = trim( preg_replace( '/https?:\/\/([^ ]+|$)/', '', $data['name'] ) );
+			//$data['name'] = trim( preg_replace( '/https?:\/\/([^ ]+|$)/', '', $data['name'] ) );
         }
 		if ( isset( $mf['rels']['syndication'] ) ) {
 			if ( isset( $data['syndication'] ) ) {

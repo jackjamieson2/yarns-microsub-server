@@ -25,6 +25,8 @@ class Yarns_Microsub_Parser {
                 }
             }
         }
+
+
         // Attempt to set a featured image
         if ( ! isset( $data['featured'] ) ) {
             if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
@@ -279,10 +281,11 @@ class Yarns_Microsub_Parser {
             foreach ($items as $item){
                 $post = [];
                 $post['type'] = 'entry';
-                $post['name'] = $item->get_title();
+                $post['name'] = htmlspecialchars_decode($item->get_title(), ENT_QUOTES);
 
 
                 $post['author']['name'] = $feed->get_title();
+
                 $post['author']['photo'] = $feed->get_image_url();
                 $post['author']['url'] = $feed->get_link();
 
@@ -293,6 +296,8 @@ class Yarns_Microsub_Parser {
                         $post['author']['name'] = $post_author->get_name() . " | " . $post['author']['name'];
                     }
                 }
+
+
 
                 if ($post_author->get_link()){
                     if ($post_author->get_link() != $post['author']['url']){
@@ -391,19 +396,12 @@ class Yarns_Microsub_Parser {
 				if ("{$item['type'][0]}" == 'h-entry' ||
 					"{$item['type'][0]}" == 'h-event' ) 
 				{
-
 					$the_item = Parse_MF2_yarns::parse_hentry($item,$mf);
-
-
 					if (is_array($the_item)){
-                        //return $the_item;
-
-
                         /* Merge feed author and post author if:
                          *  (1) feed_author was found AND
                          *  (2) there is no post author OR (3) post author has same url as feed author
                          */
-
                         if ($feed_author){
                             if (!isset($the_item['author'])){
 
@@ -417,19 +415,11 @@ class Yarns_Microsub_Parser {
 
                         }
 
-
-
                         $the_item = static::clean_post($the_item);
                         $hfeed_items[] = $the_item;
-
                     }
-
 				}
-
 			}
-			//error_log ("checkpoint 2");
-
-
 		} else {
 			// if $preview == false, get the full posts from original permalinks
 			foreach ($mf[$mf_key] as $key=>$item) {
@@ -437,29 +427,21 @@ class Yarns_Microsub_Parser {
 				if ("{$item['type'][0]}" == 'h-entry' ||
 					"{$item['type'][0]}" == 'h-event' )
 				{
-					
 					if ("{$item['properties']['url'][0]}"){
 						$hfeed_item_urls[] = "{$item['properties']['url'][0]}" . "?" . $key;
 					}
 				}
-
 			}
-			//error_log("Got permalinks");
-		
-			//error_log("Parsing individual h-feed items");
+
 			$hfeed_items = array();
 			foreach ($hfeed_item_urls as $page){
 
 				$content = file_get_contents($page);
 				$hfeed_items[] = static::mergeparse($content,$page);
 			}
-			$result = ['items'=> $hfeed_items];
-			//error_log("Result: \n" . json_encode($result));
-
-
 
 		}
-
+        //$result = ['items'=> $hfeed_items];
 		return [
       		'items' => $hfeed_items,
             '_feed_type' =>'h-feed',
@@ -480,14 +462,26 @@ class Yarns_Microsub_Parser {
         }
         foreach ($mf['items'] as $item) {
             // Check if the item is an h-card
-            if (in_array('h-card', $item['type'], true)) {
+            if (Parse_MF2_yarns::is_hcard($item)){
                 return Parse_MF2_yarns::parse_hcard( $item, $mf, $url );
+            }
+            // Check if the item is an h-feed, in which case look for an author property
+            if (in_array('h-feed', $item['type'], true)) {
+                if (isset($item['properties'])){
+                    if (isset($item['properties']['author'])){
+                        foreach($item['properties']['author'] as $author){
+                            if (Parse_MF2_yarns::is_hcard($author)){
+                                return Parse_MF2_yarns::parse_hcard( $author, $mf, $url );
+                            } else {
+                                return $author;
+                            }
+                        }
+                    }
+                }
+                //return Parse_MF2_yarns::parse_hcard( $item, $mf, $url );
             }
         }
     }
-
-
-
 
 
 
@@ -538,37 +532,6 @@ class Yarns_Microsub_Parser {
 		}
 	}
 
-/*
-
-{
-    "type": "entry",
-    "published": "2017-04-28T11:58:35-07:00",
-    "url": "https://aaronparecki.com/2017/04/28/9/p3k-http",
-    "author": {
-        "type": "card",
-        "name": "Aaron Parecki",
-        "url": "https://aaronparecki.com/",
-        "photo": "https://aaronparecki.com/images/profile.jpg"
-    },
-    "category": [
-        "http",
-        "p3k",
-        "library",
-        "code",
-        "indieweb"
-    ],
-    "photo": [
-        "https://aaronparecki.com/2017/04/28/9/photo.png"
-    ],
-    "content": {
-        "text": "Finally packaged up my HTTP functions into a library! https://github.com/aaronpk/p3k-http Previously I had been copy+pasting these around to quite a few projects. Happy to have consolidated these finally!",
-        "html": "Finally packaged up my HTTP functions into a library! <a href=\"https://github.com/aaronpk/p3k-http\">https://github.com/aaronpk/p3k-http</a> Previously I had been copy+pasting these around to quite a few projects. Happy to have consolidated these finally!"
-    },
-    "_id": "abc987",
-    "_is_read": true
-}
-*/
-
 
 	// Find the root feed
 	public static function locate_hfeed($content, $url){
@@ -581,9 +544,6 @@ class Yarns_Microsub_Parser {
 
 		foreach ($mf['items'] as $mf_item) {
 			if(in_array('h-feed', $mf_item['type'])) {
-
-			//if ("{$mf_item['type'][0]}"=="h-feed"){
-				//return 1;
 				return $mf_item;
 			} 
 		}
@@ -618,7 +578,6 @@ class Yarns_Microsub_Parser {
 			}
 		}
 		return;
-
 	}
 
 	public static function find_hfeed_in_page($url){

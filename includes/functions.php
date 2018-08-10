@@ -8,43 +8,7 @@
 
 
 function test(){
-    /*
 
-    $channel = 'test';
-    $num_posts = 100;
-
-    //Get all the posts of type yarns_microsub_post
-
-    $args = array(
-        'post_type' => 'yarns_microsub_post',
-        'post_status' => 'publish',
-        'yarns_microsub_post_channel' => $channel,
-        'posts_per_page' => $num_posts
-    );
-    $query = new WP_Query($args);
-
-    // notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
-    $ids = []; // store a list of post ids returned by the query
-    $timeline_items = [];
-    while ($query->have_posts()) {
-        $query->the_post();
-
-        $id = get_the_ID();
-
-        $item = get_post_meta($id,'yarns_microsub_json',true);
-
-    }
-
-
-    wp_reset_query();
-
-    if ($timeline_items) {
-        $timeline['items'] = $timeline_items;
-        return $timeline;
-    }
-
-
-*/
 }
 
 function encode_array($data){
