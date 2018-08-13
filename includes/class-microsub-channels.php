@@ -261,7 +261,7 @@ class Yarns_Microsub_Channels {
 
 	/*POST
 
-	Follow a new URL in a channel.
+	Follow a new URL in a channel. Or unfollow existing URL
 
 	    action=follow
 	    channel={uid}
@@ -270,7 +270,6 @@ class Yarns_Microsub_Channels {
 
 	public static function follow($query_channel, $url, $unfollow=false ){
 	    $url = stripslashes($url);
-	    error_log("converted to {$url}");
 		$new_follow = [
 			"type"=>"feed",
 			"url"=>$url
@@ -278,7 +277,6 @@ class Yarns_Microsub_Channels {
 		//$channels = [];
 		if (get_site_option("yarns_channels")){
 			$channels = json_decode(get_site_option("yarns_channels"),True);
-
 			// Check if the channel has any subscriptions yet
 			foreach ($channels as $key=>$channel){
 				if ($channel['uid'] == $query_channel){
@@ -313,6 +311,8 @@ class Yarns_Microsub_Channels {
 					if ($unfollow==false){
                         $channels[$key]['items'][] = $new_follow;
                         update_option("yarns_channels",json_encode($channels));
+                        //Now that the new feed is added, poll it right away
+                        Yarns_Microsub_Aggregator::poll_site($url, $query_channel);
                         return $new_follow;
                     }
 
