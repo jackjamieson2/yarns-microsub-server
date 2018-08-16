@@ -248,6 +248,9 @@ class Parse_MF2_yarns {
 	public static function get_prop_array( array $mf, $properties, $fallback = null ) {
 	    /*** Jack's error handling -- needs further testing  ***/
 
+	    /** Note to GWG: Added this error checking because I was having frequent errors
+         *  where mf2 was being passed that did not contain these fields
+         */
 
 	    if (!is_array($mf)){
 	        error_log("not array: ". json_encode($mf));
@@ -807,6 +810,8 @@ class Parse_MF2_yarns {
 		return array();
 	}
 
+    /** Note to GWG:changed parse_entry to public (was private)
+     */
 	public static function parse_hentry( $entry, $mf ) {
 		// Array Values
 		$properties        = array( 'checkin', 'category', 'invitee', 'photo', 'video', 'audio', 'syndication', 'in-reply-to', 'like-of', 'repost-of', 'bookmark-of', 'tag-of', 'location', 'featured', 'swarm-coins', 'checked-in-by' );
@@ -821,6 +826,9 @@ class Parse_MF2_yarns {
 		$data['content'] = self::parse_html_value( $entry, 'content' );
 		$data['summary'] = self::get_summary( $entry, $data['content'] );
 		if ( isset( $data['name'] ) ) {
+            /** Note to GWG: removed this trimming function because (IIRC) it seemed to interfere with
+             * deduping between name, summary, and content.
+             */
 			//$data['name'] = trim( preg_replace( '/https?:\/\/([^ ]+|$)/', '', $data['name'] ) );
         }
 		if ( isset( $mf['rels']['syndication'] ) ) {
@@ -837,6 +845,17 @@ class Parse_MF2_yarns {
 			} else {
 				$author = array_filter( $author );
                 $data['author'] = $author;
+                /** Note to GWG:
+                 * Author info was sometimes incomplete.
+                 *
+                 * Additionally, this adds extra calls to post parsing, which add latency.
+                 * That's a problem when serving previews to a microsub client since it sometimes leads to timeouts.
+                 *
+                 * Therefore I use my own function to get an author for the whole feed (once),
+                 * and then add that author to each post only if the post does not have an author.
+                 *
+                 * (see Yarns_Microsub_Parser::get_feed_author)
+                 */
                 /*
 				if ( ! isset( $author['name'] ) && isset( $author['url'] ) ) {
 
@@ -859,8 +878,12 @@ class Parse_MF2_yarns {
 		}
 		if ( array_key_exists( 'name', $data ) ) {
 			if ( ! array_key_exists( 'summary', $data ) || ! array_key_exists( 'content', $data ) ) {
-				// unset( $data['name'] ); // disabling this for now - this removes post names in cases where the name
-                // seems reasonable to include (e.g. photo posts, checkins, etc. may have names
+                /** Note to GWG:
+                 * disabling this for now - this removes post names in cases where the name
+                 *  seems reasonable to include (e.g. photo posts, checkins, etc. may have names.
+                 * (Maybe just my preference)
+                 * */
+				// unset( $data['name'] ); //
 
 			}
 		}
@@ -872,8 +895,14 @@ class Parse_MF2_yarns {
 		return $data;
 	}
 
+	/** Note to GWG:
+     *      Changed parse_hcard to public (was private)
+     */
 	public static function parse_hcard( $hcard, $mf, $authorurl = false ) {
         /*** Jack's error handling -- needs further testing ***/
+        /** Note to GWG:
+         * sometimes non-hcards were being passed, so return early in those cases
+         */
         if (!$hcard){return;}
         /*** End of Jack's error handling -- needs further testing ***/
 
@@ -888,6 +917,10 @@ class Parse_MF2_yarns {
 		// Possible Nested Values
 		$properties = array( 'org', 'location' );
 		/*** Jack's error handling -- needs further testing ***/
+        /** Note to GWG:
+         *  Sometimes self::get_prop_array returns empty (because of my earlier changes)
+         *  So only merge if get_prop_array actually returned something
+         */
 		$prop_array = self::get_prop_array($hcard,$properties);
 		if ($prop_array){  /// Only merge arrays if h-card has a valid property array
             $data       = array_merge( $data, $prop_array );
@@ -905,7 +938,13 @@ class Parse_MF2_yarns {
                     // If there is a matching author URL, use that one
                     $found = false;
                     /*** Jack's error handling -- needs further testing ***/
-                    if (array_key_exists('properties',$hcard) && is_array($hcard['properties'])){ // These functions only work if there is an array of hcard properties
+
+                    /** Note for GWG:
+                     * added condition because this would sometimes return errors if
+                     * there was no array of hcard properties
+                     *
+                     */
+                    if (array_key_exists('properties',$hcard) && is_array($hcard['properties'])){
                     /***End of  Jack's error handling -- needs further testing ***/
 
                         foreach ( $hcard['properties']['url'] as $url ) {
