@@ -78,9 +78,16 @@ class Yarns_Microsub_Channels {
 		} else {
 			$channels = [];
 		}
-		// Create the channel
+
+
+		/** Create the channel
+         */
+
+        //Generate a random uid
+        $uid = static::generate_uid();
+
 		$new_channel = [
-			"uid" => sanitize_title($new_channel_name),
+			"uid" => $uid,
 			"name" => $new_channel_name,
 		];
 
@@ -395,5 +402,24 @@ class Yarns_Microsub_Channels {
 
     }
 
+
+    private static function generate_uid(){
+        $uid = uniqid();
+
+        // Confirm the uid is unique (it always should be, but just in case)
+        if (get_site_option("yarns_channels")){
+            $channels = json_decode(get_site_option("yarns_channels"));
+            //check if the channel already exists
+            foreach ($channels as $item){
+                if($item){
+                    if ($item->uid == $uid) {
+                        // the $uid already exists, so make a new one
+                        $uid = static::generate_uid();
+                    }
+                }
+            }
+        }
+        return $uid;
+    }
 
 }
