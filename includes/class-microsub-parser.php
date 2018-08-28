@@ -40,7 +40,7 @@ class Yarns_Microsub_Parser {
             //$data['content']['html'] = htmlspecialchars( $data['content']['html']);
         }
 
-        $data = array_filter($data);
+        $data = encode_array(array_filter($data));
         return $data;
     }
 
@@ -234,18 +234,18 @@ class Yarns_Microsub_Parser {
 
 
 	public static function preview($url){
-        return static::parse_feed($url, $preview=true);
+	    return static::parse_feed($url, 5);
+	    return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
 
-	public static function parse_feed($url,$preview = true, $count = 20){
-	    // For testing, parse all feeds in preview mode
+	public static function parse_feed($url, $count = 20){
 
         $content = file_get_contents($url);
         // only proceed if content could be found
         if (!$content){return;}
 
         // Try to parse h-feed
-        $feed = static::parse_hfeed($content, $url, $preview, $count);
+        $feed = static::parse_hfeed($content, $url, $count);
         if ($feed){
             return $feed;
         }
@@ -262,7 +262,6 @@ class Yarns_Microsub_Parser {
 
     public static function parse_rss($content,$url){
         include_once( ABSPATH . WPINC . '/feed.php' );
-
         // Get a SimplePie feed object from the specified feed source.
         $feed = fetch_feed( $url );
 
@@ -270,7 +269,9 @@ class Yarns_Microsub_Parser {
         if (is_wp_error( $feed ) ){
             return;
         } else {
+
             $rss_items = [];
+
 
             // Parse the feed
             $feed->enable_cache(false);
@@ -278,8 +279,9 @@ class Yarns_Microsub_Parser {
             $items = $feed->get_items();
 
 
+
             foreach ($items as $item){
-                $post = [];
+
                 $post['type'] = 'entry';
                 $post['name'] = htmlspecialchars_decode($item->get_title(), ENT_QUOTES);
 
@@ -321,7 +323,7 @@ class Yarns_Microsub_Parser {
 
                 $post['url'] = $item->get_permalink();
 
-                $rss_items[] = $post;
+                $rss_items[] = encode_array($post); // encode_array encodes html characters for display
             }
 
 
@@ -341,22 +343,16 @@ class Yarns_Microsub_Parser {
 
 	$url -> the url from which to retrieve a feed
 	$count -> the number of posts to retrieve
-	$return_type -> The type of results to return_type
-		"urls" => a list of urls
-		"preview" => return basic metadata
-		"full" = run mergeparse on each item
-	$preview -> whether to treat the feed as a live preview or a full feed
-		preview = true -> prioritize speed and just fetch everything from the main url
-		preview = true -> prioritize completion and fetch each post from its own permalink
+
 	*/
-	public static function parse_hfeed($content, $url, $preview=false, $count=5){
+	public static function parse_hfeed($content, $url, $count=5){
 
 		$mf = static::locate_hfeed($content, $url);
 		//If no h-feed was found, return
         if(!$mf){return;}
 
 		//return $mf;
-		
+
 		// Find the key to use
 		if (!$mf){
 			return ([
@@ -382,65 +378,40 @@ class Yarns_Microsub_Parser {
         // (For posts with no author, use the feed author instead)
         $feed_author = static::get_feed_author($content, $url);
 
-
-		//Get permalinks for each item
+		//Get permalinks and contnet for each item
 		$hfeed_items = array();
 
+        foreach ($mf[$mf_key] as $key=>$item) {
+            //error_log ("checkpoint 1.".$key);
+            if ($key >= $count){break;} // Only get up to the specific count of items
+            if ("{$item['type'][0]}" == 'h-entry' ||
+                "{$item['type'][0]}" == 'h-event' )
+            {
+                $the_item = Parse_MF2_yarns::parse_hentry($item,$mf);
+                if (is_array($the_item)){
+                    /* Merge feed author and post author if:
+                     *  (1) feed_author was found AND
+                     *  (2) there is no post author OR (3) post author has same url as feed author
+                     */
+                    if ($feed_author){
+                        if (!isset($the_item['author'])){
 
-
-		if ($preview ==true){
-			//error_log ("checkpoint 1");
-			foreach ($mf[$mf_key] as $key=>$item) {
-				//error_log ("checkpoint 1.".$key);
-				if ($key >= $count){break;} // Only get up to the specific count of items
-				if ("{$item['type'][0]}" == 'h-entry' ||
-					"{$item['type'][0]}" == 'h-event' ) 
-				{
-					$the_item = Parse_MF2_yarns::parse_hentry($item,$mf);
-					if (is_array($the_item)){
-                        /* Merge feed author and post author if:
-                         *  (1) feed_author was found AND
-                         *  (2) there is no post author OR (3) post author has same url as feed author
-                         */
-                        if ($feed_author){
-                            if (!isset($the_item['author'])){
-
-                                //if(!array_key_exists('author', $the_item)) {
-                                $the_item['author'] = $feed_author;
-                            } else if (array_key_exists('url',$the_item['author']) && array_key_exists('url', $feed_author)){
-                                if ($the_item['author']['url'] == $feed_author['url']){
-                                    $the_item['author'] = array_merge($feed_author, $the_item['author']);
-                                }
+                            //if(!array_key_exists('author', $the_item)) {
+                            $the_item['author'] = $feed_author;
+                        } else if (array_key_exists('url',$the_item['author']) && array_key_exists('url', $feed_author)){
+                            if ($the_item['author']['url'] == $feed_author['url']){
+                                $the_item['author'] = array_merge($feed_author, $the_item['author']);
                             }
-
                         }
 
-                        $the_item = static::clean_post($the_item);
-                        $hfeed_items[] = $the_item;
                     }
-				}
-			}
-		} else {
-			// if $preview == false, get the full posts from original permalinks
-			foreach ($mf[$mf_key] as $key=>$item) {
-				//if ($key >= $count){break;} // Only get up to the specific count of items
-				if ("{$item['type'][0]}" == 'h-entry' ||
-					"{$item['type'][0]}" == 'h-event' )
-				{
-					if ("{$item['properties']['url'][0]}"){
-						$hfeed_item_urls[] = "{$item['properties']['url'][0]}" . "?" . $key;
-					}
-				}
-			}
 
-			$hfeed_items = array();
-			foreach ($hfeed_item_urls as $page){
+                    $the_item = static::clean_post($the_item);
+                    $hfeed_items[] = $the_item;
+                }
+            }
+        }
 
-				$content = file_get_contents($page);
-				$hfeed_items[] = static::mergeparse($content,$page);
-			}
-
-		}
         //$result = ['items'=> $hfeed_items];
 		return [
       		'items' => $hfeed_items,

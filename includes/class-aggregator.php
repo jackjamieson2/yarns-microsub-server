@@ -55,7 +55,13 @@ class Yarns_Microsub_Aggregator {
 	public static function poll_site($url, $channel_uid){
 	    $site_results = [];
         $feed = Yarns_Microsub_Parser::parse_feed($url);
-        //return $feed;
+
+        // If this is a preview return the feed as is
+        if ('_preview' == $channel_uid){
+            return $feed;
+        }
+
+        // Otherwise (this is not a preview) check if each post exists and add accordingly.
         foreach ($feed['items'] as $post) {
             if (isset($post['url'])) {
                 $site_results[] = static::poll_post($post['url'], $post, $channel_uid, $feed);
