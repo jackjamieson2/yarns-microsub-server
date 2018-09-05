@@ -11,7 +11,7 @@
  * Using this to test querying(q=) parameters quickly
  */
 if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
-	define( 'MICROSUB_LOCAL_AUTH', '0' );
+	define( 'MICROSUB_LOCAL_AUTH', '1' );
 }
 
 // Allows for a custom Authentication and Token Endpoint
@@ -210,6 +210,10 @@ class Yarns_Microsub_Endpoint {
                             Yarns_Microsub_Posts::toggle_last_read($request->get_param('last_read_entry'), $request->get_param('channel'),false);
                             break;
                         }
+                    }
+                    // If method is 'order' then reorder the channels
+                    if ($request->get_param('method')=='order'){
+                        return Yarns_Microsub_Channels::order_channels($request->get_param('channels'));
                     }
                 } else if ('GET' === $request->get_method()) {
                     // Return a timeline of the channel
@@ -471,6 +475,9 @@ class Yarns_Microsub_Endpoint {
 	**/
 	protected static function check_scope( $scope ) {
 	    error_log("checking for scope {$scope}");
+	    if (MICROSUB_LOCAL_AUTH==1){
+	        return true;
+        }
 
 		return in_array( $scope, static::$scopes, true );
 	}

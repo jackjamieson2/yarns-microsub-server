@@ -31,7 +31,7 @@ class Yarns_Microsub_Channels {
     	];
 	}
 
-//Delete a channel 
+    //Delete a channel
 	public static function delete($uid){
 		// Rewrite the channel list with the selected channel removed
 			// probably better ways to do this 
@@ -304,12 +304,10 @@ class Yarns_Microsub_Channels {
                                     unset($channels[$key]['items'][$channel_key]);
                                     update_option("yarns_channels",json_encode($channels));
                                     return;
-
                                 } else {
                                     // if $unfollow == false then exit early because the subscription already exists
                                     return;
                                 }
-
 							}
 						}
 					}
@@ -322,23 +320,81 @@ class Yarns_Microsub_Channels {
                         Yarns_Microsub_Aggregator::poll_site($url, $query_channel);
                         return $new_follow;
                     }
-
 				}
 			} 
 		} 
 		return; // channel does not exist, so return nothing
 	}
 
-	/*Unfollowing
+	public static function order_channels($new_order){
 
-	action=unfollow
+	    // get the full channel list in the current order
+        $channels = self::get()['channels'];
 
-	POST
+        // Get the current order of the input channels
+        // (gets only the channels that are included in the 'order' request)
+        $current_order = [];
+        foreach ($channels as $i=>$channel){
+            if (in_array($channel['uid'],$new_order)){
+                $current_order[$i] = $channel['uid'];
+            }
+        }
 
-	    action=unfollow
-	    channel={uid}
-	    url={url}*/
-    public static function unfollow($query_channel, $url){
+
+        $test = [];
+        $test[] = $new_order;
+        $test[] = $current_order;
+        return $test;
+
+        // Ensure the order request does not include any channels that do not exist
+        if(count($current_order) != count($new_order)) {
+            return false;
+        }
+
+        foreach ($current_order as $i=>$channels){
+
+
+        }
+
+        /*
+         *
+
+Build a new map with the input items and their existing numeric order:
+
+[
+  1 => a
+  3 => c
+  4 => d
+  7 => g
+]
+
+For each item in the input list in the given order, set the value in the map:
+
+[
+  1 => d
+  3 => a
+  4 => c
+  7 => g
+]
+         */
+
+
+        /*
+
+        $newSortValues = [];
+        foreach($channelUIDs as $i=>$ch) {
+            $newSortValues[$ch] = $currentSortValues[$i];
+        }
+
+        foreach($channels as $channel) {
+            $channel->sort = $newSortValues[$channel->uid];
+            $channel->save();
+        }
+
+        return $channelUIDs;
+        */
+
+
 
     }
 
