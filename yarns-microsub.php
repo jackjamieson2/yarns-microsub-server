@@ -76,12 +76,15 @@ class Yarns_MicroSub_Plugin {
 
 
 		// MF2 parser from post kinds plugin
-		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
-		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
+		//require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
+		//require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
+
+        // Parse This
+        require_once plugin_dir_path( __FILE__ ) . 'includes/parse-this/parse-this.php';
 
 
-		
-		// list of various public helper functions
+
+        // list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
 
