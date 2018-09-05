@@ -211,6 +211,7 @@ class Yarns_Microsub_Endpoint {
                             break;
                         }
                     }
+
                 } else if ('GET' === $request->get_method()) {
                     // Return a timeline of the channel
                     // REQUIRED SCOPE: read
@@ -471,6 +472,9 @@ class Yarns_Microsub_Endpoint {
 	**/
 	protected static function check_scope( $scope ) {
 	    error_log("checking for scope {$scope}");
+	    if (MICROSUB_LOCAL_AUTH==1){
+	        return true;
+        }
 
 		return in_array( $scope, static::$scopes, true );
 	}
