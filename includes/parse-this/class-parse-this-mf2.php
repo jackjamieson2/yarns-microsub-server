@@ -157,7 +157,7 @@ class Parse_This_MF2 {
 	 */
 	public static function get_plaintext_array( array $mf, $propname, $fallback = null ) {
 		if ( ! empty( $mf['properties'][ $propname ] ) && is_array( $mf['properties'][ $propname ] ) ) {
-			return array_map( array( 'Parse_Mf2', 'to_plaintext' ), $mf['properties'][ $propname ] ); }
+			return array_map( array( 'Parse_This_MF2', 'to_plaintext' ), $mf['properties'][ $propname ] ); }
 		return $fallback;
 	}
 
@@ -879,49 +879,51 @@ class Parse_This_MF2 {
 		return array_filter( $data );
 	}
 
-	public static function post_type_discovery( $mf ) {
-		if ( ! self::is_microformat( $mf ) ) {
-			return false;
-		}
-		$properties = array_keys( $mf['properties'] );
-		if ( self::is_type( $mf, 'h-entry' ) ) {
-			$map = array(
-				'rsvp'      => array( 'rsvp' ),
-				'checkin'   => array( 'checkin' ),
-				'itinerary' => array( 'itinerary' ),
-				'repost'    => array( 'repost-of' ),
-				'like'      => array( 'like-of' ),
-				'favorite'  => array( 'favorite-of' ),
-				'bookmark'  => array( 'bookmark-of' ),
-				'watch'     => array( 'watch-of' ),
-				'jam'       => array( 'jam-of' ),
-				'listen'    => array( 'listen-of' ),
-				'read'      => array( 'read-of' ),
-				'play'      => array( 'play-of' ),
-				'ate'       => array( 'eat', 'p3k-food' ),
-				'drink'     => array( 'drank' ),
-				'reply'     => array( 'in-reply-to' ),
-				'video'     => array( 'video' ),
-				'photo'     => array( 'photo' ),
-				'audio'     => array( 'audio' ),
-			);
-			foreach ( $map as $key => $value ) {
-				$diff = array_intersect( $properties, $value );
-				if ( ! empty( $diff ) ) {
-					return $key;
-				}
-			}
+    public static function post_type_discovery( $mf ) {
+        if ( ! self::is_microformat( $mf ) ) {
+            return false;
+        }
+        $properties = array_keys( $mf['properties'] );
+        if ( self::is_type( $mf, 'h-entry' ) ) {
+            $map = array(
+                'rsvp'      => array( 'rsvp' ),
+                'checkin'   => array( 'checkin' ),
+                'itinerary' => array( 'itinerary' ),
+                'repost'    => array( 'repost-of' ),
+                'like'      => array( 'like-of' ),
+                'favorite'  => array( 'favorite-of' ),
+                'bookmark'  => array( 'bookmark-of' ),
+                'watch'     => array( 'watch-of' ),
+                'jam'       => array( 'jam-of' ),
+                'listen'    => array( 'listen-of' ),
+                'read'      => array( 'read-of' ),
+                'play'      => array( 'play-of' ),
+                'ate'       => array( 'eat', 'p3k-food' ),
+                'drink'     => array( 'drank' ),
+                'reply'     => array( 'in-reply-to' ),
+                'video'     => array( 'video' ),
+                'photo'     => array( 'photo' ),
+                'audio'     => array( 'audio' ),
+            );
+            foreach ( $map as $key => $value ) {
+                $diff = array_intersect( $properties, $value );
+                if ( ! empty( $diff ) ) {
+                    return $key;
+                }
+            }
 
-			if ( ! empty( $mf['properties']['name'] ) ) {
-				$name    = trim( $mf['properties']['name'] );
-				$content = trim( $mf['properties']['content'] );
-				if ( 0 !== strpos( $content, $name ) ) {
-					return 'article';
-				}
-			}
-			return 'note';
-		}
-		return '';
-	}
+            if ( ! empty( $mf['properties']['name'] ) ) {
+
+                $name    = trim( static::get_plaintext($mf, 'name' ));
+                $content    = trim( static::get_plaintext($mf, 'content' ));
+
+                if ( 0 !== strpos( $content, $name ) ) {
+                    return 'article';
+                }
+            }
+            return 'note';
+        }
+        return '';
+    }
 
 }
