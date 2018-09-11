@@ -76,10 +76,11 @@ class Yarns_MicroSub_Plugin {
 
 
 		// MF2 parser from post kinds plugin
-		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
-		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
+		//require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
+		//require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
 
-        
+        // Parse This
+        require_once plugin_dir_path( __FILE__ ) . 'includes/parse-this/parse-this.php';
 
 
         // list of various public helper functions
@@ -88,6 +89,7 @@ class Yarns_MicroSub_Plugin {
 		// Admin options
         require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-admin.php';
         add_action('admin_menu', array('Yarns_Microsub_Admin', 'admin_menu'));
+        Yarns_Microsub_Admin::init();
 
 
 

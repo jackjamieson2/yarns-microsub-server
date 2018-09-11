@@ -10,16 +10,23 @@ class Yarns_Microsub_Channels {
 
 
 	//Returns a list of the channels
-	public static function get(){ 
+	public static function get($details=false){
 		if (get_site_option("yarns_channels")){
 			$channels =  json_decode(get_site_option("yarns_channels"), true);
 		}
-		// The channels list also includes a list of feeds for each channel, so remove them before returning
-        foreach ($channels as $key=>$channel) {
+		// The channels list also includes lists of feeds and post-types filter options, so remove them
+        if ($details == false){
+            foreach ($channels as $key=>$channel) {
                 if (array_key_exists('items',$channel)){
                     unset($channels[$key]['items']);
+                }
+
+                if (array_key_exists('post-types',$channel)){
+                    unset($channels[$key]['post-types']);
+                }
             }
         }
+
 
         // for testing, hardcode an 'unread' value for each channel
         foreach ($channels as $key=>$channel) {
@@ -86,9 +93,23 @@ class Yarns_Microsub_Channels {
         //Generate a random uid
         $uid = static::generate_uid();
 
+        $post_types = [
+            "photo" =>true,
+            "video"=>true,
+            "article"=>true,
+            "note"=>true,
+            "checkin"=>true,
+            "repost"=>true,
+            "reply"=>true,
+            "like"=>true,
+            "bookmark"=>true,
+            "other"=>true
+        ];
+
 		$new_channel = [
 			"uid" => $uid,
 			"name" => $new_channel_name,
+            "post-types"=>$post_types
 		];
 
 		$channels[] = $new_channel;
@@ -120,17 +141,12 @@ class Yarns_Microsub_Channels {
                         $channels[$key]['name'] = $name;
                         update_option("yarns_channels",json_encode($channels));
                         return $channels[$key];
-
-                        // Update this item
-                        //item already exists, so return existing item
-                       // return $item;
                     }
                 }
             }
         } else {
             static::add($name);
         }
-
     }
 
 
@@ -168,7 +184,10 @@ class Yarns_Microsub_Channels {
         }
         if ($before){
 		    // Check for additional posts newer (higher id) than $before
-            $id_list = array_merge($id_list,static::find_newer_posts($before, $args) );
+            $new_posts = static::find_newer_posts($before, $args);
+            if ($new_posts){
+                $id_list = array_merge($id_list,$new_posts );
+            }
             //$id_list[] = static::find_newer_posts($before, $args);
         }
         // use rsort to sort the list of ids in descending order
@@ -256,7 +275,7 @@ class Yarns_Microsub_Channels {
 						// testing
 						
 						return $channel;
-						return; // no subscriptions yet, so return nothign
+						return; // no subscriptions yet, so return nothing
 					}					
 				}
 			}
@@ -389,13 +408,17 @@ class Yarns_Microsub_Channels {
 
 
         // Only keep ids that are newer (higher) than $before
-        foreach ($ids as $key=>$id){
-            if (!$id>$before){
-                unset($ids['$key']);
+        if ($ids){
+            foreach ($ids as $key=>$id){
+                if (!$id>$before){
+                    unset($ids['$key']);
+                }
             }
+
+            return $ids;
         }
 
-        return $ids;
+        return;
 
 
 
