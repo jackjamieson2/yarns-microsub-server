@@ -89,7 +89,7 @@ class Yarns_MicroSub_Plugin {
 		// Admin options
         require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-admin.php';
         add_action('admin_menu', array('Yarns_Microsub_Admin', 'admin_menu'));
-        Yarns_Microsub_Admin::init();
+        
 
 
 
