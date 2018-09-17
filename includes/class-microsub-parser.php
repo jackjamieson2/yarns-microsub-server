@@ -40,6 +40,7 @@ class Yarns_Microsub_Parser {
             //$data['content']['html'] = htmlspecialchars( $data['content']['html']);
         }
 
+
         // Some feeds return multiple author photos, but only one can be shown
         if (isset($data['author']['photo'])){
             if (is_array($data['author']['photo'])){
@@ -49,9 +50,20 @@ class Yarns_Microsub_Parser {
 
 
         //debugging
+        $ref_types = [ "like-of", "repost-of", "bookmark-of", "in-reply-to"];
+        // When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
+        // so reduce them to the url for now
+        foreach ($ref_types as $ref_type){
+            if (isset($data[$ref_type]['url'])){
+                $data[$ref_type] = $data[$ref_type]['url'];
+            }
+        }
+
+        // referecnes
+
         if (isset($data['in-reply-to']['url'])){
 
-            $data['in-reply-to'] = $data['in-reply-to']['url'];
+            //$data['in-reply-to'] = $data['in-reply-to']['url'];
             //unset($data['in-reply-to']);
         }
 
@@ -250,7 +262,7 @@ class Yarns_Microsub_Parser {
 
 
 	public static function preview($url){
-	    return static::parse_feed($url, 5);
+	    return static::parse_feed($url, 2);
 	    //return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
 
@@ -369,6 +381,7 @@ class Yarns_Microsub_Parser {
 		$mf = static::locate_hfeed($content, $url);
 		//If no h-feed was found, return
         if(!$mf){return;}
+
 
 		//return $mf;
 
