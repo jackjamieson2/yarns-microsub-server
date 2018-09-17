@@ -36,12 +36,26 @@ class Yarns_Microsub_Posts {
 	                'slug' => 'channel' // This controls the base slug that will display before each term
 	            )
 	        )  
-	    );  
+	    );
+
+        // register custom taxonomy to filter aggregated posts by type
+        register_taxonomy(
+            'yarns_microsub_post_type',  //The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces).
+            'yarns_microsub_post',       //post type name
+            array(
+                'hierarchical' => false,
+                'label' => 'Type',  //Display name
+                'query_var' => true,
+                'rewrite' => array(
+                    'slug' => 'type' // This controls the base slug that will display before each term
+                )
+            )
+        );
 
 
 
-	    
-	}
+
+    }
 	
 
 
@@ -83,6 +97,11 @@ class Yarns_Microsub_Posts {
 
 		// Set the channel of the post 
 		wp_set_post_terms( $post_id, $channel, 'yarns_microsub_post_channel' );
+
+		// Set the type of the post (for filtering)
+        if (isset($post['post-type'])){
+            wp_set_post_terms( $post_id, $post['post-type'], 'yarns_microsub_post_type' );
+        }
 
 		// Save the post JSON as a custom meta field
 		update_post_meta($post_id, 'yarns_microsub_json', $post);

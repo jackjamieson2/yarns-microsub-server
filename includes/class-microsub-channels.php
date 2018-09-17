@@ -92,19 +92,8 @@ class Yarns_Microsub_Channels {
 
         //Generate a random uid
         $uid = static::generate_uid();
+        $post_types = static::all_post_types();
 
-        $post_types = [
-            "photo" =>true,
-            "video"=>true,
-            "article"=>true,
-            "note"=>true,
-            "checkin"=>true,
-            "repost"=>true,
-            "reply"=>true,
-            "like"=>true,
-            "bookmark"=>true,
-            "other"=>true
-        ];
 
 		$new_channel = [
 			"uid" => $uid,
@@ -149,6 +138,31 @@ class Yarns_Microsub_Channels {
         }
     }
 
+    // Returns a list of allowed post-types
+    public static function get_post_types($query_channel){
+
+
+        if (get_site_option("yarns_channels")){
+            $channels =  json_decode(get_site_option("yarns_channels"),True);
+            //return $channels;
+            foreach ($channels as $key=>$channel){
+                if ($channel['uid'] == $query_channel){
+
+                    //This is the channel to be returned
+                    if (isset($channel['post-types'])){
+                        $valid_types = "";
+
+                        foreach($channel['post-types'] as $type){
+                                $valid_types .=$type.",";
+                        }
+                        return $valid_types;
+
+                    }
+                }
+            }
+        }
+        return;
+    }
 
         /*
         action=timeline
@@ -165,14 +179,21 @@ class Yarns_Microsub_Channels {
             after={cursor}
             before={cursor}
         */
+
+
 	public static function timeline($channel, $after, $before, $num_posts=20){
 			//Get all the posts of type yarns_microsub_post
+
+        $valid_types = static::get_post_types($channel);
+        //return $valid_types;
+
 
 
         $args = array(
             'post_type' => 'yarns_microsub_post',
             'post_status' => 'publish',
             'yarns_microsub_post_channel' => $channel,
+            'yarns_microsub_post_type' => $valid_types,
             'posts_per_page' => $num_posts
         );
 
@@ -212,6 +233,8 @@ class Yarns_Microsub_Channels {
 		    $id = get_the_ID();
             $item = Yarns_Microsub_Posts::get_single_post($id);
 
+
+
             $timeline_items [] = $item;
             $ids[] = $id;
         }
@@ -219,7 +242,12 @@ class Yarns_Microsub_Channels {
 
         wp_reset_query();
 
-		if ($timeline_items) {
+
+        // Filter our posts that should be omitted
+
+
+
+        if ($timeline_items) {
             $timeline['items'] = $timeline_items;
             $timeline['paging']['before'] = (string)max($ids);
             // Only add 'after' if there are older posts
@@ -445,4 +473,20 @@ class Yarns_Microsub_Channels {
         return $uid;
     }
 
+
+    public static function all_post_types() {
+        return array(
+            "photo",
+            "video",
+            "article",
+            "note",
+            "checkin",
+            "itinerary",
+            "repost",
+            "reply",
+            "like",
+            "bookmark",
+            "other"
+        );
+    }
 }

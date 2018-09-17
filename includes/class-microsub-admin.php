@@ -74,13 +74,12 @@ Class Yarns_Microsub_Admin {
                     <p> explanation here </p>
 
 
-                    <h1> Manage subscriptions </h1>
+                    <h1> Manage channels </h1>
 
                     <div id="yarns-channels">
                         <?php static::yarns_list_channels();?>
                     </div>
                     <div id="yarns-feeds">
-
                 </div>
 
 
@@ -101,7 +100,7 @@ Class Yarns_Microsub_Admin {
             $uid = $channel['uid'];
             $html .= "<div class='yarns-channel' data-uid='{$uid}'><h2>{$name}</h2>";
             $html .=static::yarns_channel_options($channel, $uid);
-            $html .=static::yarns_list_feeds($uid);
+            //$html .=static::yarns_list_feeds($uid);
             $html .= "</div>";
 
         }
@@ -113,6 +112,7 @@ Class Yarns_Microsub_Admin {
         if (!isset($channel['items'])){
          $html = "You are not following any feeds in this channel yet.";
         } else {
+
             $feeds = $channel['items'];
             foreach ($feeds as $feed){
                 if (isset($feed['url'])){
@@ -131,18 +131,24 @@ Class Yarns_Microsub_Admin {
     }
     private static function yarns_channel_options($channel){
         $html = "";
+
         if (!isset($channel['post-types'])){
             return;
         } else {
-            $types = $channel['post-types'];
-            foreach ($types as $type=>$value){
-                $html .= json_encode($type);
-                $html .= json_encode($value);
+            $all_types = Yarns_Microsub_Channels::all_post_types();
+            $channel_types = $channel['post-types'];
+            $html.= "(".  json_encode($channel_types). ")";
+            foreach ($all_types as $type){
+
+                $html .="<input type='checkbox'";
+                if (in_array($type,$channel_types)) {
+                    $html.="checked";
+                }
+                $html .=">" . $type . "</input>";
+
             }
         }
-
         return $html;
-
     }
 
 
