@@ -20,9 +20,9 @@
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
-    "squizlabs/php_codesniffer": "^2.2 || ^3.0.2",
-    "wimg/php-compatibility": "dev-master",
-    "wp-coding-standards/wpcs": "dev-master"
+    "squizlabs/php_codesniffer": "*",
+    "wimg/php-compatibility": "*",
+    "wp-coding-standards/wpcs": "^1.0"
   },
   "scripts": {
     "lint": "phpcs",
