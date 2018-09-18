@@ -39,8 +39,6 @@ class Yarns_Microsub_Endpoint {
 	 */
 	public static function init() {
 
-		add_filter( 'query_vars', array( 'Yarns_Microsub_Endpoint', 'query_var' ) );
-
 		// Configure the REST API route
 		add_action( 'rest_api_init', array( 'Yarns_Microsub_Endpoint', 'register_routes' ) );
 		static::register_routes();
@@ -56,8 +54,6 @@ class Yarns_Microsub_Endpoint {
 	/**
 	 * Register the Route.
 	 */
-
-
 	public static function register_routes() {
 		register_rest_route(
 			'microsub',
@@ -73,28 +69,12 @@ class Yarns_Microsub_Endpoint {
 	}
 
 
-
-		/**
-	 * adds some query vars
-	 *
-	 * @param array $vars
-	 *
-	 * @return array
-	 */
-	public static function query_var( $vars ) {
-		$vars[] = 'replytocom';
-		return $vars;
-	}
-
 	/**
 	*  Serve requests to the endpoint
 	*
 	*
 	*/
-
-
-
-	public static function log_request( $request ) {
+	public static function log_request($request ) {
 		$message  = 'Request:';
 		$message .= "\nmethod: " . $request->get_method();
 		$message .= "\nparams: " . json_encode( $request->get_params() );
@@ -298,8 +278,6 @@ class Yarns_Microsub_Endpoint {
 
 	}
 
-
-
 	private static function handle_authorize_error( $code, $msg ) {
 		$home = untrailingslashit( home_url() );
 		if ( 'http://localhost' === $home ) {
@@ -311,8 +289,6 @@ class Yarns_Microsub_Endpoint {
 		}
 		static::respond( $code, $msg );
 	}
-
-
 
 
 	/**
@@ -375,10 +351,10 @@ class Yarns_Microsub_Endpoint {
 	}
 
 	/**
-	*
-	* Authorization - copied from wordpress-micropub plugin
-	*
-	*
+	 *
+	 * Authorization - copied from wordpress-micropub plugin
+	 *
+	 *
 	 * Validate the access token at the token endpoint.
 	 *
 	 * https://indieauth.spec.indieweb.org/#access-token-verification
@@ -519,14 +495,13 @@ class Yarns_Microsub_Endpoint {
 
 
 	/**
-	 * Return Webmention Endpoint
+	 * Return Microsub Endpoint
 	 *
-	 * @see https://www.w3.org/TR/webmention/#sender-discovers-receiver-webmention-endpoint
 	 *
-	 * @return string the Webmention endpoint
+	 * @return string the Microsub endpoint
 	 */
 	public static function get_microsub_endpoint() {
-		return apply_filters( 'microsub_endpoing', get_rest_url( null, '/microsub/endpoint' ) );
+		return apply_filters( 'microsub_endpoint', get_rest_url( null, '/microsub/endpoint' ) );
 	}
 
 
