@@ -1,0 +1,53 @@
+# Copyright (C) 2018 Jack Jamieson
+# This file is distributed under the MIT.
+msgid ""
+msgstr ""
+"Project-Id-Version: Yarns Microsub Server 0.1 (alpha)\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/yarns-microsub\n"
+"POT-Creation-Date: 2018-09-18 05:33:55+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 0.5.4\n"
+
+#: includes/class-microsub-posts.php:18
+msgid "Yarns Microsub Posts"
+msgstr ""
+
+#: includes/class-microsub-posts.php:19
+msgid "Yarns Microsub Post"
+msgstr ""
+
+#: includes/class-parse-mf2.php:15 includes/class-parse-this.php:126
+msgid "A valid URL was not provided."
+msgstr ""
+
+#: includes/class-parse-mf2.php:39
+msgid "Unknown Retrieval Error: Response Code "
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Yarns Microsub Server"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/jackjamieson2/yarns-microsub-server"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Run a Microsub server on your WordPress site. This plugin allows you to "
+"follow and reply to many different kinds of websites using a Microsub "
+"client (like alltogether.now.io or monocole.p3k.io).  Still in development."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Jack Jamieson"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://jackjamieson.net"
+msgstr ""
