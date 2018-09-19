@@ -138,6 +138,37 @@ class Yarns_Microsub_Channels {
         }
     }
 
+	/**
+	 * Updates the filter options for a channel
+	 *
+	 * @param $channel
+	 * @param $name
+	 * @return mixed
+	 */
+	public static function save_options(){
+		error_log("updating options");
+		$uid       = sanitize_text_field( $_POST['uid'] );
+		$options   = $_POST['options'];
+		//$all_types = Yarns_Microsub_Channels::all_post_types();
+		error_log("options = " . json_encode($options));
+
+		if (get_site_option("yarns_channels")){
+			$channels = json_decode(get_site_option("yarns_channels"),True);
+			//check if the channel already exists
+			foreach ($channels as $key=>$item){
+				if($item){
+					if ($item['uid'] == $uid){
+						error_log("old options = " . json_encode($channels[ $key ]['post-types']));
+						$channels[ $key ]['post-types'] = $options;
+						error_log(json_encode($channels));
+						update_option("yarns_channels",json_encode($channels));
+						return $channels[$key];
+					}
+				}
+			}
+		}
+	}
+
     // Returns a list of allowed post-types
     public static function get_post_types($query_channel){
 
