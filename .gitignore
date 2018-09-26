@@ -11,5 +11,5 @@ vendor/*
 !/vendor/masterminds
 /vendor/masterminds/html5/*
 !/vendor/masterminds/html5/src
-!/vendor/parse-this
-/vendor/parse-this/tests/*
+!/vendor/parse-this/
+/vendor/parse-this/tests/
