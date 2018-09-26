@@ -12,7 +12,7 @@
  * Domain Path: /languages
  */
 
-require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+//require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 
 
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
