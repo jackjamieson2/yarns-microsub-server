@@ -4,7 +4,6 @@ composer.lock
 vendor/*
 !/vendor/autoload.php
 !/vendor/composer
-/vendor/composer/installers/*
 !/vendor/mf2
 /vendor/mf2/mf2/*
 !/vendor/mf2/mf2/Mf2
@@ -12,5 +11,3 @@ vendor/*
 !/vendor/masterminds
 /vendor/masterminds/html5/*
 !/vendor/masterminds/html5/src
-!/vendor/parse-this/
-/vendor/parse-this/tests/

@@ -157,59 +157,12 @@ class Yarns_Microsub_Endpoint {
 				break;
 
 			case 'timeline':
-<<<<<<< HEAD
 				if ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: channels
 					$action = 'channels';
 					if ( ! self::check_scope( $action ) ) {
 						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 					}
-=======
-                if ('POST' === $request->get_method()){
-                    // REQUIRED SCOPE: channels
-                    $action = 'channels';
-                    if ( ! self::check_scope( $action ) ) {
-                        static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-                    }
-
-                    //If method is 'mark_read' then mark post(s) as READ
-                    if ($request->get_param('method') == 'mark_read'){
-
-                        //mark one or more individual entries as read
-                        if ($request->get_param('entry')){
-                            Yarns_Microsub_Posts::toggle_read($request->get_param('entry'),true );
-                            break;
-                        }
-                        //mark an entry read as well as everything before it in the timeline
-                        if ($request->get_param('last_read_entry')){
-                            return Yarns_Microsub_Posts::toggle_last_read($request->get_param('last_read_entry'), $request->get_param('channel'),true);
-                            break;
-                        }
-                    }
-                    // If method is 'mark_unreadthen mark post(s) as UNREAD
-                    if ($request->get_param('method') == 'mark_unread'){
-                        //mark one or more individual entries as read
-                        if ($request->get_param('entry')){
-                            Yarns_Microsub_Posts::toggle_read($request->get_param('entry'), false);
-                            break;
-                        }
-                        //mark an entry read as well as everything before it in the timeline
-                        if ($request->get_param('last_read_entry')){
-                            Yarns_Microsub_Posts::toggle_last_read($request->get_param('last_read_entry'), $request->get_param('channel'),false);
-                            break;
-                        }
-                    }
-
-                } else if ('GET' === $request->get_method()) {
-                    // Return a timeline of the channel
-                    // REQUIRED SCOPE: read
-                    $action = 'read';
-                    if ( ! self::check_scope( $action ) ) {
-                        static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-                    }
-                    return Yarns_Microsub_Channels::timeline($request->get_param('channel'),$request->get_param('after'),$request->get_param('before'));
-                }
->>>>>>> parse-this-update
 
 					//If method is 'mark_read' then mark post(s) as READ
 					if ( $request->get_param( 'method' ) == 'mark_read' ) {
@@ -495,14 +448,7 @@ class Yarns_Microsub_Endpoint {
 	 * @return boolean
 	**/
 	protected static function check_scope( $scope ) {
-<<<<<<< HEAD
 		error_log( "checking for scope {$scope}" );
-=======
-	    error_log("checking for scope {$scope}");
-	    if (MICROSUB_LOCAL_AUTH==1){
-	        return true;
-        }
->>>>>>> parse-this-update
 
 		return in_array( $scope, static::$scopes, true );
 	}
