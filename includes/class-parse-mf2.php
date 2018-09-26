@@ -6,18 +6,94 @@
  * and https://github.com/pfefferle/wordpress-semantic-linkbacks/blob/master/includes/class-linkbacks-mf2-handler.php
  **/
 
-class Parse_This_MF2 {
+class Parse_MF2_yarns {
+
+
+
+	public static function fetch( $url ) {
+		if ( ! isset( $url ) || ! self::is_url( $url ) ) {
+			return new WP_Error( 'invalid-url', __( 'A valid URL was not provided.', 'indieweb-post-kinds' ) );
+		}
+		$args     = array(
+			'timeout'             => 10,
+			'limit_response_size' => 1048576,
+			'redirection'         => 0,
+			// Use an explicit user-agent for Post Kinds
+			'user-agent'          => 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:57.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36 Post Kinds/WP' . get_bloginfo( 'version' ) . '(' . get_bloginfo( 'url' ) . ')',
+		);
+		$response = wp_safe_remote_head( $url, $args );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( preg_match( '#(image|audio|video|model)/#is', wp_remote_retrieve_header( $response, 'content-type' ) ) ) {
+			return new WP_Error( 'content-type', 'Content Type is Media' );
+		}
+		$response = wp_safe_remote_get( $url, $args );
+		switch ( $response_code ) {
+			case 200:
+				break;
+			default:
+				$message = wp_remote_retrieve_response_message( $response );
+				if ( empty( $message ) ) {
+					$message = __( 'Unknown Retrieval Error: Response Code ', 'indieweb-post-kinds' ) . $response_code;
+				}
+				return new WP_Error( 'source_error', $message, array( 'status' => $response_code ) );
+		}
+		$body = wp_remote_retrieve_body( $response );
+		return $body;
+	}
 
 	/**
-	 * is this what type
+	 * Is string a URL.
 	 *
-	 * @param array $mf Parsed Microformats Array
-	 * @param string $type Type
+	 * @param array $string
 	 * @return bool
 	 */
-	public static function is_type( $mf, $type ) {
-		return is_array( $mf ) && ! empty( $mf['type'] ) && is_array( $mf['type'] ) && in_array( $type, $mf['type'], true );
+	public static function is_url( $string ) {
+		return preg_match( '/^https?:\/\/.+\..+$/', $string );
 	}
+
+	/**
+	 * Is this an h-card.
+	 *
+	 * @param array $mf Parsed Microformats Array.
+	 * @return bool
+	 */
+	public static function is_hcard( $mf ) {
+		return is_array( $mf ) && ! empty( $mf['type'] ) && is_array( $mf['type'] ) && in_array( 'h-card', $mf['type'], true );
+	}
+
+	/**
+	 * Is this an h-adr.
+	 *
+	 * @param array $mf Parsed Microformats Array.
+	 * @return bool
+	 */
+	public static function is_hadr( $mf ) {
+		return is_array( $mf ) && ! empty( $mf['type'] ) && is_array( $mf['type'] ) && in_array( 'h-adr', $mf['type'], true );
+	}
+
+	/**
+	 * Is this an h-cite.
+	 *
+	 * @param array $mf Parsed Microformats Array.
+	 * @return bool
+	 */
+	public static function is_hcite( $mf ) {
+		return is_array( $mf ) && ! empty( $mf['type'] ) && is_array( $mf['type'] ) && in_array( 'h-cite', $mf['type'], true );
+	}
+
+	/**
+	 * Is this an h-event.
+	 *
+	 * @param array $mf Parsed Microformats Array.
+	 * @return bool
+	 */
+	public static function is_hevent( $mf ) {
+		return is_array( $mf ) && ! empty( $mf['type'] ) && is_array( $mf['type'] ) && in_array( 'h-event', $mf['type'], true );
+	}
+
 
 	/**
 	 * Parse Content
@@ -170,27 +246,39 @@ class Parse_This_MF2 {
 	 * @return null|array
 	 */
 	public static function get_prop_array( array $mf, $properties, $fallback = null ) {
-		if ( ! self::is_microformat( $mf ) ) {
-			return array();
+		/*** Jack's error handling -- needs further testing  ***/
+
+		if ( ! is_array( $mf ) ) {
+			error_log( 'not array: ' . json_encode( $mf ) );
+			return;
 		}
+		if ( ! array_key_exists( 'properties', $mf ) ) {
+			error_log( 'properties does not exist: ' . json_encode( $mf ) );
+			return;
+		}
+		/*** End of Jack's error handling -- needs further testing  ***/
 
 		$data = array();
 		foreach ( $properties as $p ) {
 			if ( array_key_exists( $p, $mf['properties'] ) ) {
 				foreach ( $mf['properties'][ $p ] as $v ) {
 					if ( is_string( $v ) ) {
-						$data[ $p ] = $v;
+						if ( ! array_key_exists( $p, $data ) ) {
+							$data[ $p ] = array();
+						}
+						$data[ $p ][] = $v;
 					} elseif ( self::is_microformat( $v ) ) {
-						if ( self::is_type( $v, 'h-card' ) ) {
+						if ( self::is_hcard( $v, $mf ) ) {
 							$data[ $p ] = self::parse_hcard( $v, $mf );
-						} elseif ( self::is_type( $v, 'h-adr' ) ) {
+						} elseif ( self::is_hadr( $v, $mf ) ) {
 							$data[ $p ] = self::parse_hadr( $v, $mf );
-						} elseif ( self::is_type( $v, 'h-cite' ) ) {
-							$data[ $p ] = self::parse_hcite( $v, $mf );
 						} else {
 							$u = self::get_plaintext( $v, 'url' );
-							if ( ( $u ) && wp_http_validate_url( $u ) ) {
-								$data[ $p ] = $u;
+							if ( ( $u ) && self::is_URL( $u ) ) {
+								if ( ! array_key_exists( $p, $data ) ) {
+									$data[ $p ] = array();
+								}
+								$data[ $p ][] = $u;
 							}
 						}
 					}
@@ -409,11 +497,11 @@ class Parse_This_MF2 {
 		if ( array_key_exists( 'author', $item['properties'] ) ) {
 			// Check if any of the values of the author property are an h-card
 			foreach ( $item['properties']['author'] as $a ) {
-				if ( self::is_type( $a, 'h-card' ) ) {
+				if ( self::is_hcard( $a ) ) {
 					// 5.1 "if it has an h-card, use it, exit."
 					return $a;
 				} elseif ( is_string( $a ) ) {
-					if ( wp_http_validate_url( $a ) ) {
+					if ( self::is_url( $a ) ) {
 						// 5.2 "otherwise if author property is an http(s) URL, let the author-page have that URL"
 						$authorpage = $a;
 					} else {
@@ -668,83 +756,51 @@ class Parse_This_MF2 {
 	}
 
 	/*
-	 * Parse MF2 into JF2
+	 * Parses marked up HTML using MF2.
 	 *
-	 * @param string|DOMDocument|array $input HTML marked up content, HTML in DOMDocument, or array of already parsed MF2 JSON
+	 * @param string $content HTML marked up content.
 	 */
-	public static function parse( $input, $url, $alternate = true ) {
-		if ( is_string( $input ) || is_a( $input, 'DOMDocument' ) ) {
-			$input = Mf2\parse( $input, $url );
-			if ( $alternate ) {
-				// Check for rel-alternate jf2 or mf2 feed
-				if ( isset( $input['rel-urls'] ) ) {
-					foreach ( $input['rel-urls'] as $rel => $info ) {
-						if ( isset( $info['rels'] ) && in_array( 'alternate', $info['rels'], true ) ) {
-							if ( isset( $info['type'] ) ) {
-								if ( 'application/jf2+json' === $info['type'] ) {
-									$parse = new Parse_This( $rel );
-									$parse->fetch();
-									return $parse->get();
-								}
-								if ( 'application/mf2+json' === $info['type'] ) {
-									$parse = new Parse_This( $rel );
-									$parse->fetch();
-									$input = $parse->get( 'content' );
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
+	public static function mf2parse( $content, $url ) {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+		switch ( $host ) {
+			default:
+				$parsed = Mf2\parse( $content, $url );
 		}
-		if ( ! is_array( $input ) ) {
+		if ( ! is_array( $parsed ) ) {
 			return array();
 		}
-
-		$count = count( $input['items'] );
+		$count = count( $parsed['items'] );
 		if ( 0 === $count ) {
 			return array();
 		}
 		if ( 1 === $count ) {
-			$item = $input['items'][0];
+			$item = $parsed['items'][0];
 			if ( in_array( 'h-feed', $item['type'], true ) ) {
-				return parse_hfeed( $item, $input );
-			} elseif ( in_array( 'h-card', $item['type'], true ) ) {
-				return self::parse_hcard( $item, $input, $url );
+				return array(
+					'type' => 'feed',
+				);
+			}
+			if ( in_array( 'h-card', $item['type'], true ) ) {
+				return self::parse_hcard( $item, $parsed, $url );
 			} elseif ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {
-				return self::parse_hentry( $item, $input );
-			} elseif ( in_array( 'h-event', $item['type'], true ) ) {
-				return self::parse_hevent( $item, $input );
-			} elseif ( in_array( 'h-review', $item['type'], true ) ) {
-				return self::parse_hreview( $item, $input );
-			} elseif ( in_array( 'h-recipe', $item['type'], true ) ) {
-				return self::parse_hrecipe( $item, $input );
-			} elseif ( in_array( 'h-listing', $item['type'], true ) ) {
-				return self::parse_hlisting( $item, $input );
-			} elseif ( in_array( 'h-product', $item['type'], true ) ) {
-				return self::parse_hproduct( $item, $input );
-			} elseif ( in_array( 'h-resume', $item['type'], true ) ) {
-				return self::parse_hresume( $item, $input );
-			} elseif ( in_array( 'h-item', $item['type'], true ) ) {
-				return self::parse_hitem( $item, $input );
+				return self::parse_hentry( $item, $parsed );
 			}
 		}
 
-		foreach ( $input['items'] as $item ) {
+		foreach ( $parsed['items'] as $item ) {
 			if ( array_key_exists( 'url', $item['properties'] ) ) {
 				$urls = $item['properties']['url'];
 				if ( in_array( $url, $urls, true ) ) {
 					if ( in_array( 'h-card', $item['type'], true ) ) {
-						return self::parse_hcard( $item, $input, $url );
+						return self::parse_hcard( $item, $parsed, $url );
 					} elseif ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {
-						return self::parse_hentry( $item, $input );
+						return self::parse_hentry( $item, $parsed );
 					}
 				}
 			}
 		}
 		// No matching URLs so assume the first h-entry
-		foreach ( $input['items'] as $item ) {
+		foreach ( $parsed['items'] as $item ) {
 			if ( in_array( 'h-feed', $item['type'], true ) ) {
 				if ( in_array( 'children', $item, true ) ) {
 					return array(
@@ -753,100 +809,84 @@ class Parse_This_MF2 {
 				}
 			}
 			if ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {
-				return self::parse_hentry( $item, $input );
+				return self::parse_hentry( $item, $parsed );
 			}
 		}
 
 		return array();
 	}
 
-	public static function parse_hfeed( $entry, $mf ) {
-		$data = array(
-			'type'  => 'feed',
-			'items' => array(),
-		);
-		return array_filter( $data );
-
-	}
-
-	public static function parse_hcite( $entry, $mf ) {
-		$data         = self::get_prop_array( $entry, array_keys( $entry['properties'] ) );
-		$data['type'] = 'cite';
-		return $data;
-	}
-
-	public static function parse_h( $entry, $mf ) {
-		$data              = array();
-		$data['name']      = self::get_plaintext( $entry, 'name' );
+	public static function parse_hentry( $entry, $mf ) {
+		// Array Values
+		$properties        = array( 'checkin', 'category', 'invitee', 'photo', 'video', 'audio', 'syndication', 'in-reply-to', 'like-of', 'repost-of', 'bookmark-of', 'tag-of', 'location', 'featured', 'swarm-coins', 'checked-in-by' );
+		$data              = self::get_prop_array( $entry, $properties );
+		$data['type']      = 'entry';
 		$data['published'] = self::get_published( $entry );
 		$data['updated']   = self::get_updated( $entry );
-		$data['url']       = self::get_plaintext( $entry, 'url' );
-		$author            = self::find_author( $entry, $mf );
-		if ( $author ) {
-			if ( is_array( $author['type'] ) ) {
-				$data['author'] = self::parse_hcard( $author, $mf );
-			} else {
-				$data['author'] = $author;
-			}
+		$properties        = array( 'url', 'rsvp', 'featured', 'name' );
+		foreach ( $properties as $property ) {
+			$data[ $property ] = self::get_plaintext( $entry, $property );
 		}
 		$data['content'] = self::parse_html_value( $entry, 'content' );
 		$data['summary'] = self::get_summary( $entry, $data['content'] );
-
+		if ( isset( $data['name'] ) ) {
+			//$data['name'] = trim( preg_replace( '/https?:\/\/([^ ]+|$)/', '', $data['name'] ) );
+		}
 		if ( isset( $mf['rels']['syndication'] ) ) {
 			if ( isset( $data['syndication'] ) ) {
-				if ( is_string( $data['syndication'] ) ) {
-					$data['syndication'] = array( $data['syndication'] );
-				}
 				$data['syndication'] = array_unique( array_merge( $data['syndication'], $mf['rels']['syndication'] ) );
 			} else {
 				$data['syndication'] = $mf['rels']['syndication'];
 			}
-			if ( 1 === count( $data['syndication'] ) ) {
-				$data['syndication'] = array_pop( $data['syndication'] );
+		}
+		$author = self::find_author( $entry, $mf );
+		if ( $author ) {
+			if ( is_array( $author['type'] ) ) {
+				$data['author'] = self::parse_hcard( $author, $mf );
+			} else {
+				$author         = array_filter( $author );
+				$data['author'] = $author;
+				/*
+				if ( ! isset( $author['name'] ) && isset( $author['url'] ) ) {
+
+					$content = self::fetch( $author['url'] );
+					if ( is_wp_error( $content ) ) {
+						$content = '';
+					}
+					$parsed = Mf2\parse( $content, $author['url'] );
+					$hcard  = self::find_microformats_by_type( $parsed, 'h-card' );
+					if ( is_array( $hcard ) && ! empty( $hcard ) ) {
+						$hcard = $hcard[0];
+					}
+					$data['author'] = self::parse_hcard( $hcard, $parsed, $author['url'] );
+
+
+				} else {
+					$data['author'] = $author;
+				}*/
 			}
 		}
-		return array_filter( $data );
-	}
+		if ( array_key_exists( 'name', $data ) ) {
+			if ( ! array_key_exists( 'summary', $data ) || ! array_key_exists( 'content', $data ) ) {
+				// unset( $data['name'] ); // disabling this for now - this removes post names in cases where the name
+				// seems reasonable to include (e.g. photo posts, checkins, etc. may have names
 
-	public static function parse_hentry( $entry, $mf ) {
-		// Array Values
-		$properties   = array(
-			'checkin',
-			'category',
-			'invitee',
-			'photo',
-			'video',
-			'audio',
-			'syndication',
-			'in-reply-to',
-			'like-of',
-			'repost-of',
-			'bookmark-of',
-			'favorite-of',
-			'listen-of',
-			'quotation-of',
-			'watch-of',
-			'read-of',
-			'play-of',
-			'jam-of',
-			'itinerary',
-			'tag-of',
-			'location',
-			'checked-in-by',
-		);
-		$data         = self::get_prop_array( $entry, $properties );
-		$data['type'] = 'entry';
-		$properties   = array( 'url', 'weather', 'temperature', 'rsvp', 'featured', 'name', 'swarm-coins' );
-		foreach ( $properties as $property ) {
-			$data[ $property ] = self::get_plaintext( $entry, $property );
+			}
 		}
-		$data              = array_filter( $data );
-		$data              = array_merge( $data, self::parse_h( $entry, $mf ) );
-		$data['post-type'] = self::post_type_discovery( $entry );
+		if ( isset( $data['name'] ) && isset( $data['summary'] ) ) {
+			if ( $data['name'] === $data['summary'] ) {
+				unset( $data['name'] );
+			}
+		}
 		return $data;
 	}
 
 	public static function parse_hcard( $hcard, $mf, $authorurl = false ) {
+		/*** Jack's error handling -- needs further testing ***/
+		if ( ! $hcard ) {
+			return;}
+		/*** End of Jack's error handling -- needs further testing ***/
+
 		// If there is a matching author URL, use that one
 		$data = array(
 			'type'  => 'card',
@@ -856,29 +896,42 @@ class Parse_This_MF2 {
 		);
 		// Possible Nested Values
 		$properties = array( 'org', 'location' );
-		$data       = array_merge( $data, self::get_prop_array( $hcard, $properties ) );
+		/*** Jack's error handling -- needs further testing ***/
+		$prop_array = self::get_prop_array( $hcard, $properties );
+		if ( $prop_array ) {  /// Only merge arrays if h-card has a valid property array
+			$data = array_merge( $data, $prop_array );
+		}
+		/*** End of Jack's error handling -- needs further testing ***/
+
+		//        $data       = array_merge( $data, self::get_prop_array( $hcard, $properties ) );
+
 		// Single Values
-		$properties = array( 'url', 'name', 'photo', 'latitude', 'longitude', 'note', 'uid', 'bday', 'role', 'locality', 'region', 'country' );
+			$properties = array( 'url', 'name', 'photo', 'latitude', 'longitude', 'note', 'uid', 'bday', 'role', 'locality', 'region', 'country' );
 		foreach ( $properties as $p ) {
 			$v = self::get_plaintext( $hcard, $p );
 			if ( 'url' === $p && $authorurl ) {
 				// If there is a matching author URL, use that one
 				$found = false;
-				foreach ( $hcard['properties']['url'] as $url ) {
-					if ( wp_http_validate_url( $url ) ) {
-						if ( $url === $authorurl ) {
-							$data['url'] = $url;
-							$found       = true;
+				/*** Jack's error handling -- needs further testing ***/
+				if ( array_key_exists( 'properties', $hcard ) && is_array( $hcard['properties'] ) ) { // These functions only work if there is an array of hcard properties
+					/***End of  Jack's error handling -- needs further testing ***/
+
+					foreach ( $hcard['properties']['url'] as $url ) {
+						if ( self::is_url( $url ) ) {
+							if ( $url === $authorurl ) {
+								$data['url'] = $url;
+								$found       = true;
+							}
 						}
 					}
-				}
-				if ( ! $found && wp_http_validate_url( $hcard['properties']['url'][0] ) ) {
-					$data['url'] = $hcard['properties']['url'][0];
+					if ( ! $found && self::is_url( $hcard['properties']['url'][0] ) ) {
+						$data['url'] = $hcard['properties']['url'][0];
+					}
 				}
 			} elseif ( null !== $v ) {
 				// Make sure the URL property is actually a URL
 				if ( 'url' === $p || 'photo' === $p ) {
-					if ( wp_http_validate_url( $v ) ) {
+					if ( self::is_url( $v ) ) {
 						$data[ $p ] = $v;
 					}
 				} else {
@@ -886,143 +939,11 @@ class Parse_This_MF2 {
 				}
 			}
 		}
+
 		return array_filter( $data );
 	}
 
-	public static function parse_hevent( $entry, $mf ) {
-		$data       = array(
-			'type' => 'event',
-			'name' => null,
-			'url'  => null,
-		);
-		$data       = array_merge( $data, self::parse_h( $entry, $mf ) );
-		$properties = array( 'location', 'start', 'end', 'photo' );
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		return array_filter( $data );
-	}
-
-	public static function parse_hreview( $entry, $mf ) {
-		$data       = array(
-			'type' => 'review',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'item' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array( 'summary', 'published', 'rating', 'best', 'worst' );
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-
-	public static function parse_hproduct( $entry, $mf ) {
-		$data       = array(
-			'type' => 'product',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'brand', 'photo', 'audio', 'video' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array( 'identifier', 'price', 'description' );
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-
-	public static function parse_hresume( $entry, $mf ) {
-		$data       = array(
-			'type' => 'resume',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'item' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array();
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-	public static function parse_hlisting( $entry, $mf ) {
-		$data       = array(
-			'type' => 'listing',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'item' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array();
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-	public static function parse_hrecipe( $entry, $mf ) {
-		$data       = array(
-			'type' => 'recipe',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'item' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array();
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-	public static function parse_hitem( $entry, $mf ) {
-		$data       = array(
-			'type' => 'item',
-			'name' => null,
-			'url'  => null,
-		);
-		$properties = array( 'category', 'item' );
-		$data       = self::get_prop_array( $entry, $properties );
-		$properties = array();
-		foreach ( $properties as $p ) {
-			$v = self::get_plaintext( $entry, $p );
-			if ( null !== $v ) {
-				$data[ $p ] = $v;
-			}
-		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
-		return array_filter( $data );
-	}
-
-	public static function parse_hadr( $hadr, $mf ) {
+	private static function parse_hadr( $hadr, $mf ) {
 		$data       = array(
 			'type' => 'adr',
 			'name' => null,
@@ -1034,7 +955,7 @@ class Parse_This_MF2 {
 			if ( null !== $v ) {
 				// Make sure the URL property is actually a URL
 				if ( 'url' === $p || 'photo' === $p ) {
-					if ( wp_http_validate_url( $v ) ) {
+					if ( self::is_url( $v ) ) {
 						$data[ $p ] = $v;
 					}
 				} else {
@@ -1043,53 +964,6 @@ class Parse_This_MF2 {
 			}
 		}
 		return array_filter( $data );
-	}
-
-	public static function post_type_discovery( $mf ) {
-		if ( ! self::is_microformat( $mf ) ) {
-			return false;
-		}
-		$properties = array_keys( $mf['properties'] );
-		if ( self::is_type( $mf, 'h-entry' ) ) {
-			$map = array(
-				'rsvp'      => array( 'rsvp' ),
-				'checkin'   => array( 'checkin' ),
-				'itinerary' => array( 'itinerary' ),
-				'repost'    => array( 'repost-of' ),
-				'like'      => array( 'like-of' ),
-				'follow'    => array( 'follow-of' ),
-				'tag'       => array( 'tag-of' ),
-				'favorite'  => array( 'favorite-of' ),
-				'bookmark'  => array( 'bookmark-of' ),
-				'watch'     => array( 'watch-of' ),
-				'jam'       => array( 'jam-of' ),
-				'listen'    => array( 'listen-of' ),
-				'read'      => array( 'read-of' ),
-				'play'      => array( 'play-of' ),
-				'ate'       => array( 'eat', 'p3k-food' ),
-				'drink'     => array( 'drank' ),
-				'reply'     => array( 'in-reply-to' ),
-				'video'     => array( 'video' ),
-				'photo'     => array( 'photo' ),
-				'audio'     => array( 'audio' ),
-			);
-			foreach ( $map as $key => $value ) {
-				$diff = array_intersect( $properties, $value );
-				if ( ! empty( $diff ) ) {
-					return $key;
-				}
-			}
-			$name = static::get_plaintext( $mf, 'name' );
-			if ( ! empty( $name ) ) {
-				$name    = trim( $name );
-				$content = trim( static::get_plaintext( $mf, 'content' ) );
-				if ( 0 !== strpos( $content, $name ) ) {
-					return 'article';
-				}
-			}
-			return 'note';
-		}
-		return '';
 	}
 
 }
