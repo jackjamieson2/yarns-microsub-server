@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c90987b6f9d0de3d6b87159ea1bfe71",
+    "content-hash": "f7807e55515271468966bfd10c03492a",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.5.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "049797d727261bf27f2690430d935067710049c2"
+                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/049797d727261bf27f2690430d935067710049c2",
-                "reference": "049797d727261bf27f2690430d935067710049c2",
+                "url": "https://api.github.com/repos/composer/installers/zipball/cfcca6b1b60bc4974324efb5783c13dca6932b5b",
+                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b",
                 "shasum": ""
             },
             "require": {
@@ -124,7 +124,51 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2017-12-29T09:13:20+00:00"
+            "time": "2018-08-27T06:10:37+00:00"
+        },
+        {
+            "name": "dshanske/parse-this",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dshanske/parse-this.git",
+                "reference": "301b2b81eaa0659611a91a7885425df630ac844f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/301b2b81eaa0659611a91a7885425df630ac844f",
+                "reference": "301b2b81eaa0659611a91a7885425df630ac844f",
+                "shasum": ""
+            },
+            "require": {
+                "composer/installers": "~1.0",
+                "mf2/mf2": "dev-master",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "phpcompatibility/php-compatibility": "*",
+                "phpcompatibility/phpcompatibility-wp": "^1.0",
+                "squizlabs/php_codesniffer": "*",
+                "wp-coding-standards/wpcs": "*",
+                "wpreadme2markdown/wp2md": "^3.0"
+            },
+            "type": "wordpress-plugin",
+            "extra": {
+                "installer-name": "parse-this"
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Shanske",
+                    "email": "david@shanske.com"
+                }
+            ],
+            "description": "Parse This Library for WordPress",
+            "time": "2018-09-23T13:56:26+00:00"
         },
         {
             "name": "masterminds/html5",
@@ -196,13 +240,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/indieweb/php-mf2.git",
-                "reference": "35fee8b6481695438a44f336534b4cd782bcd518"
+                "url": "https://github.com/microformats/php-mf2.git",
+                "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/php-mf2/zipball/35fee8b6481695438a44f336534b4cd782bcd518",
-                "reference": "35fee8b6481695438a44f336534b4cd782bcd518",
+                "url": "https://api.github.com/repos/microformats/php-mf2/zipball/00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
+                "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
                 "shasum": ""
             },
             "require": {
@@ -245,7 +289,7 @@
                 "parser",
                 "semantic"
             ],
-            "time": "2018-08-02T17:12:58+00:00"
+            "time": "2018-08-24T14:47:04+00:00"
         }
     ],
     "packages-dev": [
@@ -319,16 +363,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.3.1",
+            "version": "3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "628a481780561150481a9ec74709092b9759b3ec"
+                "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/628a481780561150481a9ec74709092b9759b3ec",
-                "reference": "628a481780561150481a9ec74709092b9759b3ec",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/6ad28354c04b364c3c71a34e4a18b629cc3b231e",
+                "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e",
                 "shasum": ""
             },
             "require": {
@@ -366,7 +410,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-07-26T23:47:18+00:00"
+            "time": "2018-09-23T23:08:17+00:00"
         },
         {
             "name": "wimg/php-compatibility",
@@ -374,12 +418,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "b9eecbbe29d0cc69d6310e58cc2e04ba161a538e"
+                "reference": "dade1285fe4b37113f5a8b914b81855221f79347"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/b9eecbbe29d0cc69d6310e58cc2e04ba161a538e",
-                "reference": "b9eecbbe29d0cc69d6310e58cc2e04ba161a538e",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/dade1285fe4b37113f5a8b914b81855221f79347",
+                "reference": "dade1285fe4b37113f5a8b914b81855221f79347",
                 "shasum": ""
             },
             "require": {
@@ -419,7 +463,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-08-07T12:37:22+00:00"
+            "time": "2018-09-23T16:03:31+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -427,12 +471,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
-                "reference": "539c6d74e6207daa22b7ea754d6f103e9abb2755"
+                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/539c6d74e6207daa22b7ea754d6f103e9abb2755",
-                "reference": "539c6d74e6207daa22b7ea754d6f103e9abb2755",
+                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/46d42828ce7355d8b3776e3171f2bda892d179b4",
+                "reference": "46d42828ce7355d8b3776e3171f2bda892d179b4",
                 "shasum": ""
             },
             "require": {
@@ -462,13 +506,14 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2018-07-25T18:10:35+00:00"
+            "time": "2018-09-10T17:04:05+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "mf2/mf2": 20,
+        "dshanske/parse-this": 20,
         "wimg/php-compatibility": 20,
         "wp-coding-standards/wpcs": 20
     },
