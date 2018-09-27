@@ -6,10 +6,17 @@
  *
  */
 class Yarns_Microsub_Parser {
-
-
+	
+	
+	/**
+	 * Final clean up on post content before saving.
+	 *
+	 * @param $data
+	 *
+	 * @return mixed
+	 */
 	public static function clean_post( $data ) {
-		// dedupe name with summary
+		// dedupe name with summary.
 		if ( isset( $data['name'] ) ) {
 			if ( isset( $data['summary'] ) ) {
 				if ( false !== stripos( $data['summary'], $data['name'] ) ) {
@@ -17,7 +24,7 @@ class Yarns_Microsub_Parser {
 				}
 			}
 		}
-		// dedupe name with content['text']
+		// dedupe name with content['text'].
 		if ( isset( $data['name'] ) ) {
 			if ( isset( $data['content']['text'] ) ) {
 				if ( false !== stripos( $data['content']['text'], $data['name'] ) ) {
@@ -35,9 +42,11 @@ class Yarns_Microsub_Parser {
 		}
 
 		// Convert special characters to html entities in content['html']
+		/*
 		if ( isset( $data['content']['html'] ) ) {
 			//$data['content']['html'] = htmlspecialchars( $data['content']['html']);
 		}
+		*/
 
 
 		// Some feeds return multiple author photos, but only one can be shown
@@ -75,7 +84,10 @@ class Yarns_Microsub_Parser {
 	/**
 	 * Parses marked up HTML.
 	 *
-	 * @param string $content HTML marked up content.
+	 * @param $content The content to be parsed.
+	 * @param $url The url of the page being parsed.
+	 *
+	 * @return array
 	 */
 	public static function mergeparse( $content, $url ) {
 		// For debugging - get time of the script
@@ -84,16 +96,8 @@ class Yarns_Microsub_Parser {
 			return array();
 		}
 
-
-		//$mf2data  = Parse_This_MF2::mf2parse( $content, $url );
-		//return $mf2data;
-
-		//$parsethis = new Yarns_Microsub_Parse_This();
-		//$parsethis->set_source( $content, $url );
-		//$metadata = $parsethis->meta_to_microformats();
 		$mf2data = Parse_This_MF2::mf2parse( $content, $url );
-		//$data     = array_merge( $metadata, $mf2data );
-		//$data     = array_filter( $data );
+		
 		$data = $mf2data;
 		if ( ! isset( $data['summary'] ) && isset( $data['content'] ) ) {
 			$data['summary'] = substr( $data['content']['text'], 0, 300 );
@@ -121,9 +125,6 @@ class Yarns_Microsub_Parser {
 			$data['content']['html'] = htmlspecialchars( $data['content']['html'] );
 		}
 
-		//$time_end = microtime(true);
-		//$execution_time = ($time_end - $time_start);
-		//error_log("Execution time in seconds: " . $execution_time);
 		return $data;
 
 	}
@@ -162,8 +163,14 @@ class Yarns_Microsub_Parser {
 				{ ... }
 			  ]
 			}*/
-
-
+	
+	
+	/**
+	 * Searches a URL for feeds
+	 * @param $query
+	 *
+	 * @return array
+	 */
 	public static function search( $query ) {
 
 		// Check if $query is a valid URL, if not try to generate one
@@ -246,24 +253,29 @@ class Yarns_Microsub_Parser {
 		}
 	}
 
-	/*	Preview
-
-	action=preview
-
-	POST
-
-		action=preview
-		url={url}*/
-
-		/*The response includes the list of items in the feed if available, in the same format as returned by the #Timelines API call. */
-
-
+	
+	/**
+	 * Returns a preview of the feed
+	 *
+	 * @param $url URL of the feed to be previewed
+	 *
+	 * @return array|void
+	 */
 	public static function preview( $url ) {
 
 		return static::parse_feed( $url, 2 );
 		//return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
-
+	
+	/**
+	 * Parses feed at $url.  Determines whether the feed is h-feed or rss and passes to appropriate
+	 * function.
+	 *
+	 * @param $url
+	 * @param int $count Number of posts to be returned
+	 *
+	 * @return array|void
+	 */
 	public static function parse_feed( $url, $count = 20 ) {
 
 		if ( ! $url ) {
@@ -283,7 +295,7 @@ class Yarns_Microsub_Parser {
 		}
 
 		// If there is no h-feed, Try to parse rss
-		$feed = static::parse_rss( $content, $url, $count );
+		$feed = static::parse_rss( $url, $count );
 		if ( $feed ) {
 			return $feed;
 		}
@@ -291,8 +303,16 @@ class Yarns_Microsub_Parser {
 		// Failed, so return nothing
 		return;
 	}
-
-	public static function parse_rss( $content, $url ) {
+	
+	/**
+	 * Parse RSS feed at $url
+	 *
+	 * @param $content
+	 * @param $url
+	 *
+	 * @return array|void
+	 */
+	public static function parse_rss( $url ) {
 		include_once ABSPATH . WPINC . '/feed.php';
 		// Get a SimplePie feed object from the specified feed source.
 		$feed = fetch_feed( $url );
@@ -360,6 +380,14 @@ class Yarns_Microsub_Parser {
 	$count -> the number of posts to retrieve
 
 	*/
+	/**
+	 * Parses h-feed
+	 * @param $content
+	 * @param $url
+	 * @param int $count
+	 *
+	 * @return array|void
+	 */
 	public static function parse_hfeed( $content, $url, $count = 5 ) {
 
 		$mf = static::locate_hfeed( $content, $url );
@@ -440,7 +468,15 @@ class Yarns_Microsub_Parser {
 		];
 
 	}
-
+	
+	/**
+	 * Finds the author of the feed (supplements post author)
+	 *
+	 * @param $content
+	 * @param $url
+	 *
+	 * @return array
+	 */
 	private static function get_feed_author( $content, $url ) {
 		$mf = Mf2\parse( $content, $url );
 
@@ -524,7 +560,15 @@ class Yarns_Microsub_Parser {
 	}
 
 
-	// Find the root feed
+	
+	/**
+	 * Find the root feed for a page
+	 *
+	 * @param $content
+	 * @param $url
+	 *
+	 * @return array|void
+	 */
 	public static function locate_hfeed( $content, $url ) {
 		$mf = Mf2\parse( $content, $url );
 
@@ -570,7 +614,8 @@ class Yarns_Microsub_Parser {
 		}
 		return;
 	}
-
+	
+	/** DEPRECATED */
 	public static function find_hfeed_in_page( $url ) {
 		$mf2 = Mf2\fetch( $url );
 
@@ -622,7 +667,14 @@ class Yarns_Microsub_Parser {
 	* UTILITY FUNCTIONS
 	*
 	*/
-
+	
+	/**
+	 * Corrects invalid URLs if possible
+	 *
+	 * @param $possible_url
+	 *
+	 * @return string
+	 */
 	public static function validate_url( $possible_url ) {
 		//If it is already a valid URL, return as-is
 		if ( static::is_url( $possible_url ) ) {
@@ -638,12 +690,20 @@ class Yarns_Microsub_Parser {
 		// If the URL is missing a trailing '/' add it
 		//$possible_url = wp_slash($possible_url)
 		if ( substr( $possible_url, -1 ) != '/' ) {
+
 			$possible_url .= '/';
 		}
 		// If missing a scheme, prepend with 'http://', otherwise return as-is
 		 return parse_url( $possible_url, PHP_URL_SCHEME ) === null ? 'http://' . $possible_url : $possible_url;
 	}
-
+	
+	/**
+	 * Returns true if $query is a valid URL
+	 *
+	 * @param $query
+	 *
+	 * @return bool
+	 */
 	public static function is_url( $query ) {
 		if ( filter_var( $query, FILTER_VALIDATE_URL ) ) {
 			return true;
@@ -651,8 +711,13 @@ class Yarns_Microsub_Parser {
 			return false;
 		}
 	}
-
-
+	
+	/**
+	 * Returns true if $feedtype represents an RSS/Atom feed
+	 * @param $feedtype
+	 *
+	 * @return bool
+	 */
 	public static function isRSS( $feedtype ) {
 		$rssTypes = array(
 			'application/rss+xml',
