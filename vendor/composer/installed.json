@@ -198,17 +198,17 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "301b2b81eaa0659611a91a7885425df630ac844f"
+            "reference": "70f2c979c5ec7d24b6347da3b5de151c19064ccd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/301b2b81eaa0659611a91a7885425df630ac844f",
-            "reference": "301b2b81eaa0659611a91a7885425df630ac844f",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/70f2c979c5ec7d24b6347da3b5de151c19064ccd",
+            "reference": "70f2c979c5ec7d24b6347da3b5de151c19064ccd",
             "shasum": ""
         },
         "require": {
             "composer/installers": "~1.0",
-            "mf2/mf2": "dev-master",
+            "mf2/mf2": "*",
             "php": ">=5.3.0"
         },
         "require-dev": {
@@ -219,7 +219,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2018-09-23T13:56:26+00:00",
+        "time": "2018-09-25T22:57:10+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
@@ -417,17 +417,17 @@
     },
     {
         "name": "wimg/php-compatibility",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "8.2.0",
+        "version_normalized": "8.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-            "reference": "dade1285fe4b37113f5a8b914b81855221f79347"
+            "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/dade1285fe4b37113f5a8b914b81855221f79347",
-            "reference": "dade1285fe4b37113f5a8b914b81855221f79347",
+            "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
+            "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
             "shasum": ""
         },
         "require": {
@@ -444,7 +444,7 @@
             "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically.",
             "roave/security-advisories": "dev-master || Helps prevent installing dependencies with known security issues."
         },
-        "time": "2018-09-23T16:03:31+00:00",
+        "time": "2018-07-17T13:42:26+00:00",
         "type": "phpcodesniffer-standard",
         "installation-source": "source",
         "autoload": {
@@ -472,8 +472,8 @@
     },
     {
         "name": "wp-coding-standards/wpcs",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
