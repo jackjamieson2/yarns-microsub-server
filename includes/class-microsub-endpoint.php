@@ -3,13 +3,13 @@
  * Microsub endpoint class
  *
  * @author Jack Jamieson
- *
  */
 
 /* For debugging purposes this will bypass MICROSUB authentication
  * in favor of WordPress authentication
  * Using this to test querying(q=) parameters quickly
  */
+
 if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
 	define( 'MICROSUB_LOCAL_AUTH', '0' );
 }
@@ -21,7 +21,6 @@ if ( ! defined( 'MICROSUB_AUTHENTICATION_ENDPOINT' ) ) {
 if ( ! defined( 'MICROSUB_TOKEN_ENDPOINT' ) ) {
 	define( 'MICROSUB_TOKEN_ENDPOINT', 'https://tokens.indieauth.com/token' );
 }
-
 
 
 class Yarns_Microsub_Endpoint {
@@ -448,7 +447,10 @@ class Yarns_Microsub_Endpoint {
 	 * @return boolean
 	**/
 	protected static function check_scope( $scope ) {
-		error_log( "checking for scope {$scope}" );
+		error_log( 'checking for scope {$scope}' );
+		if ( MICROSUB_LOCAL_AUTH == 1 ) {
+			return true;
+		}
 
 		return in_array( $scope, static::$scopes, true );
 	}

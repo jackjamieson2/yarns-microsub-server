@@ -39,7 +39,36 @@ class Yarns_Microsub_Parser {
 			//$data['content']['html'] = htmlspecialchars( $data['content']['html']);
 		}
 
+
+		// Some feeds return multiple author photos, but only one can be shown
+		if ( isset( $data['author']['photo'] ) ) {
+			if ( is_array( $data['author']['photo'] ) ) {
+				$data['author']['photo'] = $data['author']['photo'][0];
+			}
+		}
+
+
+		//debugging
+		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to' ];
+		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
+		// so reduce them to the url for now
+		foreach ( $ref_types as $ref_type ) {
+			if ( isset( $data[ $ref_type ]['url'] ) ) {
+				$data[ $ref_type ] = $data[ $ref_type ]['url'];
+			}
+		}
+
+		// referecnes
+
+		if ( isset( $data['in-reply-to']['url'] ) ) {
+
+			//$data['in-reply-to'] = $data['in-reply-to']['url'];
+			//unset($data['in-reply-to']);
+		}
+
+
 		$data = encode_array( array_filter( $data ) );
+
 		return $data;
 	}
 
@@ -55,13 +84,14 @@ class Yarns_Microsub_Parser {
 			return array();
 		}
 
-		//$mf2data  = Parse_MF2_yarns::mf2parse( $content, $url );
+
+		//$mf2data  = Parse_This_MF2::mf2parse( $content, $url );
 		//return $mf2data;
 
 		//$parsethis = new Yarns_Microsub_Parse_This();
 		//$parsethis->set_source( $content, $url );
 		//$metadata = $parsethis->meta_to_microformats();
-		$mf2data = Parse_MF2_yarns::mf2parse( $content, $url );
+		$mf2data = Parse_This_MF2::mf2parse( $content, $url );
 		//$data     = array_merge( $metadata, $mf2data );
 		//$data     = array_filter( $data );
 		$data = $mf2data;
@@ -229,16 +259,22 @@ class Yarns_Microsub_Parser {
 
 
 	public static function preview( $url ) {
-		return static::parse_feed( $url, 5 );
-		return Yarns_Microsub_Aggregator::poll_site( $url, '_preview' );
+
+		return static::parse_feed( $url, 2 );
+		//return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
 
 	public static function parse_feed( $url, $count = 20 ) {
 
+		if ( ! $url ) {
+			return;
+		}
+
 		$content = file_get_contents( $url );
 		// only proceed if content could be found
 		if ( ! $content ) {
-			return;}
+			return;
+		}
 
 		// Try to parse h-feed
 		$feed = static::parse_hfeed( $content, $url, $count );
@@ -374,15 +410,21 @@ class Yarns_Microsub_Parser {
 					 *  (2) there is no post author OR (3) post author has same url as feed author
 					 */
 					if ( $feed_author ) {
-						if ( ! isset( $the_item['author'] ) ) {
-
-							//if(!array_key_exists('author', $the_item)) {
-							$the_item['author'] = $feed_author;
-						} elseif ( array_key_exists( 'url', $the_item['author'] ) && array_key_exists( 'url', $feed_author ) ) {
-							if ( $the_item['author']['url'] == $feed_author['url'] ) {
-								$the_item['author'] = array_merge( $feed_author, $the_item['author'] );
+						if ( isset( $the_item['author'] ) ) {
+							//convert author to jf2
+							$the_item['author'] = mf2_to_jf2( $the_item['author'] );
+							// merge with feed author if there is any missing information
+							if ( array_key_exists( 'url', $the_item['author'] ) && array_key_exists( 'url', $feed_author ) ) {
+								if ( $the_item['author']['url'] == $feed_author['url'] ) {
+									$the_item['author'] = array_merge( $feed_author, $the_item['author'] );
+								}
 							}
+						} else {
+							// Post author is not set, so replace it with the feed author
+							$the_item['author'] = $feed_author;
 						}
+
+
 					}
 
 					$the_item      = static::clean_post( $the_item );
@@ -412,27 +454,29 @@ class Yarns_Microsub_Parser {
 		}
 		foreach ( $mf['items'] as $item ) {
 			// Check if the item is an h-card
-			if ( Parse_MF2_yarns::is_hcard( $item ) ) {
-				return Parse_MF2_yarns::parse_hcard( $item, $mf, $url );
+
+			if ( Parse_This_MF2::is_type( $item, 'h-card' ) ) {
+				// if (Parse_This_MF2::is_hcard($item)){ // deprecated
+
+				return Parse_This_MF2::parse_hcard( $item, $mf, $url );
 			}
 			// Check if the item is an h-feed, in which case look for an author property
 			if ( in_array( 'h-feed', $item['type'], true ) ) {
 				if ( isset( $item['properties'] ) ) {
 					if ( isset( $item['properties']['author'] ) ) {
 						foreach ( $item['properties']['author'] as $author ) {
-							if ( Parse_MF2_yarns::is_hcard( $author ) ) {
-								return Parse_MF2_yarns::parse_hcard( $author, $mf, $url );
+							if ( Parse_This_MF2::is_type( $item, 'hcard' ) ) {
+								return Parse_This_MF2::parse_hcard( $author, $mf, $url );
 							} else {
-								return $author;
+								return mf2_to_jf2( $author );
 							}
 						}
 					}
 				}
-				//return Parse_MF2_yarns::parse_hcard( $item, $mf, $url );
+				//return Parse_This_MF2::parse_hcard( $item, $mf, $url );
 			}
 		}
 	}
-
 
 
 	/* For now deprecated in favour of mergeparse() */
@@ -440,8 +484,8 @@ class Yarns_Microsub_Parser {
 		//$mf = Mf2\fetch($url);
 		$mf = Mf2\parse( $content, $url );
 		foreach ( $mf['items'] as $item ) {
-			if ( "{$item['type'][0]}" == 'h-entry' ||
-				"{$item['type'][0]}" == 'h-event' ) {
+			if ( '{$item['type'][0]}' == 'h-entry' ||
+			     '{$item['type'][0]}' == 'h-event' ) {
 				$return_item = array();
 				//$return_item = $item['properties'];
 				$return_item['type'] = $item['type'];
@@ -610,7 +654,16 @@ class Yarns_Microsub_Parser {
 
 
 	public static function isRSS( $feedtype ) {
-		$rssTypes = array( 'application/rss+xml', 'application/atom+xml', 'application/rdf+xml', 'application/xml', 'text/xml', 'text/xml', 'text/rss+xml', 'text/atom+xml' );
+		$rssTypes = array(
+			'application/rss+xml',
+			'application/atom+xml',
+			'application/rdf+xml',
+			'application/xml',
+			'text/xml',
+			'text/xml',
+			'text/rss+xml',
+			'text/atom+xml'
+		);
 		if ( in_array( $feedtype, $rssTypes ) ) {
 			return true;
 		}

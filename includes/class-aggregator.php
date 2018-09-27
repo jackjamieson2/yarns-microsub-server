@@ -20,10 +20,9 @@ class Yarns_Microsub_Aggregator {
 
 	public static function test_aggregator() {
 
-		//$channels =  json_decode(get_site_option("yarns_channels"),True);
+		//$channels =  json_decode(get_site_option('yarns_channels'),True);
 		return self::poll();
 	}
-
 
 
 	/* Poll the entire channel list for new posts */
@@ -46,7 +45,8 @@ class Yarns_Microsub_Aggregator {
 				}
 			}
 		}
-		error_log( "finished polling. Results = \n" . json_encode( $results ) );
+		error_log( 'finished polling. Results = \n' . json_encode( $results ) );
+
 		return $results;
 	}
 
@@ -66,6 +66,7 @@ class Yarns_Microsub_Aggregator {
 				$site_results[] = static::poll_post( $post['url'], $post, $channel_uid, $feed );
 			}
 		}
+
 		return $site_results;
 	}
 
