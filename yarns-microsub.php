@@ -30,7 +30,18 @@ register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivat
 class Yarns_MicroSub_Plugin {
 
 	public static function plugins_loaded() {
-
+		
+		
+		if ( WP_DEBUG ) {
+			require_once dirname( __FILE__ ) . '/includes/debug.php';
+		}
+		
+		
+		// Parse This
+		if ( ! class_exists ( 'Parse_This_MF2') ) {
+			require_once plugin_dir_path(__FILE__) . '/vendor/parse-this/parse-this.php';
+		}
+		
 	}
 
 	/**
@@ -47,10 +58,6 @@ class Yarns_MicroSub_Plugin {
 	 * Initialize Yarns Microsub Server plugin Plugin
 	 */
 	public static function init() {
-
-		if ( WP_DEBUG ) {
-			require_once dirname( __FILE__ ) . '/includes/debug.php';
-		}
 
 		// Initialize Microsub endpoint
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
@@ -70,9 +77,7 @@ class Yarns_MicroSub_Plugin {
 		// Class: Aggregator
 		require_once dirname( __FILE__ ) . '/includes/class-aggregator.php';
 
-		// MF2 parser from post kinds plugin
-		require_once dirname( __FILE__ ) . '/includes/class-parse-mf2.php';
-		require_once dirname( __FILE__ ) . '/includes/class-parse-this.php';
+
 
 		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
