@@ -484,8 +484,8 @@ class Yarns_Microsub_Parser {
 		//$mf = Mf2\fetch($url);
 		$mf = Mf2\parse( $content, $url );
 		foreach ( $mf['items'] as $item ) {
-			if ( '{$item['type'][0]}' == 'h-entry' ||
-			     '{$item['type'][0]}' == 'h-event' ) {
+			if ( '{$item["type"][0]}' == 'h-entry' ||
+			     '{$item["type"][0]}' == 'h-event' ) {
 				$return_item = array();
 				//$return_item = $item['properties'];
 				$return_item['type'] = $item['type'];
