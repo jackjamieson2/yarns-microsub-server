@@ -1,6 +1,4 @@
-.DS_Store
-composer.phar
-composer.lock
+build/*
 vendor/*
 !/vendor/mf2
 /vendor/mf2/mf2/*
@@ -9,6 +7,4 @@ vendor/*
 !/vendor/masterminds
 /vendor/masterminds/html5/*
 !/vendor/masterminds/html5/src
-!/vendor/parse-this
-/vendor/parse-this/.DS_Store
-/vendor/parse-this/tests/
+composer.lock
