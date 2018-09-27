@@ -11,3 +11,10 @@ vendor/*
 !/vendor/masterminds
 /vendor/masterminds/html5/*
 !/vendor/masterminds/html5/src
+vendor/parse-this/*
+!vendor/parse-this/parse-this.php
+!vendor/parse-this/LICENSE
+!vendor/parse-this/readme.md
+!vendor/parse-this/readme.txt
+!vendor/parse-this/vendor
+!vendor/parse-this/includes
