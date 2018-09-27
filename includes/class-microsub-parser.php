@@ -403,7 +403,7 @@ class Yarns_Microsub_Parser {
 				break;} // Only get up to the specific count of items
 			if ( "{$item['type'][0]}" == 'h-entry' ||
 				"{$item['type'][0]}" == 'h-event' ) {
-				$the_item = Parse_MF2_yarns::parse_hentry( $item, $mf );
+				$the_item = Parse_This_MF2::parse_hentry( $item, $mf );
 				if ( is_array( $the_item ) ) {
 					/* Merge feed author and post author if:
 					 *  (1) feed_author was found AND
