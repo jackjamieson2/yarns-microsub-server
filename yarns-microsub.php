@@ -62,8 +62,7 @@ class Yarns_MicroSub_Plugin {
 		// Initialize Microsub endpoint
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
-		//add_action( 'init', array( 'Yarns_Microsub_Endpoint', 'init' ) );
-
+		
 		// Initialize Microsub posts
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
 		Yarns_Microsub_Posts::init();
@@ -75,7 +74,7 @@ class Yarns_MicroSub_Plugin {
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
 		// Class: Aggregator
-		require_once dirname( __FILE__ ) . '/includes/class-aggregator.php';
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-aggregator.php';
 
 
 
