@@ -169,17 +169,15 @@ class Yarns_Microsub_Parser {
 	 * Searches a URL for feeds
 	 * @param $query
 	 *
-	 * @return array
+	 * @return array|void
 	 */
 	public static function search( $query ) {
 
 		// Check if $query is a valid URL, if not try to generate one
 		$url     = static::validate_url( $query );
-		$results = [];
 		$content = file_get_contents( $url ); //get the html returned from the following url
 		$dom     = new DOMDocument();
 		libxml_use_internal_errors( true ); //disable libxml errors
-
 		if ( ! empty( $content ) ) { //if any html is actually returned
 			$dom->loadHTML( $content );
 			$hfeed_exists = false;
@@ -209,9 +207,14 @@ class Yarns_Microsub_Parser {
 					$feeds[]       = $feed;
 				}
 			}
-
+			
+			// return null if no feeds were discovered
+			
+			if ( empty( $feeds ) ) {
+				return;
+			}
+			
 			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
-
 			foreach ( $feeds as $i => $feed ) {
 				// Convert relative urls to absolute
 				if ( parse_url( $feeds[ $i ]['url'], PHP_URL_HOST ) == false ) {
@@ -440,7 +443,7 @@ class Yarns_Microsub_Parser {
 					if ( $feed_author ) {
 						if ( isset( $the_item['author'] ) ) {
 							//convert author to jf2
-							$the_item['author'] = mf2_to_jf2( $the_item['author'] );
+							//$the_item['author'] = mf2_to_jf2( $the_item['author'] );
 							// merge with feed author if there is any missing information
 							if ( array_key_exists( 'url', $the_item['author'] ) && array_key_exists( 'url', $feed_author ) ) {
 								if ( $the_item['author']['url'] == $feed_author['url'] ) {
@@ -504,7 +507,8 @@ class Yarns_Microsub_Parser {
 							if ( Parse_This_MF2::is_type( $item, 'hcard' ) ) {
 								return Parse_This_MF2::parse_hcard( $author, $mf, $url );
 							} else {
-								return mf2_to_jf2( $author );
+								return ($author);
+								//return mf2_to_jf2( $author );
 							}
 						}
 					}
