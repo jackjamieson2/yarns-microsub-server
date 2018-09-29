@@ -126,7 +126,7 @@ class Yarns_Microsub_Parse_This {
 			return new WP_Error( 'invalid-url', __( 'A valid URL was not provided.', 'indieweb-post-kinds' ) );
 		}
 
-		$args = array(
+		$args          = array(
 			'timeout'             => 30,
 			'limit_response_size' => 1048576,
 			'redirection'         => 5,
@@ -346,7 +346,8 @@ class Yarns_Microsub_Parse_This {
 			$oembed = _wp_oembed_get_object();
 
 			if ( ! $oembed->get_provider(
-				$src, array(
+				$src,
+				array(
 					'discover' => false,
 				)
 			) ) {
@@ -845,11 +846,11 @@ class Yarns_Microsub_Parse_This {
 			}
 			$data['author'] = array_filter( $author );
 		}
-		$data['featured']    = $this->get_meta( 'featured' );
+		$data['featured'] = $this->get_meta( 'featured' );
 		//$data['publication'] = $this->get_meta( 'site_name' );
-		$data['published']   = $this->get_meta( 'published' ) ?: $this->get_meta( 'release_date' );
-		$data['updated']     = $this->get_meta( 'modified' );
-		$tags                = $this->get_meta( 'tag' );
+		$data['published'] = $this->get_meta( 'published' ) ?: $this->get_meta( 'release_date' );
+		$data['updated']   = $this->get_meta( 'modified' );
+		$tags              = $this->get_meta( 'tag' );
 		if ( is_array( $tags ) ) {
 			$data['category'] = array_values( $tags );
 		}

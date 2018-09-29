@@ -43,31 +43,13 @@ module.exports = function(grunt) {
         },
       },
     },
-    replace: {
-      dist: {
-        options: {
-          patterns: [
-            {
-              match: /^/,
-              replacement: '[![Build Status](https://travis-ci.org/pfefferle/wordpress-webmention.svg?branch=master)](https://travis-ci.org/pfefferle/wordpress-webmention) [![Issue Count](https://codeclimate.com/github/pfefferle/wordpress-webmention/badges/issue_count.svg)](https://codeclimate.com/github/pfefferle/wordpress-webmention) \n\n'
-            }
-          ]
-        },
-        files: [
-          {
-            src: ['readme.md'],
-            dest: './'
-          }
-        ]
-      }
-    },
     makepot: {
       target: {
         options: {
-          mainFile: 'webmention.php',
+          mainFile: 'yarns-microsub.php',
           domainPath: '/languages',
           exclude: ['bin/.*', '.git/.*', 'vendor/.*'],
-          potFilename: 'webmention.pot',
+          potFilename: 'yarn_microsub.pot',
           type: 'wp-plugin',
           updateTimestamp: true
         }
@@ -76,10 +58,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-wp-readme-to-markdown');
-  grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-wp-i18n');
   grunt.loadNpmTasks('grunt-checktextdomain');
 
   // Default task(s).
-  grunt.registerTask('default', ['wp_readme_to_markdown', 'replace', 'makepot', 'checktextdomain']);
+  grunt.registerTask('default', ['wp_readme_to_markdown', 'makepot', 'checktextdomain']);
 };

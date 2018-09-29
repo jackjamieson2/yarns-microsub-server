@@ -12,7 +12,7 @@
  * Domain Path: /languages
  */
 
-require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+//require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 
 
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
@@ -24,12 +24,24 @@ add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
 
+//register_activation_hook(__FILE__,'yarns_reader_create_tables');
 
 
 class Yarns_MicroSub_Plugin {
 
 	public static function plugins_loaded() {
-
+		
+		
+		if ( WP_DEBUG ) {
+			require_once dirname( __FILE__ ) . '/includes/debug.php';
+		}
+		
+		
+		// Parse This
+		if ( ! class_exists ( 'Parse_This_MF2') ) {
+			require_once plugin_dir_path(__FILE__) . '/vendor/parse-this/parse-this.php';
+		}
+		
 	}
 
 	/**
@@ -45,36 +57,28 @@ class Yarns_MicroSub_Plugin {
 	/**
 	 * Initialize Yarns Microsub Server plugin Plugin
 	 */
-	public static function init()
-	{
+	public static function init() {
 
-		if (WP_DEBUG) {
-			require_once dirname( __FILE__ ) . '/includes/debug.php';
-		}
-
-		// Initialize Microsub endpoint.
+		// Initialize Microsub endpoint
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
-
-		// Initialize Microsub posts.
+		
+		// Initialize Microsub posts
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
 		Yarns_Microsub_Posts::init();
 
-		// Class : channels.
+		// Class: channels
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-channels.php';
 
-		// Class : Parser.
+		// Class: Parser
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-parser.php';
 
-		// Class : Aggregator.
-		require_once dirname( __FILE__ ) . '/includes/class-aggregator.php';
+		// Class: Aggregator
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-aggregator.php';
 
 
-		// Parse This.
-		require_once plugin_dir_path( __FILE__ ) . 'includes/parse-this/parse-this.php';
 
-
-		// list of various public helper functions.
+		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
 		// Admin options.
@@ -82,16 +86,14 @@ class Yarns_MicroSub_Plugin {
 		add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
 		add_action( 'wp_ajax_save_options', array( 'Yarns_Microsub_Channels', 'save_options' ) );
-
-
-
-		// Set up cron job to check for posts.
+		//Set up cron job to check for posts
 		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
 			wp_schedule_event( time(), 'hourly', 'yarns_microsub_server_cron' );
 		}
 		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
 
 	}
+
 
 
 
@@ -102,6 +104,3 @@ class Yarns_MicroSub_Plugin {
 		load_plugin_textdomain( 'webmention', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 }
-
-
-
