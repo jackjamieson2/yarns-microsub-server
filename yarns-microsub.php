@@ -76,16 +76,18 @@ class Yarns_MicroSub_Plugin {
 		// Class: Aggregator
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-aggregator.php';
 
+		// Class: Admin
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-admin.php';
+		add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
+		Yarns_Microsub_Admin::init();
+		
 
+		
 
 		// list of various public helper functions
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
-		// Admin options.
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-admin.php';
-		add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
-		add_action( 'wp_ajax_save_options', array( 'Yarns_Microsub_Channels', 'save_options' ) );
 		//Set up cron job to check for posts
 		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
 			wp_schedule_event( time(), 'hourly', 'yarns_microsub_server_cron' );

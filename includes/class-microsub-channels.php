@@ -7,8 +7,8 @@
  *
  */
 class Yarns_Microsub_Channels {
-
-
+	
+	
 	//Returns a list of the channels
 	public static function get( $details = false ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
@@ -20,24 +20,41 @@ class Yarns_Microsub_Channels {
 				if ( array_key_exists( 'items', $channel ) ) {
 					unset( $channels[ $key ]['items'] );
 				}
-
+				
 				if ( array_key_exists( 'post-types', $channel ) ) {
 					unset( $channels[ $key ]['post-types'] );
 				}
 			}
 		}
-
-
+		
+		
 		// for testing, hardcode an 'unread' value for each channel
 		foreach ( $channels as $key => $channel ) {
 			//$channels[$key]['unread'] = 10;
 		}
-
+		
 		return [
 			'channels' => $channels,
 		];
 	}
-
+	
+	/**
+	 *
+	 * Get a single channel object with details
+	 *
+	 * @param $uid
+	 *
+	 * @return mixed
+	 */
+	public static function get_channel( $uid ) {
+		$channels = self::get( $details = true )['channels'];
+		foreach ( $channels as $channel ) {
+			if ( $uid === $channel['uid'] ) {
+				return $channel;
+			}
+		}
+	}
+	
 	// Delete a channel
 	public static function delete( $uid ) {
 		// Rewrite the channel list with the selected channel removed
@@ -63,11 +80,11 @@ class Yarns_Microsub_Channels {
 		update_option( 'yarns_channels', json_encode( $new_channel_list ) );
 		error_log( 'Ending list: ' . json_encode( $new_channel_list ) );
 		error_log( 'Saved list: ' . get_site_option( 'yarns_channels' ) );
-
+		
 		return 'deleted';
 	}
-
-
+	
+	
 	//Add a channel
 	public static function add( $new_channel_name ) {
 		//delete_option('yarns_channels');
@@ -86,33 +103,33 @@ class Yarns_Microsub_Channels {
 		} else {
 			$channels = [];
 		}
-
-
+		
+		
 		/** Create the channel
 		 */
-
+		
 		//Generate a random uid
 		$uid        = static::generate_uid();
 		$post_types = static::all_post_types();
-
-
+		
+		
 		$new_channel = [
 			'uid'        => $uid,
 			'name'       => $new_channel_name,
 			'post-types' => $post_types
 		];
-
+		
 		$channels[] = $new_channel;
 		update_option( 'yarns_channels', json_encode( $channels ) );
-
+		
 		return $new_channel;
-
+		
 		//get_site_option
 		//update_option
-
+		
 	}
-
-
+	
+	
 	/*
 	UPDATE A CHANNEL
 	action=channels
@@ -130,7 +147,7 @@ class Yarns_Microsub_Channels {
 					if ( $item['uid'] == $channel ) {
 						$channels[ $key ]['name'] = $name;
 						update_option( 'yarns_channels', json_encode( $channels ) );
-
+						
 						return $channels[ $key ];
 					}
 				}
@@ -139,7 +156,7 @@ class Yarns_Microsub_Channels {
 			static::add( $name );
 		}
 	}
-
+	
 	/**
 	 * Updates the filter options for a channel
 	 *
@@ -148,13 +165,13 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return mixed
 	 */
-	public static function save_options() {
+	public static function save_filters() {
 		error_log( 'updating options' );
 		$uid     = sanitize_text_field( $_POST['uid'] );
 		$options = $_POST['options'];
 		//$all_types = Yarns_Microsub_Channels::all_post_types();
 		error_log( 'options = ' . json_encode( $options ) );
-
+		
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 			//check if the channel already exists
@@ -165,42 +182,43 @@ class Yarns_Microsub_Channels {
 						$channels[ $key ]['post-types'] = $options;
 						error_log( json_encode( $channels ) );
 						update_option( 'yarns_channels', json_encode( $channels ) );
-
-						return $channels[ $key ];
+						echo "Saved";
+						wp_die();
+						//return $channels[ $key ];
 					}
 				}
 			}
 		}
 	}
-
+	
 	// Returns a list of allowed post-types
 	public static function get_post_types( $query_channel ) {
-
-
+		
+		
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 			//return $channels;
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] == $query_channel ) {
-
+					
 					//This is the channel to be returned
 					if ( isset( $channel['post-types'] ) ) {
 						$valid_types = '';
-
+						
 						foreach ( $channel['post-types'] as $type ) {
 							$valid_types .= $type . ',';
 						}
-
+						
 						return $valid_types;
-
+						
 					}
 				}
 			}
 		}
-
+		
 		return;
 	}
-
+	
 	/*
 	action=timeline
 	Retrieve Entries in a Channel
@@ -216,15 +234,15 @@ class Yarns_Microsub_Channels {
 		after={cursor}
 		before={cursor}
 	*/
-
-
+	
+	
 	public static function timeline( $channel, $after, $before, $num_posts = 20 ) {
 		//Get all the posts of type yarns_microsub_post
-
+		
 		$valid_types = static::get_post_types( $channel );
 		//return $valid_types;
-
-
+		
+		
 		$args = array(
 			'post_type'                   => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
@@ -232,7 +250,7 @@ class Yarns_Microsub_Channels {
 			'yarns_microsub_post_type'    => $valid_types,
 			'posts_per_page'              => $num_posts
 		);
-
+		
 		$id_list = [];
 		// Pagination
 		if ( $after ) {
@@ -254,33 +272,33 @@ class Yarns_Microsub_Channels {
 			}
 			$args['post__in'] = $id_list;
 		}
-
-
+		
+		
 		//return $args;
-
+		
 		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
 		$ids            = []; // store a list of post ids returned by the query
 		$timeline_items = [];
 		$query          = new WP_Query( $args );
-
+		
 		while ( $query->have_posts() ) {
 			$query->the_post();
-
+			
 			$id   = get_the_ID();
 			$item = Yarns_Microsub_Posts::get_single_post( $id );
-
-
+			
+			
 			$timeline_items [] = $item;
 			$ids[]             = $id;
 		}
-
-
+		
+		
 		wp_reset_query();
-
-
+		
+		
 		// Filter our posts that should be omitted
-
-
+		
+		
 		if ( $timeline_items ) {
 			$timeline['items']            = $timeline_items;
 			$timeline['paging']['before'] = (string) max( $ids );
@@ -288,18 +306,18 @@ class Yarns_Microsub_Channels {
 			if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 				$timeline['paging']['after'] = (string) min( $ids );
 			}
-
+			
 			return $timeline;
 		}
-
+		
 		return 'error';
 	}
-
+	
 	/* Check if the channel has any posts older than $id */
 	private static function older_posts_exist( $id, $channel ) {
 		// see https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
 		$post_ids = range( 1, $id - 1 );
-
+		
 		$args = array(
 			'post__in'                    => $post_ids,
 			'post_type'                   => 'yarns_microsub_post',
@@ -311,8 +329,8 @@ class Yarns_Microsub_Channels {
 			return true;
 		}
 	}
-
-
+	
+	
 	/* Following
 
 	action=follow
@@ -322,14 +340,14 @@ class Yarns_Microsub_Channels {
 	    action=follow
 	    channel={uid}*/
 	public static function list_follows( $query_channel ) {
-
+		
 		if ( get_site_option( 'yarns_channels' ) ) {
-
-
+			
+			
 			//return json_decode(get_site_option('yarns_channels')); // for debugging
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-
-
+			
+			
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] == $query_channel ) {
 					//This is the channel to be returned
@@ -337,19 +355,19 @@ class Yarns_Microsub_Channels {
 						return [ 'items' => $channel['items'] ];
 					} else {
 						// testing
-
+						
 						return $channel;
-
+						
 						return; // no subscriptions yet, so return nothing
 					}
 				}
 			}
 		}
-
+		
 		return; // no matches, so return nothing
 	}
-
-
+	
+	
 	/*POST
 
 	Follow a new URL in a channel. Or unfollow existing URL
@@ -358,7 +376,7 @@ class Yarns_Microsub_Channels {
 	    channel={uid}
 	    url={url}
 	*/
-
+	
 	public static function follow( $query_channel, $url, $unfollow = false ) {
 		$url        = stripslashes( $url );
 		$new_follow = [
@@ -381,41 +399,41 @@ class Yarns_Microsub_Channels {
 								error_log( 'already following feed' );
 								error_log( 'unfollow = {$unfollow}' );
 								// already following this feed
-
+								
 								if ( $unfollow == true ) {
 									// if $unfollow == true then remove the feed
 									//return 'key = {$key} | channel_key = {$channel_key}';
 									unset( $channels[ $key ]['items'][ $channel_key ] );
 									update_option( 'yarns_channels', json_encode( $channels ) );
-
+									
 									return;
-
+									
 								} else {
 									// if $unfollow == false then exit early because the subscription already exists
 									return;
 								}
-
+								
 							}
 						}
 					}
-
+					
 					// Add the new follow to the selected channel
 					if ( $unfollow == false ) {
 						$channels[ $key ]['items'][] = $new_follow;
 						update_option( 'yarns_channels', json_encode( $channels ) );
 						//Now that the new feed is added, poll it right away
 						Yarns_Microsub_Aggregator::poll_site( $url, $query_channel );
-
+						
 						return $new_follow;
 					}
-
+					
 				}
 			}
 		}
-
+		
 		return; // channel does not exist, so return nothing
 	}
-
+	
 	/*Unfollowing
 
 	action=unfollow
@@ -426,12 +444,12 @@ class Yarns_Microsub_Channels {
 	    channel={uid}
 	    url={url}*/
 	public static function unfollow( $query_channel, $url ) {
-
+	
 	}
-
-
-
-
+	
+	
+	
+	
 	/*    Muting
 
 	GET
@@ -440,7 +458,7 @@ class Yarns_Microsub_Channels {
 	channel={uid}
 
 	Retrieve the list of users that are muted in the given channel.*/
-
+	
 	/*POST
 
     action=mute
@@ -449,31 +467,31 @@ class Yarns_Microsub_Channels {
 
 	Mute a user in a channel, or with the uid global mutes the user across every channel. 
 	*/
-
+	
 	/*Unmute
 
 	POST
 
 	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
 	 */
-
-
+	
+	
 	// Returns a list of post ids that are newer
 	public static function find_newer_posts( $before, $args ) {
-
+		
 		$args['posts_per_page'] = - 1;
-
+		
 		$query = new WP_Query( $args );
-
+		
 		while ( $query->have_posts() ) {
 			$query->the_post();
-
+			
 			$id    = get_the_ID();
 			$ids[] = $id;
 		}
 		wp_reset_query();
-
-
+		
+		
 		// Only keep ids that are newer (higher) than $before
 		if ( $ids ) {
 			foreach ( $ids as $key => $id ) {
@@ -481,19 +499,19 @@ class Yarns_Microsub_Channels {
 					unset( $ids['$key'] );
 				}
 			}
-
+			
 			return $ids;
 		}
-
+		
 		return;
-
-
+		
+		
 	}
-
-
+	
+	
 	private static function generate_uid() {
 		$uid = uniqid();
-
+		
 		// Confirm the uid is unique (it always should be, but just in case)
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ) );
@@ -507,11 +525,11 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-
+		
 		return $uid;
 	}
-
-
+	
+	
 	public static function all_post_types() {
 		return array(
 			'photo',
