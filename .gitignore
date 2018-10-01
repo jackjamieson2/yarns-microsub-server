@@ -10,5 +10,3 @@ vendor/*
 /vendor/masterminds/html5/*
 !/vendor/masterminds/html5/src
 !/vendor/parse-this
-/vendor/parse-this/.DS_Store
-/vendor/parse-this/tests/

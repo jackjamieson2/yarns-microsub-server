@@ -43,9 +43,12 @@ class Parse_This_API {
 						<h2> <?php esc_html_e( 'Parse This Debugger', 'indieweb-post-kinds' ); ?> </h2>
 						<p> <?php esc_html_e( 'Test the Parse Tools Debugger. You can report sites to the developer for possibly improvement in future', 'parse-this' ); ?>
 						</p>
-							<p> <?php if ( is_plugin_active( 'parse-this/parse-this.php' ) ) {
+							<p> 
+							<?php
+							if ( is_plugin_active( 'parse-this/parse-this.php' ) ) {
 								esc_html_e( 'You are using the plugin version of Parse This as opposed to a version built into any plugin', 'parse-this' );
-								} ?>
+							}
+							?>
 						<hr />
 			<form method="get" action="<?php echo esc_url( rest_url( '/parse-this/1.0/parse/' ) ); ?> ">
 			<label for="url"><?php esc_html_e( 'URL', 'indieweb-post-kinds' ); ?></label><input type="url" class="widefat" name="url" id="url" />
