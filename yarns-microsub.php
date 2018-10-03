@@ -96,6 +96,6 @@ class Yarns_MicroSub_Plugin {
 	 * Load language files
 	 */
 	public static function plugin_textdomain() {
-		load_plugin_textdomain( 'webmention', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'yarns_microsub', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 }
