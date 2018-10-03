@@ -91,8 +91,10 @@ Class Yarns_Microsub_Admin {
 			<div>
 				<h1>Yarns Microsub Server</h1>
 				<h1> Manage channels </h1>
-				<div id='yarns-channels'>
+				<div id = 'yarns-sidebar'>
+				<ul id='yarns-channels'>
 					<?php echo static::yarns_list_channels(); ?>
+				</ul>
 				</div>
 				<div id='yarns-channel-options'>
 					<?php //echo static::yarns_channel_options(); ?>
@@ -119,10 +121,10 @@ Class Yarns_Microsub_Admin {
 		foreach ( $channels as $channel ) {
 			$name = $channel['name'];
 			$uid  = $channel['uid'];
-			$html .= '<div class="yarns-channel" data-uid="' . $uid . '""><h2>' . $name . '</h2>';
+			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
 			//$html .= static::yarns_channel_filters( $channel );
 			//$html .= static::yarns_list_feeds( $channel );
-			$html .= '</div>';
+			$html .= '</li>';
 		}
 		
 		return $html;
