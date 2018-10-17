@@ -98,6 +98,9 @@
     $( "body" ).on( "click", "#yarns-channel-find-feeds", function() {
         query = $('#yarns-URL-input').val();
         console.log("Searching for " + query);
+        button = $(this);
+        start_loading(button);
+
         $.ajax({
             url : yarns_microsub_server_ajax.ajax_url,
             type : 'post',
@@ -106,6 +109,7 @@
                 query: query,
             },
             success : function( response ) {
+                done_loading(button);
                 console.log("success");
                 $('#yarns-feed-picker-list').html(response);
 
@@ -117,7 +121,7 @@
     });
 
     /**
-     * Subscribe to a feed
+     * Follow a feed
      *
      */
     $( "body" ).on( "click", "#yarns-channel-add-feed", function() {
@@ -126,6 +130,8 @@
         console.log(uid);
         console.log(url);
 
+        button = $(this);
+        start_loading(button);
 
         $.ajax({
             url : yarns_microsub_server_ajax.ajax_url,
@@ -136,7 +142,43 @@
                 url: url,
             },
             success : function( response ) {
+                done_loading(button);
                 console.log("success");
+                $('#yarns-following-list').html(response);
+
+            }
+        });
+
+    });
+
+    /**
+     * UNfollow a feed
+     *
+     */
+    $( "body" ).on( "click", ".yarns-unfollow", function() {
+        console.log("clicked unfollow");
+        url = $(this).parent('li').find('a').text();
+
+        uid = $('#yarns-options-uid').text();
+        console.log(uid);
+        console.log(url);
+
+        button = $(this);
+        start_loading(button);
+
+
+        $.ajax({
+            url : yarns_microsub_server_ajax.ajax_url,
+            type : 'post',
+            data : {
+                action : 'unfollow_feed',
+                uid: uid,
+                url: url,
+            },
+            success : function( response ) {
+                done_loading(button);
+                console.log("success");
+                $('#yarns-following-list').html(response);
 
             }
         });

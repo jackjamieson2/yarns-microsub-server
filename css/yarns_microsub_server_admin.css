@@ -49,12 +49,12 @@
     background: #439b50;
     padding: .2rem 2rem;
     font-size: medium;
-    border: 1px solid #0000004d;
-    box-shadow: 1px 1px 0px #0006;
+    border: 1px solid #00004d;
+    box-shadow: 1px 1px 0 #000006;
     color: white;
     cursor:pointer;
     position:relative;
-
+    border-radius: 1rem;
 }
 
 button#yarns-channel-add-feed {
@@ -73,6 +73,37 @@ button#yarns-channel-add-feed {
 #yarns-feed-picker-list label {
     display:block;
 }
+
+
+/* List of currently followed feeds */
+#yarns-following-list li {
+    margin: 1rem 0;
+
+}
+
+#yarns-following-list li button.yarns-unfollow{
+    margin-left:0.5rem;
+    background: #439b50;
+    padding: .2rem;
+    min-width:90px;
+    font-size: small;
+}
+
+#yarns-following-list li:hover button.yarns-unfollow{
+    background: #d14933;
+    font-size: small;
+}
+
+#yarns-following-list li button.yarns-unfollow::after{
+    content: "Following";
+}
+
+#yarns-following-list li:hover button.yarns-unfollow::after{
+    content: "Unfollow";
+}
+
+
+/* Loading spinner */
 
 
 .yarns-loading {

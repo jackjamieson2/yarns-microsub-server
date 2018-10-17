@@ -10,6 +10,7 @@ Class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_get_options', array( 'Yarns_Microsub_Admin', 'yarns_channel_options' ) );
 		add_action( 'wp_ajax_find_feeds', array( 'Yarns_Microsub_Admin', 'find_feeds' ) );
 		add_action( 'wp_ajax_follow_feed', array( 'Yarns_Microsub_Admin', 'follow_feed' ) );
+		add_action( 'wp_ajax_unfollow_feed', array( 'Yarns_Microsub_Admin', 'unfollow_feed' ) );
 
 	}
 	
@@ -90,11 +91,12 @@ Class Yarns_Microsub_Admin {
 		<div id='yarns-admin-area' data-test='this is a test'>
 			<div>
 				<h1>Yarns Microsub Server</h1>
-				<h1> Manage channels </h1>
+				
 				<div id = 'yarns-sidebar'>
-				<ul id='yarns-channels'>
-					<?php echo static::yarns_list_channels(); ?>
-				</ul>
+					<h2> Channels </h2>
+					<ul id='yarns-channels'>
+						<?php echo static::yarns_list_channels(); ?>
+					</ul>
 				</div>
 				<div id='yarns-channel-options'>
 					<?php //echo static::yarns_channel_options(); ?>
@@ -122,8 +124,6 @@ Class Yarns_Microsub_Admin {
 			$name = $channel['name'];
 			$uid  = $channel['uid'];
 			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
-			//$html .= static::yarns_channel_filters( $channel );
-			//$html .= static::yarns_list_feeds( $channel );
 			$html .= '</li>';
 		}
 		
@@ -141,17 +141,27 @@ Class Yarns_Microsub_Admin {
 		if ( ! isset( $channel['items'] ) ) {
 			$html = 'You are not following any feeds in this channel yet.';
 		} else {
-			$html .= '<div id="yarns-channel-feeds"><h2>Following:</h2>';
 			
 			$feeds = $channel['items'];
+			
+			
+			
 			foreach ( $feeds as $feed ) {
 				if ( isset( $feed['url'] ) ) {
-					$html .= urldecode( $feed['url'] ) . '<br>';
+					$html .= '<li>';
+					$html .= '<a href="' . urldecode( $feed['url']) . '" target="_blank">' .  urldecode( $feed['url']) . '</a>';
+					$html .= '<button class="yarns-unfollow"></button>';
+					// delete button
+					
+					// preview button
+					
+					$html .= '</li>';
 				} else {
 					$html .= 'DEBUG: ' . json_encode( $feed );
 				}
 			}
-			$html .= '</div><!--#yarns-channel-feeds-->';
+			
+			
 			
 		}
 		
@@ -221,7 +231,7 @@ Class Yarns_Microsub_Admin {
 		$options_html .= static::yarns_channel_filters($channel);
 		
 		
-		$options_html .= '<div id="yarns-add-subscription"><h2>Add a subscription:</h2>';
+		$options_html .= '<div id="yarns-add-subscription"><h2>Follow a new site:</h2>';
 			//input box here
 		
 		
@@ -232,8 +242,11 @@ Class Yarns_Microsub_Admin {
 		$options_html .= '<div id="yarns-feed-picker-list"></div>';
 		$options_html .= '</div><!--#yarns-add-subscription-->';
 		
-		
+		$options_html .= '<div id="yarns-channel-feeds"><h2>Following:</h2>';
+		$options_html .= '<ul id="yarns-following-list">';
 		$options_html .= static::yarns_list_feeds($channel);
+		$options_html .= '</ul><!--#yarns-following-list-->';
+		$options_html .= '</div><!--#yarns-channel-feeds-->';
 		
 		$options_html .= '</div><!--#yarns_channel_options-->';
 		
@@ -256,7 +269,7 @@ Class Yarns_Microsub_Admin {
 		
 		
 		
-		$html = '';
+		$html = '<h3>Select a feed to follow:</h3>';
 		foreach ( $results as $result ){
 			$html .= '<label><input type="radio" name="yarns-feed-picker" value="' . $result['url'] . '">' . $result['url'] . '</label>';
 			
@@ -272,8 +285,20 @@ Class Yarns_Microsub_Admin {
 	public static function follow_feed() {
 		$uid     = sanitize_text_field( $_POST['uid'] );
 		$url     = sanitize_text_field( $_POST['url'] );
-		$result = Yarns_Microsub_Channels::follow( $uid, $url );
-		echo wp_json_encode($result);
+		Yarns_Microsub_Channels::follow( $uid, $url );
+		$channel = Yarns_Microsub_Channels::get_channel($uid);
+		echo static::yarns_list_feeds($channel);
+		
+		wp_die();
+	}
+	
+	public static function unfollow_feed() {
+		$uid     = sanitize_text_field( $_POST['uid'] );
+		$url     = sanitize_text_field( $_POST['url'] );
+		Yarns_Microsub_Channels::follow( $uid, $url, $unfollow=true );
+		$channel = Yarns_Microsub_Channels::get_channel($uid);
+		echo static::yarns_list_feeds($channel);
+		//echo wp_json_encode($result);
 		wp_die();
 	}
 	
