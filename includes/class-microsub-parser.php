@@ -6,8 +6,8 @@
  *
  */
 class Yarns_Microsub_Parser {
-	
-	
+
+
 	/**
 	 * Final clean up on post content before saving.
 	 *
@@ -97,7 +97,7 @@ class Yarns_Microsub_Parser {
 		}
 
 		$mf2data = Parse_This_MF2::mf2parse( $content, $url );
-		
+
 		$data = $mf2data;
 		if ( ! isset( $data['summary'] ) && isset( $data['content'] ) ) {
 			$data['summary'] = substr( $data['content']['text'], 0, 300 );
@@ -163,8 +163,8 @@ class Yarns_Microsub_Parser {
 				{ ... }
 			  ]
 			}*/
-	
-	
+
+
 	/**
 	 * Searches a URL for feeds
 	 * @param $query
@@ -207,13 +207,13 @@ class Yarns_Microsub_Parser {
 					$feeds[]       = $feed;
 				}
 			}
-			
+
 			// return null if no feeds were discovered
-			
+
 			if ( empty( $feeds ) ) {
 				return;
 			}
-			
+
 			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
 			foreach ( $feeds as $i => $feed ) {
 				// Convert relative urls to absolute
@@ -256,7 +256,7 @@ class Yarns_Microsub_Parser {
 		}
 	}
 
-	
+
 	/**
 	 * Returns a preview of the feed
 	 *
@@ -269,7 +269,7 @@ class Yarns_Microsub_Parser {
 		return static::parse_feed( $url, 2 );
 		//return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
-	
+
 	/**
 	 * Parses feed at $url.  Determines whether the feed is h-feed or rss and passes to appropriate
 	 * function.
@@ -306,7 +306,7 @@ class Yarns_Microsub_Parser {
 		// Failed, so return nothing
 		return;
 	}
-	
+
 	/**
 	 * Parse RSS feed at $url
 	 *
@@ -443,7 +443,7 @@ class Yarns_Microsub_Parser {
 					if ( $feed_author ) {
 						if ( isset( $the_item['author'] ) ) {
 							//convert author to jf2
-							//$the_item['author'] = mf2_to_jf2( $the_item['author'] );
+							$the_item['author'] = mf2_to_jf2( $the_item['author'] );
 							// merge with feed author if there is any missing information
 							if ( array_key_exists( 'url', $the_item['author'] ) && array_key_exists( 'url', $feed_author ) ) {
 								if ( $the_item['author']['url'] == $feed_author['url'] ) {
@@ -471,7 +471,7 @@ class Yarns_Microsub_Parser {
 		];
 
 	}
-	
+
 	/**
 	 * Finds the author of the feed (supplements post author)
 	 *
@@ -507,8 +507,7 @@ class Yarns_Microsub_Parser {
 							if ( Parse_This_MF2::is_type( $item, 'hcard' ) ) {
 								return Parse_This_MF2::parse_hcard( $author, $mf, $url );
 							} else {
-								return ($author);
-								//return mf2_to_jf2( $author );
+								return mf2_to_jf2( $author );
 							}
 						}
 					}
@@ -564,7 +563,7 @@ class Yarns_Microsub_Parser {
 	}
 
 
-	
+
 	/**
 	 * Find the root feed for a page
 	 *
@@ -618,7 +617,7 @@ class Yarns_Microsub_Parser {
 		}
 		return;
 	}
-	
+
 	/** DEPRECATED */
 	public static function find_hfeed_in_page( $url ) {
 		$mf2 = Mf2\fetch( $url );
@@ -671,7 +670,7 @@ class Yarns_Microsub_Parser {
 	* UTILITY FUNCTIONS
 	*
 	*/
-	
+
 	/**
 	 * Corrects invalid URLs if possible
 	 *
@@ -700,7 +699,7 @@ class Yarns_Microsub_Parser {
 		// If missing a scheme, prepend with 'http://', otherwise return as-is
 		 return parse_url( $possible_url, PHP_URL_SCHEME ) === null ? 'http://' . $possible_url : $possible_url;
 	}
-	
+
 	/**
 	 * Returns true if $query is a valid URL
 	 *
@@ -715,7 +714,7 @@ class Yarns_Microsub_Parser {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns true if $feedtype represents an RSS/Atom feed
 	 * @param $feedtype

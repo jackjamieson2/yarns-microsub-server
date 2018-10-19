@@ -30,18 +30,18 @@ register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivat
 class Yarns_MicroSub_Plugin {
 
 	public static function plugins_loaded() {
-		
-		
+
+
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
 		}
-		
-		
+
+
 		// Parse This
 		if ( ! class_exists ( 'Parse_This_MF2') ) {
 			require_once plugin_dir_path(__FILE__) . '/vendor/parse-this/parse-this.php';
 		}
-		
+
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Yarns_MicroSub_Plugin {
 		// Initialize Microsub endpoint
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
-		
+
 		// Initialize Microsub posts
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-posts.php';
 		Yarns_Microsub_Posts::init();
@@ -76,6 +76,12 @@ class Yarns_MicroSub_Plugin {
 		// Class: Aggregator
 		require_once dirname( __FILE__ ) . '/includes/class-microsub-aggregator.php';
 
+
+		// Class: Admin
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-admin.php';
+		add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
+		Yarns_Microsub_Admin::init();
 
 
 		// list of various public helper functions

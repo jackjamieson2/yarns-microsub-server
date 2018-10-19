@@ -19,7 +19,7 @@ class Yarns_Microsub_Posts {
 					'name'          => __( 'Yarns Microsub Posts' ),
 					'singular_name' => __( 'Yarns Microsub Post' ),
 				),
-				'public'      => true,
+				'public'      => false,
 				'has_archive' => false,
 				'rewrite'     => array( 'slug' => 'yarns_post' ),
 			)
@@ -228,6 +228,3 @@ class Yarns_Microsub_Posts {
 
 
 }
-
-
-

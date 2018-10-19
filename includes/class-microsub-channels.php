@@ -38,6 +38,23 @@ class Yarns_Microsub_Channels {
 		];
 	}
 
+	/**
+	 *
+	 * Get a single channel object with details
+	 *
+	 * @param $uid
+	 *
+	 * @return mixed
+	 */
+	public static function get_channel( $uid ) {
+		$channels = self::get( $details = true )['channels'];
+		foreach ( $channels as $channel ) {
+			if ( $uid === $channel['uid'] ) {
+				return $channel;
+			}
+		}
+	}
+
 	// Delete a channel
 	public static function delete( $uid ) {
 		// Rewrite the channel list with the selected channel removed
@@ -120,7 +137,7 @@ class Yarns_Microsub_Channels {
     name={channel name}
 
 	*/
-	
+
 	public static function update( $channel, $name ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
@@ -148,7 +165,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return mixed
 	 */
-	public static function save_options() {
+	public static function save_filters() {
 		error_log( 'updating options' );
 		$uid     = sanitize_text_field( $_POST['uid'] );
 		$options = $_POST['options'];
@@ -165,8 +182,9 @@ class Yarns_Microsub_Channels {
 						$channels[ $key ]['post-types'] = $options;
 						error_log( json_encode( $channels ) );
 						update_option( 'yarns_channels', json_encode( $channels ) );
-
-						return $channels[ $key ];
+						echo "Saved";
+						wp_die();
+						//return $channels[ $key ];
 					}
 				}
 			}
@@ -447,14 +465,14 @@ class Yarns_Microsub_Channels {
     channel={uid}
     url={url}
 
-	Mute a user in a channel, or with the uid global mutes the user across every channel. 
+	Mute a user in a channel, or with the uid global mutes the user across every channel.
 	*/
 
 	/*Unmute
 
 	POST
 
-	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
+	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error.
 	 */
 
 

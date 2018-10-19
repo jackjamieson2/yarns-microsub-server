@@ -53,7 +53,7 @@ class Yarns_Microsub_Endpoint {
 	 * Register the Route.
 	 */
 	public static function register_routes() {
-		
+
 		register_rest_route(
 			'yarns-microsub/1.0',
 			'/endpoint',
@@ -61,13 +61,13 @@ class Yarns_Microsub_Endpoint {
 				array(
 					'methods'  => array( 'GET', 'POST' ),
 					'callback' => array( 'Yarns_Microsub_Endpoint', 'serve_request' ),
-				
+
 				),
-				
+
 			)
 		);
-		
-		
+
+
 	}
 
 
@@ -293,7 +293,7 @@ class Yarns_Microsub_Endpoint {
 	}
 
 
-	
+
 	/**
 	 * The Microsub autodiscovery meta-tags
 	 */
@@ -310,9 +310,9 @@ class Yarns_Microsub_Endpoint {
 		header( sprintf( 'Link: <%s>; rel="microsub"', static::get_microsub_endpoint() ), false );
 
 	}
-	
 
-	
+
+
 	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
 	(Copied from wordpress-micropub plugin)
 	 **/
@@ -509,7 +509,7 @@ class Yarns_Microsub_Endpoint {
 	 * @return string the Microsub endpoint
 	 */
 	public static function get_microsub_endpoint() {
-		
+
 		return apply_filters( 'microsub_endpoint', get_rest_url( null, '/yarns-microsub/1.0/endpoint' ) );
 	}
 
