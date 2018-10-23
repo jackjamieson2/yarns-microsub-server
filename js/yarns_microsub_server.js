@@ -41,6 +41,55 @@
 
     });
 
+    /**
+     * Click add new channel
+     */
+    $( "body" ).on( "click", "#yarns-channel-add", function() {
+        button = $(this);
+
+        if ( $('#yarns-new-channel-name').is(":hidden") ) {
+            // show the channel name input
+            $( '#yarns-new-channel-name' ).val('');
+            $( '#yarns-new-channel-name' ).show();
+            $( this) .text('Add');
+
+        } else {
+            // create channel with entered name
+            start_loading(button);
+            channel = $( '#yarns-new-channel-name').val()
+            if ( channel != '') {
+                $.ajax({
+                    url : yarns_microsub_server_ajax.ajax_url,
+                    type : 'post',
+                    data : {
+                        action : 'add_channel',
+                        channel: channel,
+                    },
+                    success : function( response ) {
+                        //done_loading(button);
+
+                        console.log("success");
+                        done_loading(button);
+                        button.text('+ Add channel');
+                        $( '#yarns-new-channel-name' ).hide();
+
+                        $('#yarns-channels').html(response);
+                    }
+                });
+
+            } else {
+                // Error, the channel must have a name
+            }
+
+        }
+
+
+
+
+
+
+    });
+
 
 
 

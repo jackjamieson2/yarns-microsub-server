@@ -7,10 +7,15 @@
 }
 
 #yarns-channels {
-
     list-style:none;
-
 }
+
+#yarns-new-channel-name {
+    display:none;
+}
+
+
+
 #yarns-channel-options {
     float:left;
     max-width:800px;
@@ -22,7 +27,7 @@
     border: 1px solid #0000004d;
     box-shadow: 1px 1px 0px #0006;
     padding: 1em;
-    margin: 0 0.5rem;
+    margin: -1px 0 0 0;
     position:relative;
 }
 
@@ -45,12 +50,12 @@
 }
 
 
-#yarns-channel-options  button{
+#yarns-sidebar button, #yarns-channel-options  button{
     background: #439b50;
-    padding: .2rem 2rem;
+    padding: .2rem 1.3rem;
     font-size: medium;
     border: 1px solid #00004d;
-    box-shadow: 1px 1px 0 #000006;
+    /*box-shadow: 1px 1px 0 #000006;*/
     color: white;
     cursor:pointer;
     position:relative;
