@@ -709,7 +709,7 @@ class Parse_This_MF2 {
 		if ( 1 === $count ) {
 			$item = $input['items'][0];
 			if ( in_array( 'h-feed', $item['type'], true ) ) {
-				return parse_hfeed( $item, $input );
+				return self::parse_hfeed( $item, $input );
 			} elseif ( in_array( 'h-card', $item['type'], true ) ) {
 				return self::parse_hcard( $item, $input, $url );
 			} elseif ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {

@@ -198,12 +198,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "39dc8cc596edb3c999f4d536755c6de204b5818f"
+            "reference": "3d3fe27af5e808f9baa4e68e58217dd21d682663"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/39dc8cc596edb3c999f4d536755c6de204b5818f",
-            "reference": "39dc8cc596edb3c999f4d536755c6de204b5818f",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/3d3fe27af5e808f9baa4e68e58217dd21d682663",
+            "reference": "3d3fe27af5e808f9baa4e68e58217dd21d682663",
             "shasum": ""
         },
         "require": {
@@ -219,7 +219,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2018-09-30T21:01:52+00:00",
+        "time": "2018-11-04T23:02:28+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
@@ -239,17 +239,17 @@
     },
     {
         "name": "masterminds/html5",
-        "version": "2.3.0",
-        "version_normalized": "2.3.0.0",
+        "version": "2.3.1",
+        "version_normalized": "2.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Masterminds/html5-php.git",
-            "reference": "2c37c6c520b995b761674de3be8455a381679067"
+            "reference": "33f8d475d28741398be26cdff7a10a63003324a3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/2c37c6c520b995b761674de3be8455a381679067",
-            "reference": "2c37c6c520b995b761674de3be8455a381679067",
+            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/33f8d475d28741398be26cdff7a10a63003324a3",
+            "reference": "33f8d475d28741398be26cdff7a10a63003324a3",
             "shasum": ""
         },
         "require": {
@@ -261,7 +261,7 @@
             "sami/sami": "~2.0",
             "satooshi/php-coveralls": "1.0.*"
         },
-        "time": "2017-09-04T12:26:28+00:00",
+        "time": "2018-10-22T16:58:34+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -417,17 +417,17 @@
     },
     {
         "name": "wimg/php-compatibility",
-        "version": "8.2.0",
-        "version_normalized": "8.2.0.0",
+        "version": "9.0.0",
+        "version_normalized": "9.0.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-            "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a"
+            "reference": "e9f4047e5edf53c88f36f1dafc0d49454ce13e25"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
-            "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
+            "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/e9f4047e5edf53c88f36f1dafc0d49454ce13e25",
+            "reference": "e9f4047e5edf53c88f36f1dafc0d49454ce13e25",
             "shasum": ""
         },
         "require": {
@@ -444,25 +444,30 @@
             "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically.",
             "roave/security-advisories": "dev-master || Helps prevent installing dependencies with known security issues."
         },
-        "time": "2018-07-17T13:42:26+00:00",
+        "time": "2018-10-07T17:38:02+00:00",
         "type": "phpcodesniffer-standard",
         "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "PHPCompatibility\\": "PHPCompatibility/"
-            }
-        },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
             "LGPL-3.0-or-later"
         ],
         "authors": [
             {
+                "name": "Contributors",
+                "homepage": "https://github.com/PHPCompatibility/PHPCompatibility/graphs/contributors"
+            },
+            {
                 "name": "Wim Godden",
+                "homepage": "https://github.com/wimg",
+                "role": "lead"
+            },
+            {
+                "name": "Juliette Reinders Folmer",
+                "homepage": "https://github.com/jrfnl",
                 "role": "lead"
             }
         ],
-        "description": "A set of sniffs for PHP_CodeSniffer that checks for PHP version compatibility.",
+        "description": "A set of sniffs for PHP_CodeSniffer that checks for PHP cross-version compatibility.",
         "homepage": "http://techblog.wimgodden.be/tag/codesniffer/",
         "keywords": [
             "compatibility",

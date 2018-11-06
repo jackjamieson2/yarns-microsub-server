@@ -32,6 +32,12 @@ if ( ! function_exists( 'parse_this_loader' ) ) {
 		// Parse This for OGP and HTML Properties
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-parse-this-html.php';
 
+		// Parse This for RSS/ATOM Feeds
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-parse-this-rss.php';
+
+		// Parse This for JSONFeed
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-parse-this-jsonfeed.php';
+
 		// Parse This for Microformats 2
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-parse-this-mf2.php';
 

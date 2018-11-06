@@ -63,11 +63,75 @@ class Parse_This {
 		}
 	}
 
+	private function get_feed_type( $type ) {
+		switch ( $type ) {
+			case 'application/json':
+				return 'jsonfeed';
+			case 'application/rss+xml':
+				return 'rss';
+			case 'application/atom+xml':
+				return 'atom';
+			default:
+				return 'feed';
+		}
+	}
+
+	/**
+	 * Fetches a list of feeds
+	 *
+	 * @param string $url URL to scan
+	 */
+	public function fetch_feeds( $url = null ) {
+		if ( ! $url ) {
+			$url = $this->url;
+		}
+		if ( empty( $url ) ) {
+			return new WP_Error( 'invalid-url', __( 'A valid URL was not provided.', 'indieweb-post-kinds' ) );
+		}
+		$this->fetch( $url );
+		// A feed was given
+		if ( $this->content instanceof SimplePie ) {
+			return array(
+				'results' => array( Parse_This_RSS::parse( $this->content, $url ) ),
+			);
+		}
+		if ( $this->doc instanceof DOMDocument ) {
+			$xpath = new DOMXPath( $this->doc );
+			// Fetch and gather <link> data.
+			$links = array();
+			foreach ( $xpath->query( '//link[@rel and @href]' ) as $link ) {
+				$rel   = $link->getAttribute( 'rel' );
+				$href  = $link->getAttribute( 'href' );
+				$title = $link->getAttribute( 'title' );
+				$type  = self::get_feed_type( $link->getAttribute( 'type' ) );
+				if ( in_array( $rel, array( 'alternate', 'feed' ), true ) ) {
+					$links[] = array(
+						'url'  => $href,
+						'type' => $type,
+						'name' => $title,
+					);
+				}
+			}
+			// Check to see if the current page is an h-feed
+			$this->parse();
+			if ( 'feed' === $this->jf2['type'] ) {
+				$links[] = array(
+					'url'  => $url,
+					'type' => 'h-feed',
+					'name' => $this->jf2['name'],
+				);
+			}
+
+			return array( 'results' => $links );
+		}
+		return new WP_Error( 'unknown error', null, $this->content );
+	}
 
 	/**
 	 * Downloads the source's via server-side call for the given URL.
 	 *
 	 * @param string $url URL to scan.
+	 * @param boolean $is_feed Force it to think this is an RSS/Atom feed
 	 * @return WP_Error|boolean WP_Error if invalid and true if successful
 	 */
 	public function fetch( $url = null ) {
@@ -90,10 +154,7 @@ class Parse_This {
 			}
 		}
 
-		$args = array(
-			'headers'             => array(
-				'Accept' => 'application/jf2+json, application/mf2+json, text/html', // Accept either mf2+json or html
-			),
+		$args          = array(
 			'timeout'             => 10,
 			'limit_response_size' => 1048576,
 			'redirection'         => 1,
@@ -117,10 +178,37 @@ class Parse_This {
 			return new WP_Error( 'content-type', 'Content Type is Media' );
 		}
 
+		// Strip any character set off the content type
+		$content_type = trim( array_shift( explode( ';', $content_type ) ) );
+		// This is an RSS or Atom Feed URL and if it is not we do not know how to deal with XML anyway
+		if ( ( in_array( $content_type, array( 'application/rss+xml', 'application/atom+xml', 'text/xml', 'application/xml', 'text/xml' ), true ) ) ) {
+			include_once ABSPATH . WPINC . '/feed.php';
+			// Get a SimplePie feed object from the specified feed source.
+			$content = fetch_feed( $url );
+			if ( is_wp_error( $content ) ) {
+				return false;
+			}
+
+			$content->enable_cache( false );
+			$content->strip_htmltags( false );
+			$this->set( $content, $url, true );
+			return true;
+		}
+
 		$response = wp_safe_remote_get( $url, $args );
 		$content  = wp_remote_retrieve_body( $response );
 		if ( in_array( $content_type, array( 'application/mf2+json', 'application/jf2+json' ), true ) ) {
 			$content = json_decode( $content, true );
+			return true;
+		}
+		if ( 'application/json' === $content_type ) {
+			$content = json_decode( $content, true );
+			if ( $content && isset( $content['version'] ) && 'https://jsonfeed.org/version/1' === $content['version'] ) {
+				$content = Parse_This_JSONFeed::to_jf2( $content, $url );
+				$this->set( $content, $url, true );
+			}
+			// We do not yet know how to cope with this
+			return true;
 		}
 		$this->set( $content, $url, ( 'application/jf2+json' === $content_type ) );
 		return true;
@@ -130,10 +218,15 @@ class Parse_This {
 		if ( $this->content instanceof WP_Post ) {
 			$this->jf2 = self::wp_post( $this->content );
 			return;
+		} elseif ( $this->content instanceof SimplePie ) {
+			$this->jf2 = Parse_This_RSS::parse( $this->content, $this->url );
 		} elseif ( $this->doc instanceof DOMDocument ) {
 			$content = $this->doc;
 		} else {
 			$content = $this->content;
+		}
+		if ( ! $content ) {
+			return new WP_Error( 'Missing Content' );
 		}
 		// Ensure not already preparsed
 		if ( empty( $this->jf2 ) ) {
