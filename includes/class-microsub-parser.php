@@ -295,6 +295,8 @@ Content-type: application/json
 	 */
 	public static function parse_feed( $url, $count = 20 ) {
 		
+		
+		
 		if ( ! $url ) {
 			return;
 		}
@@ -318,7 +320,9 @@ Content-type: application/json
 		}
 		
 		// If there is no h-feed, Try to parse rss
-		$feed = static::parse_rss( $url, $count );
+		
+		
+		$feed = static::parse_rss( $content, $url, $count );
 		if ( $feed ) {
 			return $feed;
 		}
@@ -335,10 +339,14 @@ Content-type: application/json
 	 *
 	 * @return array|void
 	 */
-	public static function parse_rss( $url ) {
+	public static function parse_rss( $content, $url, $count = 20 ) {
+		
+		
 		include_once ABSPATH . WPINC . '/feed.php';
 		// Get a SimplePie feed object from the specified feed source.
 		$feed = fetch_feed( $url );
+		
+		return Parse_This_RSS::parse( $feed, $url );
 		
 		if ( is_wp_error( $feed ) ) {
 			return;
@@ -529,6 +537,7 @@ Content-type: application/json
 							if ( Parse_This_MF2::is_type( $item, 'hcard' ) ) {
 								return Parse_This_MF2::parse_hcard( $author, $mf, $url );
 							} else {
+								
 								return mf2_to_jf2( $author );
 							}
 						}

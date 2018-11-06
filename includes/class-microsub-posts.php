@@ -19,7 +19,7 @@ class Yarns_Microsub_Posts {
 					'name'          => __( 'Yarns Microsub Posts' ),
 					'singular_name' => __( 'Yarns Microsub Post' ),
 				),
-				'public'      => false,
+				'public'      => true,
 				'has_archive' => false,
 				'rewrite'     => array( 'slug' => 'yarns_post' ),
 			)
@@ -98,6 +98,9 @@ class Yarns_Microsub_Posts {
 		// Set the type of the post (for filtering)
 		if ( isset( $post['post-type'] ) ) {
 			wp_set_post_terms( $post_id, $post['post-type'], 'yarns_microsub_post_type' );
+		} else {
+			// default to 'article'
+			wp_set_post_terms( $post_id, 'article', 'yarns_microsub_post_type' );
 		}
 
 		// Save the post JSON as a custom meta field
@@ -228,3 +231,6 @@ class Yarns_Microsub_Posts {
 
 
 }
+
+
+
