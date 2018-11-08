@@ -90,9 +90,103 @@
 
     });
 
+    /**
+     * Delete a channel
+     */
+    $( "body" ).on( "click", "#yarns-channel-delete", function() {
+        if (confirm("Do you want to delete this channel? You will lose all of its subscriptions")) {
+            console.log("deleting channel checkpoint 1");
+            button = $(this);
+            start_loading(button);
+            var uid =  $(this).data('uid');
+            var channel = $('#yarns-option-heading').text();
+            $.ajax({
+                url: yarns_microsub_server_ajax.ajax_url,
+                type: 'post',
+                data: {
+                    action: 'delete_channel',
+                    uid: uid,
+                },
+                success: function (response) {
+                    //done_loading(button);
+
+                    console.log("success");
+                    $('#yarns-channel-options').text("Deleted channel: " + channel);
+
+                    $('#yarns-channels').html(response);
+                    done_loading(button);
+
+                }
+            });
+        } else {
+            // Do nothing, delete was cancelled
+        }
+    });
+
+    /**
+     * Rename a channel (update)
+     */
+    // Show the input box to rename a channel
+    $( "body" ).on( "click", "#yarns-channel-update", function() {
+       $(this).css('visibility', 'hidden')
+       $('#yarns-option-heading').css('visibility', 'hidden')
+
+       $('#yarns-channel-update-options').show();
+    });
+
+    // Save the new channel name
+
+    $( "body" ).on( "click", "#yarns-channel-update-save", function() {
+        button = this;
 
 
+        var uid =  $(this).data('uid');
+        var old_channel = $('#yarns-option-heading').text();
+        var channel = $('#yarns-channel-update-input').val().trim();
 
+        if (channel != '' && channel != old_channel ) {
+            //update to use the new channel name
+
+            start_loading(button);
+
+
+            $.ajax({
+                url: yarns_microsub_server_ajax.ajax_url,
+                type: 'post',
+                data: {
+                    action: 'update_channel',
+                    uid: uid,
+                    channel: channel,
+                },
+                success: function (response) {
+                    $('#yarns-channels').html(response);
+
+                    $('#yarns-option-heading').text(channel);
+                    $('#yarns-channel-update').css('visibility', 'visible')
+                    $('#yarns-option-heading').css('visibility', 'visible')
+                    $('#yarns-channel-update-options').hide();
+                    done_loading(button);
+                }
+            });
+
+        } else {
+            //revert to old name
+            $('#yarns-channel-update-input').val(old_channel);
+
+            $('#yarns-channel-update').css('visibility', 'visible')
+            $('#yarns-option-heading').css('visibility', 'visible')
+
+            $('#yarns-channel-update-options').hide();
+
+        }
+
+    });
+
+
+    /**
+     * Save filters button
+     *
+     */
     $( "body" ).on( "click", ".yarns-channel-filters-save", function() {
         console.log('Clicked refresh button');
 
@@ -247,22 +341,12 @@
 
 
     function start_loading(target) {
-        console.log("loading...");
-
-        target.append('<div class="yarns-loading"></span>');
-        //target.append('<img class="yarns-loading"></img>');
-
-        //{ $(this).html('<img src="icon-loading.gif" />'); // A GIF Image of Your choice
-
-        //target.addClass('yarns-loading');
-        //target.append('<div class="yarns-loading"></div>');
+        target.append('<span class="yarns-loading"></span>');
     }
 
 
     function done_loading(target) {
         target.find($('.yarns-loading')).remove();
-
-        //target.append('<div class="yarns-loading"></div>');
     }
 
 

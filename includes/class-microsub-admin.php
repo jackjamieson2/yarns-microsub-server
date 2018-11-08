@@ -12,6 +12,8 @@ Class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_unfollow_feed', array( 'Yarns_Microsub_Admin', 'unfollow_feed' ) );
 		
 		add_action( 'wp_ajax_add_channel', array( 'Yarns_Microsub_Admin', 'add_channel' ) );
+		add_action( 'wp_ajax_update_channel', array( 'Yarns_Microsub_Admin', 'update_channel' ) );
+		add_action( 'wp_ajax_delete_channel', array( 'Yarns_Microsub_Admin', 'delete_channel' ) );
 		
 	}
 	
@@ -87,7 +89,7 @@ Class Yarns_Microsub_Admin {
 		}
 		?>
 		<div class='wrap'>
-		<div id='yarns-admin-area' data-test='this is a test'>
+		<div id='yarns-admin-area'>
 			<div>
 				<h1>Yarns Microsub Server</h1>
 
@@ -173,7 +175,6 @@ Class Yarns_Microsub_Admin {
 					$html .= '<li>';
 					$html .= '<a href="' . urldecode( $feed['url'] ) . '" target="_blank">' . urldecode( $feed['url'] ) . '</a>';
 					$html .= '<button class="yarns-unfollow"></button>';
-					// delete button
 					
 					// preview button
 					
@@ -207,7 +208,8 @@ Class Yarns_Microsub_Admin {
 			$all_types     = Yarns_Microsub_Channels::all_post_types();
 			$channel_types = $channel['post-types'];
 			$filters_html  .= '<span class="yarns-channel-filters">';
-			$filters_html  .= '<p> Display the following types of posts from this feed: </p>';
+			$filters_html  .= '<h3>Channel options</h3>';
+			$filters_html  .= '<p> Include the following types of posts from this feed: </p>';
 			
 			foreach ( $all_types as $type ) {
 				$filters_html .= '<label><input type="checkbox" ';
@@ -216,7 +218,8 @@ Class Yarns_Microsub_Admin {
 				}
 				$filters_html .= '>' . $type . '</input></label>';
 			}
-			$filters_html .= '<button class="yarns-channel-filters-save" data-uid="' . $channel['uid'] . '">Update</button>';
+			
+			$filters_html .= '<br><button class="yarns-channel-filters-save" data-uid="' . $channel['uid'] . '">Update</button>';
 			$filters_html .= '</span>';
 		}
 		
@@ -231,7 +234,6 @@ Class Yarns_Microsub_Admin {
 	 * @return string
 	 */
 	public static function yarns_channel_options() {
-		error_log( "eff" );
 		$uid          = sanitize_text_field( $_POST['uid'] );
 		$options_html = '';
 		
@@ -240,15 +242,20 @@ Class Yarns_Microsub_Admin {
 		
 		$options_html .= '<div id="yarns-channel-options" data-uid="' . $uid . '">';
 		$options_html .= '<h2 id="yarns-option-heading">' . $channel['name'] . '</h2>';
+		$options_html .= '<span id="yarns-channel-update-options">';
+		$options_html .= '<input type="text" id="yarns-channel-update-input" name="yarns-channel-update-input" value="' . $channel['name'] . '" size="30" ></input>';
+		$options_html .= '<button id ="yarns-channel-update-save" data-uid="' . $uid . '">Save</button>';
+		
+		$options_html .= '</span><!--#yarns-channel-update-options-->';
+		
+		$options_html .= '<span id="yarns-channel-update" >Rename channel</span>';
+		$options_html .= '<span id="yarns-channel-delete" data-uid="' . $uid . '">Delete channel</span>';
 		$options_html .= '<span id="yarns-options-uid">' . $uid . '</span>';
 		
 		$options_html .= static::yarns_channel_filters( $channel );
 		
 		
 		$options_html .= '<div id="yarns-add-subscription"><h2>Follow a new site:</h2>';
-		//input box here
-		
-		
 		$options_html .= '<input type="text" id="yarns-URL-input" name="yarns-URL-input" value="" size="30"  placeholder = "Enter a URL to find its feeds."></input>';
 		$options_html .= '<button id ="yarns-channel-find-feeds">Search</button>';
 		$options_html .= '<div id="yarns-feed-picker-list"></div>';
@@ -315,6 +322,27 @@ Class Yarns_Microsub_Admin {
 		$channel = sanitize_text_field( $_POST['channel'] );
 		
 		Yarns_Microsub_Channels::add( $channel );
+		// return the new list of channels
+		echo static::yarns_list_channels();
+		
+		wp_die();
+	}
+	
+	public static function update_channel() {
+		$uid = sanitize_text_field( $_POST['uid'] );
+		$channel = sanitize_text_field( $_POST['channel'] );
+		
+		Yarns_Microsub_Channels::update( $uid, $channel );
+		// return the new list of channels
+		echo static::yarns_list_channels();
+		
+		wp_die();
+	}
+	
+	public static function delete_channel() {
+		$channel = sanitize_text_field( $_POST['uid'] );
+		
+		Yarns_Microsub_Channels::delete( $channel );
 		// return the new list of channels
 		echo static::yarns_list_channels();
 		

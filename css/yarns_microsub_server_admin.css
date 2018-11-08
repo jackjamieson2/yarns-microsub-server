@@ -22,6 +22,30 @@
     width:70%;
     margin-left:2em;
 }
+
+#yarns-option-heading {
+
+}
+
+#yarns-channel-update-options {
+    display:none;
+    margin: 1em 0;
+}
+
+#yarns-channel-update{
+    /* "rename channel" button */
+    cursor:pointer;
+
+    color:darkslategrey;
+}
+
+#yarns-channel-delete {
+    /* "delete channel" button */
+    cursor:pointer;
+    float:right;
+    color:darkred;
+}
+
 .yarns-channel {
     cursor:pointer;
     border: 1px solid #0000004d;
@@ -37,29 +61,33 @@
 .yarns-channel.selected {
     background: #de6a28;
     color: white;
-    text-shadow: 1px 1px 1px black;
+    /*text-shadow: 1px 1px 1px black;*/
 }
 
 
 .yarns-channel span {
     font-size:1rem;
 }
+#yarns-admin-area h2 {
+    margin: 2em 0 1em;
+}
 
 .yarns-channel .yarns-channel-filters {
     display:none;
+
 }
 
 
 #yarns-sidebar button, #yarns-channel-options  button{
-    background: #439b50;
+    background: #6c6868;
     padding: .2rem 1.3rem;
     font-size: medium;
     border: 1px solid #00004d;
     /*box-shadow: 1px 1px 0 #000006;*/
-    color: white;
+    color: #eee;
     cursor:pointer;
     position:relative;
-    border-radius: 1rem;
+    border-radius: 2px;
 }
 
 button#yarns-channel-add-feed {
