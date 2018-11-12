@@ -1,3 +1,21 @@
+#yarns-admin-area #yarns-logo {
+    height:3rem;
+    position:relative;
+}
+
+#yarns-admin-area #yarns-logo img{
+    height:100%;
+    transform: translateY(28%);
+}
+
+#yarns-admin-area #yarns-logo #yarns-subheading {
+    font-size:1rem;
+}
+
+#yarns-admin-area h2 {
+    margin: 2em 0 1em;
+}
+
 #yarns-sidebar {
     float:left;
     max-width:200px;
@@ -68,9 +86,7 @@
 .yarns-channel span {
     font-size:1rem;
 }
-#yarns-admin-area h2 {
-    margin: 2em 0 1em;
-}
+
 
 .yarns-channel .yarns-channel-filters {
     display:none;

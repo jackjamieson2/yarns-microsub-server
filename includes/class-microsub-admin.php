@@ -91,7 +91,12 @@ Class Yarns_Microsub_Admin {
 		<div class='wrap'>
 		<div id='yarns-admin-area'>
 			<div>
-				<h1>Yarns Microsub Server</h1>
+				<div id="yarns-logo">
+				<img src="<?php echo plugins_url( '../images/yarns_logo.png' ,  __FILE__ ) ?>" alt="Yarns">
+					<span id="yarns-subheading">Microsub Server</span>
+				</div>
+				
+				
 
 				<div id='yarns-sidebar'>
 					<h2> Channels </h2>
