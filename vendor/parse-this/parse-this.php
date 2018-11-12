@@ -17,10 +17,6 @@
 if ( ! function_exists( 'parse_this_loader' ) ) {
 	function parse_this_loader() {
 
-		if ( ! class_exists( 'Mf2\Parser' ) ) {
-			require_once dirname( __FILE__ ) . '/vendor/mf2/mf2/Mf2/Parser.php';
-		}
-
 		// Global Functions
 		require_once plugin_dir_path( __FILE__ ) . 'includes/functions.php';
 
@@ -43,6 +39,7 @@ if ( ! function_exists( 'parse_this_loader' ) ) {
 
 		// Parse This API
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-parse-this-api.php';
+
 	}
 	add_action( 'plugins_loaded', 'parse_this_loader', 11 );
 }

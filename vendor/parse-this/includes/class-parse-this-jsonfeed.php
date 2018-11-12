@@ -32,7 +32,7 @@ class Parse_This_JSONFeed {
 		);
 		$return['items'] = array();
 		foreach ( $content['items'] as $item ) {
-			$return['items'][] = array_filter(
+			$newitem = array_filter(
 				array(
 					'uid'         => self::ifset( 'id', $item ),
 					'url'         => self::ifset( 'url', $item ),
@@ -52,6 +52,21 @@ class Parse_This_JSONFeed {
 					'category'    => self::ifset( 'tags', $item ),
 				)
 			);
+			if ( array_key_exists( 'attachments', $item ) ) {
+				foreach ( $item['attachments'] as $attachment ) {
+					switch ( $attachment['mime_type'] ) {
+						case 'audio/mpeg':
+							$newitem['audio'] = $attachment['url'];
+							break;
+						case 'image/jpeg':
+						case 'image/png':
+						case 'image/gif':
+							$newitem['photo'] = $attachment['url'];
+							break;
+					}
+				}
+			}
+			$return['items'][] = $newitem;
 		}
 		return $return;
 	}

@@ -55,25 +55,59 @@ class Parse_This_RSS {
 	 * @return JF2
 	 */
 	public static function get_item( $item ) {
-		return array_filter(
-			array(
-				'type'      => 'entry',
-				'name'      => htmlspecialchars_decode( $item->get_title(), ENT_QUOTES ),
-				'author'    => self::get_author( $item->get_author() ),
-				'summary'   => $item->get_description( true ),
-				'content'   => array_filter(
-					array(
-						'html' => htmlspecialchars( $item->get_content( true ) ),
-						'text' => wp_strip_all_tags( $item->get_content( true ) ),
-					)
-				),
-				'published' => $item->get_date( DATE_W3C ),
-				'updated'   => $item->get_updated_date( DATE_W3C ),
-				'url'       => $item->get_permalink(),
-				'location'  => self::get_location( $item ),
-				'category'  => self::get_categories( $item->get_categories() ),
-			)
+		$return     = array(
+			'type'      => 'entry',
+			'name'      => htmlspecialchars_decode( $item->get_title(), ENT_QUOTES ),
+			'author'    => self::get_author( $item->get_author() ),
+			'summary'   => $item->get_description( true ),
+			'content'   => array_filter(
+				array(
+					'html' => htmlspecialchars( $item->get_content( true ) ),
+					'text' => wp_strip_all_tags( $item->get_content( true ) ),
+				)
+			),
+			'published' => $item->get_date( DATE_W3C ),
+			'updated'   => $item->get_updated_date( DATE_W3C ),
+			'url'       => $item->get_permalink(),
+			'uid'       => $item->get_id(),
+			'location'  => self::get_location( $item ),
+			'category'  => self::get_categories( $item->get_categories() ),
 		);
+		$enclosures = $item->get_enclosures();
+		foreach ( $enclosures as $enclosure ) {
+			$medium = $enclosure->get_medium();
+			if ( 'image' === $medium ) {
+				$medium = 'photo';
+			}
+			if ( ! $medium ) {
+				$medium = $enclosure->get_type();
+				switch ( $medium ) {
+					case 'audio/mpeg':
+						$medium = 'audio';
+						break;
+					case 'image/jpeg':
+					case 'image/png':
+					case 'image/gif':
+						$medium = 'photo';
+						break;
+				}
+			}
+			if ( array_key_exists( $medium, $return ) ) {
+				if ( is_string( $return[ $medium ] ) ) {
+					$return[ $medium ] = array( $return[ $medium ] );
+				}
+				$return[ $medium ][] = $enclosure->get_link();
+			} else {
+				$return[ $medium ] = $enclosure->get_link();
+			}
+		}
+		// If there is just one photo it is probably the featured image
+		if ( isset( $return['photo'] ) && is_string( $return['photo'] ) ) {
+			$return['featured'] = $return['photo'];
+			unset( $return['photo'] );
+		}
+		$return['post_type'] = Parse_This_MF2::post_type_discovery( jf2_to_mf2( $return ) );
+		return array_filter( $return );
 	}
 
 	private static function get_categories( $categories ) {

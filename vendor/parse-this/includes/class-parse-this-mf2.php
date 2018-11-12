@@ -673,6 +673,9 @@ class Parse_This_MF2 {
 	 * @param string|DOMDocument|array $input HTML marked up content, HTML in DOMDocument, or array of already parsed MF2 JSON
 	 */
 	public static function parse( $input, $url, $alternate = true ) {
+		if ( ! class_exists( 'Mf2\Parser' ) ) {
+			require_once plugin_dir_path( __DIR__ ) . 'vendor/mf2/mf2/Mf2/Parser.php';
+		}
 		if ( is_string( $input ) || is_a( $input, 'DOMDocument' ) ) {
 			$input = Mf2\parse( $input, $url );
 			if ( $alternate ) {

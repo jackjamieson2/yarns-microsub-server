@@ -23,7 +23,8 @@
         "phpcompatibility/php-compatibility": "*",
         "wp-coding-standards/wpcs": "*",
       "phpcompatibility/phpcompatibility-wp": "^1.0",
-      "wpreadme2markdown/wp2md": "^3.0"
+      "wpreadme2markdown/wp2md": "^3.0",
+      "simplepie/simplepie": "*"
     },
     "prefer-stable" : true,
     "scripts": {
