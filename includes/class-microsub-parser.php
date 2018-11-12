@@ -337,72 +337,14 @@ Content-type: application/json
 	 * @param $content
 	 * @param $url
 	 *
-	 * @return array|void
+	 * @return array
 	 */
 	public static function parse_rss( $content, $url, $count = 20 ) {
-		
-		
 		include_once ABSPATH . WPINC . '/feed.php';
 		// Get a SimplePie feed object from the specified feed source.
 		$feed = fetch_feed( $url );
 		
 		return Parse_This_RSS::parse( $feed, $url );
-		
-		if ( is_wp_error( $feed ) ) {
-			return;
-		} else {
-			
-			$rss_items = [];
-			
-			// Parse the feed
-			$feed->enable_cache( false );
-			$feed->strip_htmltags( false );
-			$items = $feed->get_items();
-			
-			foreach ( $items as $item ) {
-				
-				$post['type'] = 'entry';
-				$post['name'] = htmlspecialchars_decode( $item->get_title(), ENT_QUOTES );
-				
-				$post['author']['name'] = $feed->get_title();
-				
-				$post['author']['photo'] = $feed->get_image_url();
-				$post['author']['url']   = $feed->get_link();
-				
-				// If the individual post has an author with different info from the feed, use that info
-				$post_author = $item->get_author();
-				if ( $post_author->get_name() ) {
-					if ( $post_author->get_name() != $post['author']['name'] ) {
-						$post['author']['name'] = $post_author->get_name() . ' | ' . $post['author']['name'];
-					}
-				}
-				
-				if ( $post_author->get_link() ) {
-					if ( $post_author->get_link() != $post['author']['url'] ) {
-						$post['author']['url'] = $post_author->get_link();
-					}
-				}
-				
-				$post['summary'] = strip_tags( $item->get_description() );
-				
-				$post['content']['html'] = htmlspecialchars( $item->get_content() );
-				$post['content']['text'] = strip_tags( $item->get_content() );
-				
-				//$post['content'] = html_entity_decode ($item->get_content());
-				$post['published'] = gmdate( 'Y-m-d H:i:sO', $item->get_date( 'U' ) );
-				
-				$post['url'] = $item->get_permalink();
-				
-				$rss_items[] = encode_array( $post ); // encode_array encodes html characters for display
-			}
-			
-			return [
-				'items'      => $rss_items,
-				'_feed_type' => 'rss',
-			];
-			
-		}
-		
 	}
 	
 	/*
@@ -418,7 +360,7 @@ Content-type: application/json
 	 * @param $url
 	 * @param int $count
 	 *
-	 * @return array|void
+	 * @return array
 	 */
 	public static function parse_hfeed( $content, $url, $count = 5 ) {
 		
