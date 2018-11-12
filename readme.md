@@ -1,10 +1,10 @@
 # Yarns Microsub Server #
-**Contributors:** jackjamieson2, dshanske
-**Tags:** microsub, indieweb, feed, reader
-**Requires at least:** 4.7
-**Tested up to:** 4.9.6
-**Stable tag:** trunk
-**License:** MIT
+**Contributors:** jackjamieson2, dshanske  
+**Tags:** microsub, indieweb, feed, reader  
+**Requires at least:** 4.7  
+**Tested up to:** 4.9.6  
+**Stable tag:** trunk  
+**License:** MIT  
 **License URI:** http://opensource.org/licenses/MIT
 
 
