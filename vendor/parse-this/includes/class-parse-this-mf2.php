@@ -672,10 +672,19 @@ class Parse_This_MF2 {
 	 *
 	 * @param string|DOMDocument|array $input HTML marked up content, HTML in DOMDocument, or array of already parsed MF2 JSON
 	 */
-	public static function parse( $input, $url, $alternate = true ) {
+	public static function parse( $input, $url, $args = array() ) {
+		$defaults = array(
+			'alternate' => true, // Use rel-alternate if set for jf2 or mf2
+			'feed'      => false, // Return entire feed if found
+		);
+		$args     = wp_parse_args( $args, $defaults );
+
+		if ( ! class_exists( 'Mf2\Parser' ) ) {
+			require_once plugin_dir_path( __DIR__ ) . 'vendor/mf2/mf2/Mf2/Parser.php';
+		}
 		if ( is_string( $input ) || is_a( $input, 'DOMDocument' ) ) {
 			$input = Mf2\parse( $input, $url );
-			if ( $alternate ) {
+			if ( $args['alternate'] ) {
 				// Check for rel-alternate jf2 or mf2 feed
 				if ( isset( $input['rel-urls'] ) ) {
 					foreach ( $input['rel-urls'] as $rel => $info ) {
@@ -707,28 +716,7 @@ class Parse_This_MF2 {
 			return array();
 		}
 		if ( 1 === $count ) {
-			$item = $input['items'][0];
-			if ( in_array( 'h-feed', $item['type'], true ) ) {
-				return parse_hfeed( $item, $input );
-			} elseif ( in_array( 'h-card', $item['type'], true ) ) {
-				return self::parse_hcard( $item, $input, $url );
-			} elseif ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {
-				return self::parse_hentry( $item, $input );
-			} elseif ( in_array( 'h-event', $item['type'], true ) ) {
-				return self::parse_hevent( $item, $input );
-			} elseif ( in_array( 'h-review', $item['type'], true ) ) {
-				return self::parse_hreview( $item, $input );
-			} elseif ( in_array( 'h-recipe', $item['type'], true ) ) {
-				return self::parse_hrecipe( $item, $input );
-			} elseif ( in_array( 'h-listing', $item['type'], true ) ) {
-				return self::parse_hlisting( $item, $input );
-			} elseif ( in_array( 'h-product', $item['type'], true ) ) {
-				return self::parse_hproduct( $item, $input );
-			} elseif ( in_array( 'h-resume', $item['type'], true ) ) {
-				return self::parse_hresume( $item, $input );
-			} elseif ( in_array( 'h-item', $item['type'], true ) ) {
-				return self::parse_hitem( $item, $input );
-			}
+			return self::parse_item( $input['items'][0], $input );
 		}
 
 		foreach ( $input['items'] as $item ) {
@@ -761,12 +749,49 @@ class Parse_This_MF2 {
 	}
 
 	public static function parse_hfeed( $entry, $mf ) {
-		$data = array(
+		$data         = array(
 			'type'  => 'feed',
 			'items' => array(),
 		);
+		$data['name'] = self::get_plaintext( $entry, 'name' );
+		if ( isset( $entry['children'] ) ) {
+			$data['items'] = self::parse_children( $entry['children'], $mf );
+		}
 		return array_filter( $data );
 
+	}
+
+	public static function parse_children( $children, $mf ) {
+		$items = array();
+		foreach ( $children as $child ) {
+			$items[] = self::parse_item( $child, $mf );
+		}
+		return array_filter( $items );
+	}
+
+	public static function parse_item( $item, $mf ) {
+		if ( in_array( 'h-feed', $item['type'], true ) ) {
+			return self::parse_hfeed( $item, $mf );
+		} elseif ( in_array( 'h-card', $item['type'], true ) ) {
+			return self::parse_hcard( $item, $mf, $url );
+		} elseif ( in_array( 'h-entry', $item['type'], true ) || in_array( 'h-cite', $item['type'], true ) ) {
+			return self::parse_hentry( $item, $mf );
+		} elseif ( in_array( 'h-event', $item['type'], true ) ) {
+			return self::parse_hevent( $item, $mf );
+		} elseif ( in_array( 'h-review', $item['type'], true ) ) {
+			return self::parse_hreview( $item, $mf );
+		} elseif ( in_array( 'h-recipe', $item['type'], true ) ) {
+			return self::parse_hrecipe( $item, $mf );
+		} elseif ( in_array( 'h-listing', $item['type'], true ) ) {
+			return self::parse_hlisting( $item, $mf );
+		} elseif ( in_array( 'h-product', $item['type'], true ) ) {
+			return self::parse_hproduct( $item, $mf );
+		} elseif ( in_array( 'h-resume', $item['type'], true ) ) {
+			return self::parse_hresume( $item, $mf );
+		} elseif ( in_array( 'h-item', $item['type'], true ) ) {
+			return self::parse_hitem( $item, $mf );
+		}
+		return array();
 	}
 
 	public static function parse_hcite( $entry, $mf ) {
@@ -885,6 +910,9 @@ class Parse_This_MF2 {
 					$data[ $p ] = $v;
 				}
 			}
+		}
+		if ( isset( $hcard['children'] ) ) {
+			$data['items'] = self::parse_children( $hcard['children'], $mf );
 		}
 		return array_filter( $data );
 	}

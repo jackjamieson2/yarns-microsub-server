@@ -1,0 +1,169 @@
+#yarns-admin-area #yarns-logo {
+    height:3rem;
+    position:relative;
+}
+
+#yarns-admin-area #yarns-logo img{
+    height:100%;
+    transform: translateY(28%);
+}
+
+#yarns-admin-area #yarns-logo #yarns-subheading {
+    font-size:1rem;
+}
+
+#yarns-admin-area h2 {
+    margin: 2em 0 1em;
+}
+
+#yarns-sidebar {
+    float:left;
+    max-width:200px;
+    min-width:200px;
+    width:20%;
+    overflow:hidden;
+}
+
+#yarns-channels {
+    list-style:none;
+}
+
+#yarns-new-channel-name {
+    display:none;
+}
+
+
+
+#yarns-channel-options {
+    float:left;
+    max-width:800px;
+    width:70%;
+    margin-left:2em;
+}
+
+#yarns-option-heading {
+
+}
+
+#yarns-channel-update-options {
+    display:none;
+    margin: 1em 0;
+}
+
+#yarns-channel-update{
+    /* "rename channel" button */
+    cursor:pointer;
+
+    color:darkslategrey;
+}
+
+#yarns-channel-delete {
+    /* "delete channel" button */
+    cursor:pointer;
+    float:right;
+    color:darkred;
+}
+
+.yarns-channel {
+    cursor:pointer;
+    border: 1px solid #0000004d;
+    box-shadow: 1px 1px 0px #0006;
+    padding: 1em;
+    margin: -1px 0 0 0;
+    position:relative;
+}
+
+.yarns-channel:hover {
+    background: #ddd;
+}
+.yarns-channel.selected {
+    background: #de6a28;
+    color: white;
+    /*text-shadow: 1px 1px 1px black;*/
+}
+
+
+.yarns-channel span {
+    font-size:1rem;
+}
+
+
+.yarns-channel .yarns-channel-filters {
+    display:none;
+
+}
+
+
+#yarns-sidebar button, #yarns-channel-options  button{
+    background: #6c6868;
+    padding: .2rem 1.3rem;
+    font-size: medium;
+    border: 1px solid #00004d;
+    /*box-shadow: 1px 1px 0 #000006;*/
+    color: #eee;
+    cursor:pointer;
+    position:relative;
+    border-radius: 2px;
+}
+
+button#yarns-channel-add-feed {
+    /*display:none;*/
+}
+#yarns-channel-options .yarns-channel-filters label {
+    cursor: pointer;
+    padding: 0 1rem 0 0;
+    display: inline-block;
+}
+
+#yarns-options-uid {
+    display:none;
+}
+
+#yarns-feed-picker-list label {
+    display:block;
+}
+
+
+/* List of currently followed feeds */
+#yarns-following-list li {
+    margin: 1rem 0;
+
+}
+
+#yarns-following-list li button.yarns-unfollow{
+    margin-left:0.5rem;
+    background: #439b50;
+    padding: .2rem;
+    min-width:90px;
+    font-size: small;
+}
+
+#yarns-following-list li:hover button.yarns-unfollow{
+    background: #d14933;
+    font-size: small;
+}
+
+#yarns-following-list li button.yarns-unfollow::after{
+    content: "Following";
+}
+
+#yarns-following-list li:hover button.yarns-unfollow::after{
+    content: "Unfollow";
+}
+
+
+/* Loading spinner */
+
+
+.yarns-loading {
+    background: url(../images/Wedges.svg) no-repeat top right;
+    background-size: 100% auto;
+    height:100%;
+
+    height: 1rem;
+    width: 1rem;
+
+    position:absolute;
+    top:.2rem;
+    right:.2rem;
+}
