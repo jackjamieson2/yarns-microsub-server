@@ -41,11 +41,19 @@ class Parse_This_API {
 		?>
 				<div class="wrap">
 						<h2> <?php esc_html_e( 'Parse This Debugger', 'indieweb-post-kinds' ); ?> </h2>
-						<p> <?php esc_html_e( 'Test the Parse Tools Debugger. You can report sites to the developer for possibly improvement in future', 'indieweb-post-kinds' ); ?>
+						<p> <?php esc_html_e( 'Test the Parse Tools Debugger. You can report sites to the developer for possibly improvement in future', 'parse-this' ); ?>
 						</p>
+							<p> 
+							<?php
+							if ( is_plugin_active( 'parse-this/parse-this.php' ) ) {
+								esc_html_e( 'You are using the plugin version of Parse This as opposed to a version built into any plugin', 'parse-this' );
+							}
+							?>
 						<hr />
 			<form method="get" action="<?php echo esc_url( rest_url( '/parse-this/1.0/parse/' ) ); ?> ">
-			<label for="url"><?php esc_html_e( 'URL', 'indieweb-post-kinds' ); ?></label><input type="url" class="widefat" name="url" id="url" />
+			<p><label for="url"><?php esc_html_e( 'URL', 'indieweb-post-kinds' ); ?></label><input type="url" class="widefat" name="url" id="url" /></p>
+			<p><label for="mf2"><?php esc_html_e( 'MF2', 'indieweb-post-kinds' ); ?></label><input type="checkbox" name="mf2" id="mf2" /></p>
+			<p><label for="feed"><?php esc_html_e( 'Feed Discovery', 'indieweb-post-kinds' ); ?></label><input type="checkbox" name="feed" id="feed" /></p>
 			<?php wp_nonce_field( 'wp_rest' ); ?>
 			<?php submit_button( __( 'Parse', 'indieweb-post-kinds' ) ); ?>
 						</form>
@@ -64,11 +72,11 @@ class Parse_This_API {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'read' ),
+					'callback'            => array( 'Parse_This_API', 'read' ),
 					'args'                => array(
 						'url' => array(
 							'required'          => true,
-							'validate_callback' => array( $this, 'is_valid_url' ),
+							'validate_callback' => array( 'Parse_This_API', 'is_valid_url' ),
 							'sanitize_callback' => 'esc_url_raw',
 						),
 					),
@@ -81,10 +89,16 @@ class Parse_This_API {
 	}
 
 	public static function read( $request ) {
-		$url    = $request->get_param( 'url' );
-		$mf2    = $request->get_param( 'mf2' );
-		$parse  = new Parse_This( $url );
-		$return = $parse->fetch();
+		$url   = $request->get_param( 'url' );
+		$mf2   = $request->get_param( 'mf2' );
+		$feed  = $request->get_param( 'feed' );
+		$parse = new Parse_This( $url );
+		if ( $feed ) {
+			return $parse->fetch_feeds();
+
+		} else {
+			$return = $parse->fetch();
+		}
 		if ( is_wp_error( $return ) ) {
 			return $return;
 		}

@@ -82,6 +82,53 @@ class Yarns_Microsub_Parser {
 		return $data;
 	}
 	
+	/**
+	 * Parses marked up HTML.
+	 *
+	 * @param $content The content to be parsed.
+	 * @param $url The url of the page being parsed.
+	 *
+	 * @return array
+	 */
+	public static function mergeparse( $content, $url ) {
+		// For debugging - get time of the script
+		
+		if ( empty( $content ) || empty( $url ) ) {
+			return array();
+		}
+		
+		$mf2data = Parse_This_MF2::mf2parse( $content, $url );
+		
+		$data = $mf2data;
+		if ( ! isset( $data['summary'] ) && isset( $data['content'] ) ) {
+			$data['summary'] = substr( $data['content']['text'], 0, 300 );
+			if ( 300 < strlen( $data['content']['text'] ) ) {
+				$data['summary'] .= '...';
+			}
+		}
+		if ( isset( $data['name'] ) ) {
+			if ( isset( $data['summary'] ) ) {
+				if ( false !== stripos( $data['summary'], $data['name'] ) ) {
+					unset( $data['name'] );
+				}
+			}
+		}
+		// Attempt to set a featured image
+		if ( ! isset( $data['featured'] ) ) {
+			if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
+				$data['featured'] = $data['photo'];
+				unset( $data['photo'] );
+			}
+		}
+		
+		// Convert special characters to html entities in content['html']
+		if ( isset( $data['content']['html'] ) ) {
+			$data['content']['html'] = htmlspecialchars( $data['content']['html'] );
+		}
+		
+		return $data;
+		
+	}
 	
 	
 	
@@ -129,20 +176,8 @@ Content-type: application/json
 	 */
 	public static function search( $query ) {
 		
-		
-		
-		
 		// Check if $query is a valid URL, if not try to generate one
 		$url    = static::validate_url( $query );
-		
-		
-		// Try using parse-this search function
-		$parse = new Parse_This( $url);
-		$parse->fetch_feeds();
-		return $parse;
-		
-		
-		
 		$remote = wp_remote_get( $url );
 		
 		if ( is_wp_error( $remote ) ) {
@@ -245,7 +280,6 @@ Content-type: application/json
 	 */
 	public static function preview( $url ) {
 		
-		
 		return static::parse_feed( $url, 2 );
 		//return Yarns_Microsub_Aggregator::poll_site($url,'_preview');
 	}
@@ -260,14 +294,41 @@ Content-type: application/json
 	 * @return array|void
 	 */
 	public static function parse_feed( $url, $count = 20 ) {
+		
+		
+		
 		if ( ! $url ) {
 			return;
 		}
-		$parse = new Parse_This( $url );
-		$parse->fetch();
-		$parse->parse();
-		return $parse->get();
 		
+		$remote = wp_remote_get( $url );
+		
+		if ( is_wp_error( $remote ) ) {
+			return "Error accessing {$url}";
+		}
+		
+		$content = $remote['body'];
+		// only proceed if content could be found
+		if ( ! $content ) {
+			return;
+		}
+		
+		// Try to parse h-feed
+		$feed = static::parse_hfeed( $content, $url, $count );
+		if ( $feed ) {
+			return $feed;
+		}
+		
+		// If there is no h-feed, Try to parse rss
+		
+		
+		$feed = static::parse_rss( $content, $url, $count );
+		if ( $feed ) {
+			return $feed;
+		}
+		
+		// Failed, so return nothing
+		return;
 	}
 	
 	/**
@@ -302,13 +363,6 @@ Content-type: application/json
 	 * @return array
 	 */
 	public static function parse_hfeed( $content, $url, $count = 5 ) {
-		error_log("start parsing");
-		
-		
-			
-			
-			$feed = Parse_This_MF2::parse($content, $url);
-		return $feed;
 		
 		$mf = static::locate_hfeed( $content, $url );
 		//If no h-feed was found, return
@@ -437,6 +491,7 @@ Content-type: application/json
 	}
 	
 	
+	/* For now deprecated in favour of mergeparse() */
 	public static function parse_hfeed_item( $content, $url ) {
 		//$mf = Mf2\fetch($url);
 		$mf = Mf2\parse( $content, $url );

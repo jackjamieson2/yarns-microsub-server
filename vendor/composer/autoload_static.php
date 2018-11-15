@@ -11,10 +11,6 @@ class ComposerStaticInit0bf1dec6c15755da5b0a1bedd4f5359d
     );
 
     public static $prefixLengthsPsr4 = array (
-        'P' => 
-        array (
-            'PHPCompatibility\\' => 17,
-        ),
         'M' => 
         array (
             'Masterminds\\' => 12,
@@ -30,10 +26,6 @@ class ComposerStaticInit0bf1dec6c15755da5b0a1bedd4f5359d
     );
 
     public static $prefixDirsPsr4 = array (
-        'PHPCompatibility\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/wimg/php-compatibility/PHPCompatibility',
-        ),
         'Masterminds\\' => 
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
