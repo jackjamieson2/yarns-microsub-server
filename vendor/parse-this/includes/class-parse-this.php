@@ -310,7 +310,7 @@ class Parse_This {
 		}
 		// Ensure not already preparsed
 		if ( empty( $this->jf2 ) ) {
-			$this->jf2 = Parse_This_MF2::parse( $content, $this->url, false );
+			$this->jf2 = Parse_This_MF2::parse( $content, $this->url, array( 'alternate' => false ) );
 		}
 		// If No MF2
 		if ( empty( $this->jf2 ) ) {
