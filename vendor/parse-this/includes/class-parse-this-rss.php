@@ -14,8 +14,9 @@ class Parse_This_RSS {
 	public static function parse( $feed, $url ) {
 		$items     = array();
 		$rss_items = $feed->get_items();
+		$title     = $feed->get_title();
 		foreach ( $rss_items as $item ) {
-			$items[] = self::get_item( $item );
+			$items[] = self::get_item( $item, $title );
 		}
 		return array_filter(
 			array(
@@ -23,7 +24,7 @@ class Parse_This_RSS {
 				'_feed_type' => 'rss',
 				'summary'    => $feed->get_description(),
 				'author'     => self::get_author( $feed->get_author() ),
-				'name'       => $feed->get_title(),
+				'name'       => $title,
 				'url'        => $feed->get_permalink(),
 				'photo'      => $feed->get_image_url(),
 				'items'      => $items,
@@ -40,13 +41,17 @@ class Parse_This_RSS {
 		if ( ! $author ) {
 			return array();
 		}
-		return array_filter(
+		$return = array_filter(
 			array(
 				'name'  => $author->get_name(),
 				'url'   => $author->get_link(),
 				'email' => $author->get_email(),
 			)
 		);
+		if ( 1 === count( $return ) ) {
+			$return = array_pop( $return );
+		}
+		return $return;
 	}
 
 	/*
@@ -54,24 +59,25 @@ class Parse_This_RSS {
 	 * @param SimplePie_Item $item
 	 * @return JF2
 	 */
-	public static function get_item( $item ) {
+	public static function get_item( $item, $title = '' ) {
 		$return     = array(
-			'type'      => 'entry',
-			'name'      => htmlspecialchars_decode( $item->get_title(), ENT_QUOTES ),
-			'author'    => self::get_author( $item->get_author() ),
-			'summary'   => $item->get_description( true ),
-			'content'   => array_filter(
+			'type'        => 'entry',
+			'name'        => htmlspecialchars_decode( $item->get_title(), ENT_QUOTES ),
+			'author'      => self::get_author( $item->get_author() ),
+			'publication' => $title,
+			'summary'     => $item->get_description( true ),
+			'content'     => array_filter(
 				array(
 					'html' => htmlspecialchars( $item->get_content( true ) ),
 					'text' => wp_strip_all_tags( $item->get_content( true ) ),
 				)
 			),
-			'published' => $item->get_date( DATE_W3C ),
-			'updated'   => $item->get_updated_date( DATE_W3C ),
-			'url'       => $item->get_permalink(),
-			'uid'       => $item->get_id(),
-			'location'  => self::get_location( $item ),
-			'category'  => self::get_categories( $item->get_categories() ),
+			'published'   => $item->get_date( DATE_W3C ),
+			'updated'     => $item->get_updated_date( DATE_W3C ),
+			'url'         => $item->get_permalink(),
+			'uid'         => $item->get_id(),
+			'location'    => self::get_location( $item ),
+			'category'    => self::get_categories( $item->get_categories() ),
 		);
 		$enclosures = $item->get_enclosures();
 		foreach ( $enclosures as $enclosure ) {
