@@ -71,6 +71,14 @@ class Parse_This {
 				return 'rss';
 			case 'application/atom+xml':
 				return 'atom';
+			case 'application/jf2feed+json':
+				return 'jf2feed';
+			case 'application/stream+json':
+				return 'activitystream';
+			case 'application/mf2+json':
+				return 'mf2-json';
+			case 'application/jf2+json':
+				return 'jf2-json';
 			default:
 				return 'feed';
 		}
@@ -192,10 +200,14 @@ class Parse_This {
 			}
 			// Sort feeds by priority
 			$rank = array(
-				'microformats' => 0,
-				'jsonfeed'     => 1,
-				'atom'         => 2,
-				'rss'          => 3,
+				'jf2feed'        => 0,
+				'jf2-json'       => 1,
+				'mf2-json'       => 2,
+				'microformats'   => 3,
+				'jsonfeed'       => 4,
+				'atom'           => 5,
+				'rss'            => 6,
+				'activitystream' => 6,
 			);
 			usort(
 				$links,
@@ -293,7 +305,12 @@ class Parse_This {
 		return true;
 	}
 
-	public function parse() {
+	public function parse( $args = array() ) {
+		$defaults = array(
+			'alternate' => false,
+			'feed'      => false,
+		);
+		$args     = wp_parse_args( $args, $defaults );
 		if ( $this->content instanceof WP_Post ) {
 			$this->jf2 = self::wp_post( $this->content );
 			return;
@@ -310,11 +327,12 @@ class Parse_This {
 		}
 		// Ensure not already preparsed
 		if ( empty( $this->jf2 ) ) {
-			$this->jf2 = Parse_This_MF2::parse( $content, $this->url, array( 'alternate' => false ) );
+			$this->jf2 = Parse_This_MF2::parse( $content, $this->url, $args );
 		}
 		// If No MF2
 		if ( empty( $this->jf2 ) ) {
-			$this->jf2 = Parse_This_HTML::parse( $content, $this->url );
+			$args['alternate'] = true;
+			$this->jf2         = Parse_This_HTML::parse( $content, $this->url, $args );
 			return;
 		}
 		// If the parsed jf2 is missing any sort of content then try to find it in the HTML
