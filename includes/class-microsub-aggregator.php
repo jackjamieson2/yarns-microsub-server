@@ -1,10 +1,7 @@
 <?php
 
 /**
- * Aggregator class
- *
- * @author Jack Jamieson
- *
+ * Class Yarns_Microsub_Aggregator
  */
 class Yarns_Microsub_Aggregator {
 
@@ -45,7 +42,8 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function poll() {
 		$poll_start_time = time();
-		$poll_time_limit = 25; // execution time limit in seconds.
+		$poll_time_limit = 600; // execution time limit in seconds.
+		/* todo: Figure out a good time limit and cron schedule.*/
 
 		$results = [];
 
