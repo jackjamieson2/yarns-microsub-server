@@ -61,7 +61,7 @@ class Yarns_Microsub_Aggregator {
 								static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
-								if ( $feed['_poll_frequency'] * 60 < time() - strtotime( $feed['_last_polled'] ) ) {
+								if ( $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
 									$results[] = static::poll_site( $feed['url'], $channel_uid, $channels, $channel_key, $feed_key );
 								}
 							}
@@ -208,4 +208,3 @@ class Yarns_Microsub_Aggregator {
 		}
 	}
 }
-
