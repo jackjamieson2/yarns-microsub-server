@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Yarns_Microsub_Aggregator
  */
@@ -59,10 +58,10 @@ class Yarns_Microsub_Aggregator {
 							if ( ! array_key_exists( '_last_polled', $feed ) ) {
 								// New subscriptions do not have _last_polled (and other polling frequency variables),
 								// so initialize these variables if they do not exist.
-								static::init_polling_frequencies( $channels, $channel_key, $feed_key );
+								static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
-								if ( $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
+								if ( $feed['_poll_frequency'] * 60 < time() - strtotime( $feed['_last_polled'] ) ) {
 									$results[] = static::poll_site( $feed['url'], $channel_uid, $channels, $channel_key, $feed_key );
 								}
 							}
@@ -73,6 +72,7 @@ class Yarns_Microsub_Aggregator {
 								$results['polling end time']       = time();
 								$results['polling execution time'] = time() - $poll_start_time;
 								$results['polling time limit']     = $poll_time_limit;
+
 								return $results;
 							}
 						}
@@ -84,22 +84,19 @@ class Yarns_Microsub_Aggregator {
 		$results['polling end time']       = time();
 		$results['polling execution time'] = time() - $poll_start_time;
 		$results['polling time limit']     = $poll_time_limit;
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Poll a single site for new posts
 	 *
 	 * @param string $url URL of the site.
 	 * @param string $channel_uid Channel UID.
-	 * @param array  $channels Full channel array.
-	 * @param string $channel_key Key of the channel the feed belongs to.
-	 * @param string $feed_key Key of the feed.
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid, $channels, $channel_key, $feed_key ) {
+	public static function poll_site( $url, $channel_uid ) {
 		$site_results = [];
 		$feed         = Yarns_Microsub_Parser::parse_feed( $url, 20 );
 
@@ -107,20 +104,54 @@ class Yarns_Microsub_Aggregator {
 		if ( '_preview' === $channel_uid ) {
 			return $feed;
 		}
-		
+
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) ) {
-					if ( static::poll_post( $post['url'], $post, $channel_uid, $feed ) ) {
+					if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
 						$site_results[] = $post['url']; // this is just returned for debugging when manually polling.
 					}
 				}
 			}
 		}
-		
-		
 		$n_posts_added = count( $site_results );
+		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added );
+		//static::update_polling_frequencies( $channels, $channel_key, $feed_key, $n_posts_added );
+
+		return $site_results;
+	}
+
+	/**
+	 * Check if a parsed post has already been saved, if not add it to Yarns' database of saved posts.
+	 *
+	 * @param string $permalink The permalink of the post to be added.
+	 * @param string $post The post content.
+	 * @param string $channel_uid The channel to which the post will be added.
+	 *
+	 * @return bool
+	 */
+	public static function poll_post( $permalink, $post, $channel_uid ) {
+		if ( ! static::exists( $permalink, $channel_uid ) ) {
+			Yarns_Microsub_Posts::add_post( $permalink, $post, $channel_uid );
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	 * Update polling frequencies for an individual feed.
+	 *
+	 * @param string $channel_uid       Channel UID.
+	 * @param string $url               URL of the site.
+	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
+	 */
+	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added ) {
+		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
+		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
+
 		// Check if any new posts were added from this poll.
 		if ( $n_posts_added > 0 ) {
 			// New posts were added.
@@ -129,47 +160,14 @@ class Yarns_Microsub_Aggregator {
 			// No new posts were found.
 			$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ++;
 		}
-		
-		static::update_polling_frequencies( $channels, $channel_key, $feed_key, $n_posts_added );
-		
-		return $site_results;
-	}
-	
-	/**
-	 * Check if a parsed post has already been saved, if not add it to Yarns' database of saved posts.
-	 *
-	 * @param $permalink
-	 * @param $post
-	 * @param $channel_uid
-	 * @param $feed
-	 *
-	 * @return bool
-	 */
-	public static function poll_post( $permalink, $post, $channel_uid, $feed ) {
-		if ( ! static::exists( $permalink, $channel_uid ) ) {
-			Yarns_Microsub_Posts::add_post( $permalink, $post, $channel_uid );
-			return true;
-		}
-		return false;
-	}
-	
-	
-	/**
-	 * Update polling frequencies for an individual feed.
-	 *
-	 * @param $channels
-	 * @param $channel_key
-	 * @param $feed_key
-	 * @param $n_posts_added
-	 */
-	public static function update_polling_frequencies( $channels, $channel_key, $feed_key, $n_posts_added ) {
+
 		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = date( 'Y-m-d H:i:s' );
 
 		$empty_poll_count = $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'];
 		$poll_frequency   = $channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency'];
 		$poll_frequencies = array( 1, 2, 4, 8, 12, 24 );
 
-		$key = array_search( 1, $poll_frequencies );
+		$key = array_search( $poll_frequency, $poll_frequencies, true );
 		if ( false !== $key ) {
 			if ( $empty_poll_count > 2 ) {
 				if ( array_key_exists( $key + 1, $poll_frequencies ) ) {
@@ -183,22 +181,24 @@ class Yarns_Microsub_Aggregator {
 				}
 			}
 		}
-
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = $empty_poll_count;
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = $poll_frequency;
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 	}
-	
+
 	/**
 	 * Initializes polling frequency variables for a single feed, then polls the site immediately
 	 *
-	 * @param $channels
-	 * @param $channel_key
-	 * @param $feed_key
+	 * @param array  $channels          The full array of channels and properties.
+	 * @param string $channel_uid       Channel UID.
+	 * @param string $url               URL of the site.
 	 */
-	public static function init_polling_frequencies( $channels, $channel_key, $feed_key ) {
+	public static function init_polling_frequencies( $channels, $channel_uid, $url ) {
+		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
+		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
+
 		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s' );
-		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours
+		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours.
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = 0;
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['url'] ) ) {

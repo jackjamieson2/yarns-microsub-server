@@ -1,18 +1,13 @@
 <?php
 /**
- * Microsub actions
- *
- * @author Jack Jamieson
- *
+ * Class Yarns_Microsub_Parser
  */
-
 class Yarns_Microsub_Parser {
-
-
+	
 	/**
 	 * Final clean up on post content before saving.
 	 *
-	 * @param $data
+	 * @param string $data
 	 *
 	 * @return mixed
 	 */
@@ -33,7 +28,7 @@ class Yarns_Microsub_Parser {
 				}
 			}
 		}
-
+		
 		// Attempt to set a featured image
 		if ( ! isset( $data['featured'] ) ) {
 			if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
@@ -41,23 +36,23 @@ class Yarns_Microsub_Parser {
 				unset( $data['photo'] );
 			}
 		}
-
+		
 		// Convert special characters to html entities in content['html']
 		/*
 		if ( isset( $data['content']['html'] ) ) {
 			//$data['content']['html'] = htmlspecialchars( $data['content']['html']);
 		}
 		*/
-
-
+		
+		
 		// Some feeds return multiple author photos, but only one can be shown
 		if ( isset( $data['author']['photo'] ) ) {
 			if ( is_array( $data['author']['photo'] ) ) {
 				$data['author']['photo'] = $data['author']['photo'][0];
 			}
 		}
-
-
+		
+		
 		//debugging
 		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to' ];
 		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
@@ -117,120 +112,26 @@ Content-type: application/json
 	{ ... }
   ]
 }*/
-
-
+	
+	
 	/**
 	 * Searches a URL for feeds
 	 *
 	 * @param $query
 	 *
 	 * @return array|void
-	 * //@@todo Check if the content itself is an rss feed and if so just return that
+	 *
 	 */
 	public static function search( $query ) {
-
+		// @@todo Check if the content itself is an rss feed and if so just return that.
 		// Check if $query is a valid URL, if not try to generate one
-		$url    = static::validate_url( $query );
-		
-		// Try using parse-this search function
-		$search = new Parse_This( $url);
+		$url = static::validate_url( $query );
+		// Search using Parse-This.
+		$search = new Parse_This( $url );
 		return $search->fetch_feeds();
-		
-		
-		
-		$remote = wp_remote_get( $url );
-
-		if ( is_wp_error( $remote ) ) {
-			return "Error accessing {$url}";
-		}
-
-
-		$content = $remote['body'];
-
-
-		$dom = new DOMDocument();
-		libxml_use_internal_errors( true ); //disable libxml errors
-		if ( ! empty( $content ) ) { //if any html is actually returned
-			$dom->loadHTML( $content );
-			$hfeed_exists = false;
-
-
-			//Check each link for rss/atom feeds
-			$website_links = $dom->getElementsByTagName( 'link' );
-
-			if ( $website_links->length > 0 ) {
-				foreach ( $website_links as $link ) {
-					if ( $link->getAttribute( 'rel' ) == 'feed' ) {
-						$feed['url']   = $link->getAttribute( 'href' );
-						$feed['_type'] = 'h-feed';
-						$feeds[]       = $feed;
-						$hfeed_exists  = true;
-					} elseif ( $link->getAttribute( 'rel' ) == 'alternate' ) {
-						$feed['url']   = $link->getAttribute( 'href' );
-						$feed['_type'] = $link->getAttribute( 'type' );
-						$feeds[]       = $feed;
-					}
-				}
-			}
-
-			// If no h-feed was found as a <link>, then check if the $url itself is an h-feed
-			if ( $hfeed_exists == false ) {
-				if ( static::locate_hfeed( $content, $url ) ) {
-					$feed['url']   = $url;
-					$feed['_type'] = 'h-feed';
-					$feeds[]       = $feed;
-				}
-			}
-
-			// return null if no feeds were discovered
-
-			if ( empty( $feeds ) ) {
-				return;
-			}
-
-			// Now that feeds have been discovered, do some clean up and then populate additional fields (author info, photo, description, etc.)
-			foreach ( $feeds as $i => $feed ) {
-				// Convert relative urls to absolute
-				if ( parse_url( $feeds[ $i ]['url'], PHP_URL_HOST ) == false ) {
-					$feeds[ $i ]['url'] = $url . $feeds[ $i ]['url'];
-					//$feeds[$i]['url'] = parse_url($url,PHP_URL_SCHEME) + parse_url($url,PHP_URL_HOST) + $feeds[$i]['url'];
-				}
-
-				/*
-				//
-				//  Commenting this out to improve speed
-				//
-
-				// populate additional info
-				if ($feeds[$i]['_type']=='h-feed'){
-					$mf = Mf2\fetch($feeds[$i]['url']);
-					foreach ($mf['items'] as $mf_item) {
-						if ("{$mf_item['type'][0]}"=="h-feed"){
-							if(array_key_exists('name', $mf_item['properties'])) {
-								$feeds[$i]['name'] = "{$mf_item['properties']['name'][0]}";
-							}
-							if(array_key_exists('photo', $mf_item['properties'])) {
-								$feeds[$i]['photo'] = "{$mf_item['properties']['photo'][0]}";
-							}
-							if(array_key_exists('summary', $mf_item['properties'])) {
-								$feeds[$i]['description'] = "{$mf_item['properties']['summary'][0]}";
-							}
-						}
-
-						if ("{$mf_item['type'][0]}"=="h-card"){
-							$feeds[$i]['author']= $mf_item['properties'];
-						}
-					}
-				}
-				*/
-				$feeds[ $i ]['type'] = 'feed';
-			}
-
-			return [ 'results' => $feeds ];
-		}
 	}
-
-
+	
+	
 	/**
 	 * Returns a preview of the feed
 	 *
@@ -282,10 +183,10 @@ Content-type: application/json
 		include_once ABSPATH . WPINC . '/feed.php';
 		// Get a SimplePie feed object from the specified feed source.
 		$feed = fetch_feed( $url );
-
+		
 		return Parse_This_RSS::parse( $feed, $url );
 	}
-
+	
 	/*
 
 	$url -> the url from which to retrieve a feed
@@ -334,18 +235,18 @@ Content-type: application/json
 				// If the feed has neither items or chidlren, something has gone wrong
 				return 'No feed items';
 			}
-
+			
 			//return $mf_key;
 		}
 		//error_log("hfeed item key = " . $mf_key );
-
+		
 		// Get feed author
 		// (For posts with no author, use the feed author instead)
 		$feed_author = static::get_feed_author( $content, $url );
-
+		
 		//Get permalinks and contnet for each item
 		$hfeed_items = array();
-
+		
 		foreach ( $mf[ $mf_key ] as $key => $item ) {
 			//error_log ("checkpoint 1.".$key);
 			if ( $key >= $count ) {
@@ -372,24 +273,24 @@ Content-type: application/json
 						} else {
 							// Post author is not set, so replace it with the feed author
 							$the_item['author'] = $feed_author;
-
+							
 						}
 					}
-
+					
 					$the_item      = static::clean_post( $the_item );
 					$hfeed_items[] = $the_item;
 				}
 			}
 		}
-
+		
 		//$result = ['items'=> $hfeed_items];
 		return [
 			'items'      => $hfeed_items,
 			'_feed_type' => 'h-feed',
 		];
-
+		
 	}
-
+	
 	/**
 	 * Finds the author of the feed (supplements post author)
 	 *
@@ -400,21 +301,21 @@ Content-type: application/json
 	 */
 	private static function get_feed_author( $content, $url ) {
 		$mf = Mf2\parse( $content, $url );
-
+		
 		if ( ! is_array( $mf ) ) {
 			return array();
 		}
-
+		
 		$count = count( $mf['items'] );
 		if ( 0 === $count ) {
 			return array();
 		}
 		foreach ( $mf['items'] as $item ) {
 			// Check if the item is an h-card
-
+			
 			if ( Parse_This_MF2::is_type( $item, 'h-card' ) ) {
 				// if (Parse_This_MF2::is_hcard($item)){ // deprecated
-
+				
 				return Parse_This_MF2::parse_hcard( $item, $mf, $url );
 			}
 			// Check if the item is an h-feed, in which case look for an author property
@@ -425,7 +326,7 @@ Content-type: application/json
 							if ( Parse_This_MF2::is_type( $item, 'hcard' ) ) {
 								return Parse_This_MF2::parse_hcard( $author, $mf, $url );
 							} else {
-
+								
 								return mf2_to_jf2( $author );
 							}
 						}
@@ -446,41 +347,41 @@ Content-type: application/json
 				$return_item = array();
 				//$return_item = $item['properties'];
 				$return_item['type'] = $item['type'];
-
+				
 				if ( array_key_exists( 'name', $item['properties'] ) ) {
 					$return_item['name'] = $item['properties']['name'];
 				}
-
+				
 				if ( array_key_exists( 'published', $item['properties'] ) ) {
 					$return_item['published'] = $item['properties']['published'];
 				}
-
+				
 				if ( array_key_exists( 'updated', $item['properties'] ) ) {
 					$return_item['updated'] = $item['properties']['updated'];
 				}
-
+				
 				if ( array_key_exists( 'url', $item['properties'] ) ) {
 					$return_item['url'] = $item['properties']['url'];
 				}
-
+				
 				if ( array_key_exists( 'content', $item['properties'] ) ) {
 					$return_item['content'] = $item['properties']['content'];
 				}
-
+				
 				if ( array_key_exists( 'summary', $item['properties'] ) ) {
 					$return_item['summary'] = $item['properties']['summary'];
 				}
-
+				
 				if ( array_key_exists( 'photo', $item['properties'] ) ) {
 					$return_item['photo'] = $item['properties']['photo'];
 				}
-
+				
 				return $return_item;
 			}
 		}
 	}
-
-
+	
+	
 	/**
 	 * Find the root feed for a page
 	 *
@@ -491,18 +392,18 @@ Content-type: application/json
 	 */
 	public static function locate_hfeed( $content, $url ) {
 		$mf = Mf2\parse( $content, $url );
-
+		
 		if ( ! $mf ) {
 			// If no microformats could be parsed, there is no h-feed
 			return;
 		}
-
+		
 		foreach ( $mf['items'] as $mf_item ) {
 			if ( in_array( 'h-feed', $mf_item['type'] ) ) {
 				return $mf_item;
 			}
 		}
-
+		
 		foreach ( $mf['items'] as $mf_item ) {
 			if ( array_key_exists( 'children', $mf_item ) ) {
 				foreach ( $mf_item['children'] as $child ) {
@@ -532,14 +433,14 @@ Content-type: application/json
 				}
 			}
 		}
-
+		
 		return;
 	}
-
+	
 	/** DEPRECATED */
 	public static function find_hfeed_in_page( $url ) {
 		$mf2 = Mf2\fetch( $url );
-
+		
 		// If there was more than one h-entry on the page, treat the whole page as a feed
 		if ( count( $mf2['items'] ) > 1 ) {
 			if ( count(
@@ -555,14 +456,14 @@ Content-type: application/json
 				return $mf2;
 			}
 		}
-
+		
 		// If the first item is an h-feed, parse as a feed
 		$first = $mf2['items'][0];
 		if ( in_array( 'h-feed', $first['type'] ) ) {
 			#Parse::debug("mf2:3: Recognized $url as an h-feed because the first item is an h-feed");
 			return $first;
 		}
-
+		
 		// Fallback case, but hopefully we have found something before this point
 		foreach ( $mf2['items'] as $item ) {
 			// Otherwise check for a recognized h-* object
@@ -582,13 +483,13 @@ Content-type: application/json
 			}
 		}
 	}
-
-
+	
+	
 	/*
 	* UTILITY FUNCTIONS
 	*
 	*/
-
+	
 	/**
 	 * Corrects invalid URLs if possible
 	 *
@@ -601,25 +502,25 @@ Content-type: application/json
 		if ( static::is_url( $possible_url ) ) {
 			return $possible_url;
 		}
-
+		
 		// If just a word was entered, append .com
 		if ( preg_match( '/^[a-z][a-z0-9]+$/', $possible_url ) ) {
 			// if just a word was entered, append .com
 			$possible_url = $possible_url . '.com';
 		}
-
+		
 		// If the URL is missing a trailing '/' add it
 		//$possible_url = wp_slash($possible_url)
-
+		
 		if ( substr( $possible_url, - 1 ) != '/' ) {
-
+			
 			$possible_url .= '/';
 		}
-
+		
 		// If missing a scheme, prepend with 'http://', otherwise return as-is
 		return parse_url( $possible_url, PHP_URL_SCHEME ) === null ? 'http://' . $possible_url : $possible_url;
 	}
-
+	
 	/**
 	 * Returns true if $query is a valid URL
 	 *
@@ -634,7 +535,7 @@ Content-type: application/json
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Returns true if $feedtype represents an RSS/Atom feed
 	 *
@@ -657,6 +558,6 @@ Content-type: application/json
 			return true;
 		}
 	}
-
-
+	
+	
 }

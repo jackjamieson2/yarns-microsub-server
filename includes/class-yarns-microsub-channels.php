@@ -1,21 +1,29 @@
 <?php
-
 /**
  * Microsub channels class
  *
  * @author Jack Jamieson
  *
  */
+
 class Yarns_Microsub_Channels {
+/*
+ * @@todo: add unread counts to each channel.
+ */
 
-
-	//Returns a list of the channels
+	/**
+	 * Returns a list of the channels
+	 *
+	 * @param bool $details Whether or not to return details about the channels.
+	 *
+	 * @return array
+	 */
 	public static function get( $details = false ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		}
-		// The channels list also includes lists of feeds and post-types filter options, so remove them
-		if ( $details == false ) {
+		// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
+		if ( false === $details ) {
 			foreach ( $channels as $key => $channel ) {
 				if ( array_key_exists( 'items', $channel ) ) {
 					unset( $channels[ $key ]['items'] );
@@ -27,27 +35,20 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-
-		// for testing, hardcode an 'unread' value for each channel
-		foreach ( $channels as $key => $channel ) {
-			//$channels[$key]['unread'] = 10;
-		}
-
 		return [
 			'channels' => $channels,
 		];
 	}
 
 	/**
-	 *
 	 * Get a single channel object with details
 	 *
-	 * @param $uid
+	 * @param string $uid The channel ID.
 	 *
 	 * @return mixed
 	 */
 	public static function get_channel( $uid ) {
-		$channels = self::get( $details = true )['channels'];
+		$channels = self::get( true )['channels'];
 		foreach ( $channels as $channel ) {
 			if ( $uid === $channel['uid'] ) {
 				return $channel;
@@ -55,47 +56,50 @@ class Yarns_Microsub_Channels {
 		}
 	}
 
-	// Delete a channel
+	/**
+	 * Delete a channel
+	 *
+	 * @param string $uid The channel ID.
+	 *
+	 * @return string
+	 */
 	public static function delete( $uid ) {
-		// Rewrite the channel list with the selected channel removed
-		// probably better ways to do this
+		// Rewrite the channel list with the selected channel removed.
 		$new_channel_list = [];
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ) );
-			error_log( 'Starting list: ' . json_encode( $channels ) );
-			//check if the channel already exists
+			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
-					error_log( 'item->uid: ' . $item->uid );
-					error_log( '$uid ' . $uid );
 					if ( $item->uid === $uid ) {
 						error_log( 'deleting:' . $item->uid );
 					} else {
-						// Keep this channel in the new list
+						// Keep this channel in the new list.
 						$new_channel_list[] = $item;
 					}
 				}
 			}
 		}
-		update_option( 'yarns_channels', json_encode( $new_channel_list ) );
-		error_log( 'Ending list: ' . json_encode( $new_channel_list ) );
-		error_log( 'Saved list: ' . get_site_option( 'yarns_channels' ) );
-
+		update_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
 		return 'deleted';
 	}
 
 
 	//Add a channel
+
+	/**
+	 * @param string $new_channel_name Name of the new channel.
+	 *
+	 * @return array
+	 */
 	public static function add( $new_channel_name ) {
-		//delete_option('yarns_channels');
-		//return json_decode(get_site_option('yarns_channels'));
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ) );
-			//check if the channel already exists
+			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
-					if ( $item->name == $new_channel_name ) {
-						//item already exists, so return existing item
+					if ( $item->name === $new_channel_name ) {
+						// item already exists, so return existing item.
 						return $item;
 					}
 				}
@@ -104,50 +108,40 @@ class Yarns_Microsub_Channels {
 			$channels = [];
 		}
 
-
-		/** Create the channel
-		 */
-
-		//Generate a random uid
+		// Generate a random uid.
 		$uid        = static::generate_uid();
 		$post_types = static::all_post_types();
-
 
 		$new_channel = [
 			'uid'        => $uid,
 			'name'       => $new_channel_name,
-			'post-types' => $post_types
+			'post-types' => $post_types,
 		];
 
 		$channels[] = $new_channel;
 		update_option( 'yarns_channels', json_encode( $channels ) );
 
 		return $new_channel;
-
-		//get_site_option
-		//update_option
-
 	}
 
 
-	/*
-	UPDATE A CHANNEL
-	action=channels
-    channel={uid}
-    name={channel name}
-
-	*/
-
-	public static function update( $channel, $name ) {
+	/**
+	 * Update an existing channel (i.e. change its name)
+	 *
+	 * @param string $uid The Channel ID.
+	 * @param string $name The new name of the channel.
+	 *
+	 * @return mixed
+	 */
+	public static function update( $uid, $name ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-			//check if the channel already exists
+			// check if the channel already exists.
 			foreach ( $channels as $key => $item ) {
 				if ( $item ) {
-					if ( $item['uid'] == $channel ) {
+					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
-						update_option( 'yarns_channels', json_encode( $channels ) );
-
+						update_option( 'yarns_channels', wp_json_encode( $channels ) );
 						return $channels[ $key ];
 					}
 				}
@@ -158,64 +152,59 @@ class Yarns_Microsub_Channels {
 	}
 
 	/**
-	 * Updates the filter options for a channel
+	 * Updates the filter options for a channel.
 	 *
-	 * @param $channel
+	 * @param string $channel The channel ID.
 	 * @param $name
 	 *
 	 * @return mixed
 	 */
 	public static function save_filters() {
-		error_log( 'updating options' );
-		$uid     = sanitize_text_field( $_POST['uid'] );
-		$options = $_POST['options'];
-		//$all_types = Yarns_Microsub_Channels::all_post_types();
-		error_log( 'options = ' . json_encode( $options ) );
+		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
+			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
+			$options = wp_unslash( $_POST['options'] );
+			if ( get_site_option( 'yarns_channels' ) ) {
+				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+				// check if the channel already exists.
+				foreach ( $channels as $key => $item ) {
+					if ( $item ) {
+						if ( $item['uid'] === $uid ) {
+							$channels[ $key ]['post-types'] = $options;
+							update_option( 'yarns_channels', wp_json_encode( $channels ) );
+							echo 'Saved';
 
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-			//check if the channel already exists
-			foreach ( $channels as $key => $item ) {
-				if ( $item ) {
-					if ( $item['uid'] == $uid ) {
-						error_log( 'old options = ' . json_encode( $channels[ $key ]['post-types'] ) );
-						$channels[ $key ]['post-types'] = $options;
-						error_log( json_encode( $channels ) );
-						update_option( 'yarns_channels', json_encode( $channels ) );
-						echo "Saved";
-						wp_die();
-						//return $channels[ $key ];
+						}
 					}
 				}
 			}
 		}
+
+		wp_die();
 	}
 
-	// Returns a list of allowed post-types
+	/**
+	 * Returns a list of allowed post-types
+	 *
+	 * @param string $query_channel The ID of the channel.
+	 *
+	 * @return string|void
+	 */
 	public static function get_post_types( $query_channel ) {
-
-
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-			//return $channels;
 			foreach ( $channels as $key => $channel ) {
-				if ( $channel['uid'] == $query_channel ) {
-
-					//This is the channel to be returned
+				if ( $channel['uid'] === $query_channel ) {
+					// This is the channel to be returned.
 					if ( isset( $channel['post-types'] ) ) {
 						$valid_types = '';
-
 						foreach ( $channel['post-types'] as $type ) {
 							$valid_types .= $type . ',';
 						}
-
 						return $valid_types;
-
 					}
 				}
 			}
 		}
-
 		return;
 	}
 
@@ -235,37 +224,42 @@ class Yarns_Microsub_Channels {
 		before={cursor}
 	*/
 
-
+	/**
+	 * Retrieve Entries in a Channel
+	 *
+	 * @param string $channel The channel ID.
+	 * @param string $after For pagination.
+	 * @param string $before For pagination.
+	 * @param int    $num_posts The number of posts to return.
+	 *
+	 * @return string
+	 */
 	public static function timeline( $channel, $after, $before, $num_posts = 20 ) {
-		//Get all the posts of type yarns_microsub_post
-
 		$valid_types = static::get_post_types( $channel );
-		//return $valid_types;
-
 
 		$args = array(
 			'post_type'                   => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
 			'yarns_microsub_post_channel' => $channel,
 			'yarns_microsub_post_type'    => $valid_types,
-			'posts_per_page'              => $num_posts
+			'posts_per_page'              => $num_posts,
 		);
 
 		$id_list = [];
-		// Pagination
+
+		// Pagination.
 		if ( $after ) {
-			// Fetch additional posts older (lower id) than $after
+			// Fetch additional posts older (lower id) than $after.
 			$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
 		}
 		if ( $before ) {
-			// Check for additional posts newer (higher id) than $before
+			// Check for additional posts newer (higher id) than $before.
 			$new_posts = static::find_newer_posts( $before, $args );
 			if ( $new_posts ) {
 				$id_list = array_merge( $id_list, $new_posts );
 			}
-			//$id_list[] = static::find_newer_posts($before, $args);
 		}
-		// use rsort to sort the list of ids in descending order
+		// use rsort to sort the list of ids in descending order.
 		if ( $id_list ) {
 			if ( is_array( $id_list ) ) {
 				rsort( $id_list );
@@ -273,49 +267,47 @@ class Yarns_Microsub_Channels {
 			$args['post__in'] = $id_list;
 		}
 
-
-		//return $args;
-
-		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
-		$ids            = []; // store a list of post ids returned by the query
+		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
+		$ids            = []; // store a list of post ids returned by the query.
 		$timeline_items = [];
 		$query          = new WP_Query( $args );
 
 		while ( $query->have_posts() ) {
 			$query->the_post();
-
-			$id   = get_the_ID();
-			$item = Yarns_Microsub_Posts::get_single_post( $id );
-
-
+			$id                = get_the_ID();
+			$item              = Yarns_Microsub_Posts::get_single_post( $id );
 			$timeline_items [] = $item;
 			$ids[]             = $id;
 		}
 
 
-		wp_reset_query();
+		wp_reset_postdata();
 
 
-		// Filter our posts that should be omitted
-
-
+		// Filter out posts that should be omitted.
 		if ( $timeline_items ) {
 			$timeline['items']            = $timeline_items;
 			$timeline['paging']['before'] = (string) max( $ids );
-			// Only add 'after' if there are older posts
+			// Only add 'after' if there are older posts.
 			if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 				$timeline['paging']['after'] = (string) min( $ids );
 			}
-
 			return $timeline;
 		}
-
 		return 'error';
 	}
 
-	/* Check if the channel has any posts older than $id */
+
+	/**
+	 * Check if the channel has any posts older than $id
+	 *
+	 * @param int    $id The ID of the post to compare with.
+	 * @param string $channel The channel to check.
+	 *
+	 * @return bool
+	 */
 	private static function older_posts_exist( $id, $channel ) {
-		// see https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts
+		// see https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
 		$post_ids = range( 1, $id - 1 );
 
 		$args = array(
@@ -323,7 +315,7 @@ class Yarns_Microsub_Channels {
 			'post_type'                   => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
 			'yarns_microsub_post_channel' => $channel,
-			'posts_per_page'              => 1
+			'posts_per_page'              => 1,
 		);
 		if ( get_posts( $args ) ) {
 			return true;
@@ -331,102 +323,82 @@ class Yarns_Microsub_Channels {
 	}
 
 
-	/* Following
-
-	action=follow
-
-	GET
-
-	    action=follow
-	    channel={uid}*/
+	/**
+	 * List the feeds being followed in a single channel.
+	 *
+	 * @param string $query_channel The ID of the channel.
+	 *
+	 * @return array|void
+	 */
 	public static function list_follows( $query_channel ) {
-
 		if ( get_site_option( 'yarns_channels' ) ) {
-
-
-			//return json_decode(get_site_option('yarns_channels')); // for debugging
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-
-
 			foreach ( $channels as $key => $channel ) {
-				if ( $channel['uid'] == $query_channel ) {
-					//This is the channel to be returned
+				if ( $channel['uid'] === $query_channel ) {
+					// This is the channel to be returned.
 					if ( isset( $channel['items'] ) ) {
 						return [ 'items' => $channel['items'] ];
 					} else {
-						// testing
-
-						return $channel;
-
-						return; // no subscriptions yet, so return nothing
+						return; // no subscriptions yet, so return nothing.
 					}
 				}
 			}
 		}
-
-		return; // no matches, so return nothing
+		return; // no matches, so return nothing.
 	}
 
 
-	/*POST
 
-	Follow a new URL in a channel. Or unfollow existing URL
-
-	    action=follow
-	    channel={uid}
-	    url={url}
-	*/
-
+	/** Follow a new URL in a channel. Or unfollow existing URL
+	 * @param string $query_channel The channel ID.
+	 * @param string $url The URL to be followed/unfollowed.
+	 * @param bool   $unfollow  Toggle follow vs. unfollow.
+	 *
+	 * @return array|void
+	 */
 	public static function follow( $query_channel, $url, $unfollow = false ) {
 		$url        = stripslashes( $url );
 		$new_follow = [
 			'type' => 'feed',
-			'url'  => $url
+			'url'  => $url,
 		];
-		//$channels = [];
+
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-			// Check if the channel has any subscriptions yet
+			// Check if the channel has any subscriptions yet.
 			foreach ( $channels as $key => $channel ) {
-				if ( $channel['uid'] == $query_channel ) {
+				if ( $channel['uid'] === $query_channel ) {
 					if ( ! array_key_exists( 'items', $channel ) ) {
-						// no subscriptions in this channel yet
+						// no subscriptions in this channel yet.
 						$channels[ $key ]['items'] = [];
 					} else {
-						//Check if the subscription exists in this channel
+						// Check if the subscription exists in this channel.
 						foreach ( $channel['items'] as $channel_key => $feed ) {
-							if ( $feed['url'] == $url ) {
-								error_log( 'already following feed' );
-								error_log( 'unfollow = {$unfollow}' );
-								// already following this feed
-
-								if ( $unfollow == true ) {
-									// if $unfollow == true then remove the feed
-									//return 'key = {$key} | channel_key = {$channel_key}';
+							if ( $feed['url'] === $url ) {
+								// already following this feed.
+								if ( true === $unfollow ) {
+									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
-									update_option( 'yarns_channels', json_encode( $channels ) );
-
+									update_option( 'yarns_channels', wp_json_encode( $channels ) );
 									return;
-
 								} else {
-									// if $unfollow == false then exit early because the subscription already exists
+									// if $unfollow == false then exit early because the subscription already exists.
 									return;
 								}
-
 							}
 						}
 					}
 
-					// Add the new follow to the selected channel
-					if ( $unfollow == false ) {
+					// Add the new follow to the selected channel.
+					if ( false === $unfollow ) {
 						$channels[ $key ]['items'][] = $new_follow;
-						update_option( 'yarns_channels', json_encode( $channels ) );
-						//Now that the new feed is added, poll it right away
+						update_option( 'yarns_channels', wp_json_encode( $channels ) );
+						// Now that the new feed is added, poll it right away.
+						// Get the channel and feed keys.
 						Yarns_Microsub_Aggregator::poll_site( $url, $query_channel );
 
 						return $new_follow;
 					}
-
 				}
 			}
 		}
@@ -434,19 +406,44 @@ class Yarns_Microsub_Channels {
 		return; // channel does not exist, so return nothing
 	}
 
-	/*Unfollowing
-
-	action=unfollow
-
-	POST
-
-	    action=unfollow
-	    channel={uid}
-	    url={url}*/
-	public static function unfollow( $query_channel, $url ) {
-
+	/**
+	 * Return the key for a specific channel.
+	 *
+	 * @param array  $channels      Array of channels.
+	 * @param string $uid           The Channel ID.
+	 *
+	 * @return int|void
+	 */
+	public static function get_channel_key( $channels, $uid ) {
+		foreach ( $channels as $channel_key => $channel ) {
+			if ( isset( $channel['uid'] ) ) {
+				if ( $uid === $channel['uid'] ) {
+					return $channel_key;
+				}
+			}
+		}
+		return;
 	}
 
+	/**
+	 * Return the key for a specific channel.
+	 *
+	 * @param array  $channels      Array of channels.
+	 * @param int    $channel_key   Key for a specific channel.
+	 * @param string $url           URL of a feed.
+	 *
+	 * @return int|void
+	 */
+	public static function get_feed_key( $channels, $channel_key, $url ) {
+		foreach ( $channels[ $channel_key ]['items'] as $feed_key => $feed ) {
+			if ( isset( $feed['url'] ) ) {
+				if ( $url === $feed['url'] ) {
+					return $feed_key;
+				}
+			}
+		}
+		return;
+	}
 
 
 
@@ -465,14 +462,14 @@ class Yarns_Microsub_Channels {
     channel={uid}
     url={url}
 
-	Mute a user in a channel, or with the uid global mutes the user across every channel.
+	Mute a user in a channel, or with the uid global mutes the user across every channel. 
 	*/
 
 	/*Unmute
 
 	POST
 
-	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error.
+	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
 	 */
 
 
@@ -504,8 +501,6 @@ class Yarns_Microsub_Channels {
 		}
 
 		return;
-
-
 	}
 
 
