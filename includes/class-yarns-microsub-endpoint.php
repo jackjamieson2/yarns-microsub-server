@@ -25,16 +25,28 @@ if ( ! defined( 'MICROSUB_TOKEN_ENDPOINT' ) ) {
  * Class Yarns_Microsub_Endpoint
  */
 class Yarns_Microsub_Endpoint {
-
-	// Array of Scopes.
+	/**
+	 * Array of scopes
+	 *
+	 * @var array $scopes
+	 */
 	protected static $scopes;
 
-	// associative array.
+	/**
+	 * Associative array.
+	 *
+	 * @var array $request_headers
+	 */
 	public static $request_headers;
 
-	// associative array, populated by authorize().
+
+	/**
+	 * Associative array, populated by authorize().
+	 *
+	 * @var array $microsub_auth_response
+	 */
 	protected static $microsub_auth_response;
-	
+
 	/**
 	 * Initialize the plugin, registering WordPress hooks
 	 */
@@ -64,19 +76,19 @@ class Yarns_Microsub_Endpoint {
 			)
 		);
 	}
-	
+
 	/**
 	 *  Logs requests for debug purposes.
 	 *
-	 * @param string $request
+	 * @param string $request The rest to be logged.
 	 */
-	public static function log_request($request ) {
+	public static function log_request( $request ) {
 		$message  = 'Request:';
 		$message .= "\nmethod: " . $request->get_method();
 		$message .= "\nparams: " . wp_json_encode( $request->get_params() );
 		error_log( $message );
 	}
-	
+
 	/**
 	 *
 	 * Serves a request.
@@ -101,7 +113,7 @@ class Yarns_Microsub_Endpoint {
 			$user_id = get_current_user_id();
 			// The WordPress IndieAuth plugin uses filters for this.
 			static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-			error_log( 'Scopes: ' . json_encode( static::$scopes ) );
+			error_log( 'Scopes: ' . wp_json_encode( static::$scopes ) );
 			static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
 			if ( ! $user_id ) {
 				static::handle_authorize_error( 401, 'Unauthorized' );
@@ -125,6 +137,7 @@ class Yarns_Microsub_Endpoint {
 					if ( ! self::check_scope( $action ) ) {
 						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 					}
+
 					return Yarns_Microsub_Channels::get();
 				} elseif ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: channels.
@@ -147,7 +160,7 @@ class Yarns_Microsub_Endpoint {
 					}
 				}
 				break;
-				
+
 			case 'timeline':
 				if ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: channels.
@@ -187,6 +200,7 @@ class Yarns_Microsub_Endpoint {
 					if ( ! self::check_scope( $action ) ) {
 						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 					}
+
 					return Yarns_Microsub_Channels::timeline( $request->get_param( 'channel' ), $request->get_param( 'after' ), $request->get_param( 'before' ) );
 				}
 
@@ -197,16 +211,18 @@ class Yarns_Microsub_Endpoint {
 				if ( ! self::check_scope( $action ) ) {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
+
 				return Yarns_Microsub_Parser::search( $request->get_param( 'query' ) );
-				
+
 			case 'preview':
 				// REQUIRED SCOPE: follow.
 				$action = 'follow';
 				if ( ! self::check_scope( $action ) ) {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
+
 				return Yarns_Microsub_Parser::preview( $request->get_param( 'url' ) );
-				
+
 			case 'follow':
 				if ( 'GET' === $request->get_method() ) {
 					// REQUIRED SCOPE: read.
@@ -217,7 +233,7 @@ class Yarns_Microsub_Endpoint {
 
 					// return a list of feeds being followed in the given channel.
 					return Yarns_Microsub_Channels::list_follows( $request->get_param( 'channel' ) );
-					
+
 				} elseif ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: follow.
 					$action = 'follow';
@@ -228,30 +244,35 @@ class Yarns_Microsub_Endpoint {
 					// follow a new URL in the channel.
 					return Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ) );
 				}
+				break;
 			case 'unfollow':
-				// REQUIRED SCOPE: follow
+				// REQUIRED SCOPE: follow.
 				$action = 'follow';
 				if ( ! self::check_scope( $action ) ) {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
+
 				return Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ), $unfollow = true );
 			case 'poll-test':
-				// REQUIRED SCOPE: local auth
+				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
+
 				return Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) );
 			case 'test':
-				// REQUIRED SCOPE: local auth
+				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
+
 				return test();
 			case 'delete_all':
 				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
+
 				return Yarns_Microsub_Posts::delete_all_posts( $request->get_param( 'channel' ) );
 			default:
 				// The action was not recognized.
@@ -260,6 +281,12 @@ class Yarns_Microsub_Endpoint {
 
 	}
 
+	/**
+	 * Handle authorization errors.
+	 *
+	 * @param string $code  Error code.
+	 * @param string $msg   Error message.
+	 */
 	private static function handle_authorize_error( $code, $msg ) {
 		$home = untrailingslashit( home_url() );
 		if ( 'http://localhost' === $home ) {
@@ -267,13 +294,13 @@ class Yarns_Microsub_Endpoint {
 				'WARNING: ' . $code . ' ' . $msg .
 				". Allowing only because this is localhost.\n"
 			);
+
 			return;
 		}
 		static::respond( $code, $msg );
 	}
 
 
-	
 	/**
 	 * The Microsub autodiscovery meta-tags
 	 */
@@ -286,15 +313,13 @@ class Yarns_Microsub_Endpoint {
 	 * The Microsub autodiscovery http-header
 	 */
 	public static function http_header() {
-
 		header( sprintf( 'Link: <%s>; rel="microsub"', static::get_microsub_endpoint() ), false );
-
 	}
-	
 
-	
-	/** Wrappers for WordPress/PHP functions so we can mock them for unit tests.
-	(Copied from wordpress-micropub plugin)
+
+	/**
+	 * Wrappers for WordPress/PHP functions so we can mock them for unit tests.
+	 * (Copied from wordpress-micropub plugin)
 	 **/
 	protected static function respond( $code, $resp = null, $args = null ) {
 		status_header( $code );
@@ -318,6 +343,7 @@ class Yarns_Microsub_Endpoint {
 				static::$request_headers[ strtolower( $key ) ] = $value;
 			}
 		}
+
 		return static::$request_headers[ strtolower( $name ) ];
 	}
 
@@ -349,15 +375,14 @@ class Yarns_Microsub_Endpoint {
 		if ( is_array( $array ) ) {
 			return isset( $array[ $key ] ) ? $array[ $key ] : $default;
 		}
+
 		return $default;
 	}
 
 	private static function authorize() {
 		// find the access token.
 		$auth = static::get_header( 'authorization' );
-		//error_log( 'Auth: ' . $auth );
 		$token = self::get_token( $_POST, 'access_token' );
-		//error_log ("Token: ". $token);
 		if ( ! $auth && ! $token ) {
 			static::handle_authorize_error( 401, 'missing access token' );
 		}
@@ -371,19 +396,14 @@ class Yarns_Microsub_Endpoint {
 				),
 			)
 		);
-		error_log( 'Resp: ' . json_encode( $resp ) );
 		if ( is_wp_error( $resp ) ) {
 			static::handle_authorize_error( 502, "couldn't validate token: " . implode( ' , ', $resp->get_error_messages() ) );
 		}
 
 		$code = wp_remote_retrieve_response_code( $resp );
-		error_log( 'code: ' . $code );
 		$body = wp_remote_retrieve_body( $resp );
-		error_log( 'body: ' . $body );
 		$params = json_decode( $body, true );
-		error_log( 'params: ' . json_encode( $params ) );
 		static::$scopes = explode( ' ', $params['scope'] );
-		error_log( 'scopes: ' . json_encode( static::$scopes ) );
 		if ( (int) ( $code / 100 ) !== 2 ) {
 			static::handle_authorize_error(
 				$code,
@@ -397,54 +417,48 @@ class Yarns_Microsub_Endpoint {
 		}
 
 		$me = untrailingslashit( $params['me'] );
-		error_log( 'me: ' . $me );
 
 		static::$microsub_auth_response = $params;
 
 		// look for a user with the same url as the token's `me` value.
 		$user = static::user_url( $me );
-		error_log( 'user: ' . $user );
 		if ( $user ) {
 			return $user;
 		}
 
 		// no user with that url. if the token is for this site itself, allow it and
-		// post as the default user
+		// post as the default user.
 		$home = untrailingslashit( home_url() );
-		error_log( 'home: ' . $home );
 		if ( $home !== $me ) {
 			static::handle_authorize_error(
 				401,
 				'access token URL ' . $me . " doesn't match site " . $home . ' or any user'
 			);
 		}
-
 		return null;
 	}
 
 	/**
 	 * Check scope
 	 *
-	 * @param string $scope
+	 * @param string $scope The name of the scope.
 	 *
 	 * @return boolean
-	**/
+	 **/
 	protected static function check_scope( $scope ) {
-		error_log( 'checking for scope {$scope}' );
 		if ( MICROSUB_LOCAL_AUTH === 1 ) {
 			return true;
 		}
-
 		return in_array( $scope, static::$scopes, true );
 	}
 
 	/**
 	 * Try to match a user with a URL with or without trailing slash.
 	 *
-	 * @param string $me URL to match
+	 * @param string $me URL to match.
 	 *
 	 * @return null|int Return user ID if matched or null
-	**/
+	 **/
 	public static function user_url( $me ) {
 		if ( ! isset( $me ) ) {
 			return null;
@@ -462,12 +476,17 @@ class Yarns_Microsub_Endpoint {
 				return $user->ID;
 			}
 		}
+
 		return null;
 	}
 
 	/**
 	 * Store the return of the authorization endpoint as post metadata. Details:
-	 * https://tokens.indieauth.com/
+	 * https://tokens.indieauth.com/.
+	 *
+	 * @param array $args Array of arguments.
+	 *
+	 * @return array
 	 */
 	public static function store_micropub_auth_response( $args ) {
 		$micropub_auth_response = static::$micropub_auth_response;
@@ -475,13 +494,13 @@ class Yarns_Microsub_Endpoint {
 			$args['meta_input']                           = self::get( $args, 'meta_input' );
 			$args['meta_input']['micropub_auth_response'] = $micropub_auth_response;
 		}
+
 		return $args;
 	}
 
 
 	/**
 	 * Return Microsub Endpoint
-	 *
 	 *
 	 * @return string the Microsub endpoint
 	 */

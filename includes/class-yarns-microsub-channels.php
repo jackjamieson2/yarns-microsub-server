@@ -1,15 +1,11 @@
 <?php
+
 /**
  * Microsub channels class
  *
  * @author Jack Jamieson
- *
  */
-
 class Yarns_Microsub_Channels {
-/*
- * @@todo: add unread counts to each channel.
- */
 
 	/**
 	 * Returns a list of the channels
@@ -17,6 +13,8 @@ class Yarns_Microsub_Channels {
 	 * @param bool $details Whether or not to return details about the channels.
 	 *
 	 * @return array
+	 *
+	 * @@todo: add unread counts to each channel.
 	 */
 	public static function get( $details = false ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
@@ -81,13 +79,14 @@ class Yarns_Microsub_Channels {
 			}
 		}
 		update_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
+
 		return 'deleted';
 	}
 
 
-	//Add a channel
-
 	/**
+	 * Add a new channel
+	 *
 	 * @param string $new_channel_name Name of the new channel.
 	 *
 	 * @return array
@@ -119,7 +118,7 @@ class Yarns_Microsub_Channels {
 		];
 
 		$channels[] = $new_channel;
-		update_option( 'yarns_channels', json_encode( $channels ) );
+		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 		return $new_channel;
 	}
@@ -142,6 +141,7 @@ class Yarns_Microsub_Channels {
 					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
 						update_option( 'yarns_channels', wp_json_encode( $channels ) );
+
 						return $channels[ $key ];
 					}
 				}
@@ -154,15 +154,12 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Updates the filter options for a channel.
 	 *
-	 * @param string $channel The channel ID.
-	 * @param $name
-	 *
 	 * @return mixed
 	 */
 	public static function save_filters() {
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options = wp_unslash( $_POST['options'] );
+			$options = sanitize_text_field( wp_unslash( $_POST['options'] ) );
 			if ( get_site_option( 'yarns_channels' ) ) {
 				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
@@ -172,7 +169,6 @@ class Yarns_Microsub_Channels {
 							$channels[ $key ]['post-types'] = $options;
 							update_option( 'yarns_channels', wp_json_encode( $channels ) );
 							echo 'Saved';
-
 						}
 					}
 				}
@@ -200,37 +196,23 @@ class Yarns_Microsub_Channels {
 						foreach ( $channel['post-types'] as $type ) {
 							$valid_types .= $type . ',';
 						}
+
 						return $valid_types;
 					}
 				}
 			}
 		}
+
 		return;
 	}
 
-	/*
-	action=timeline
-	Retrieve Entries in a Channel
-
-	GET
-
-	Retrieve the entries in a given channel.
-
-	Parameters:
-
-		action=timeline
-		channel={uid}
-		after={cursor}
-		before={cursor}
-	*/
-
 	/**
-	 * Retrieve Entries in a Channel
+	 * Retrieve Entries in a Channel (Timeline endpoint action)
 	 *
 	 * @param string $channel The channel ID.
 	 * @param string $after For pagination.
 	 * @param string $before For pagination.
-	 * @param int    $num_posts The number of posts to return.
+	 * @param int $num_posts The number of posts to return.
 	 *
 	 * @return string
 	 */
@@ -292,8 +274,10 @@ class Yarns_Microsub_Channels {
 			if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 				$timeline['paging']['after'] = (string) min( $ids );
 			}
+
 			return $timeline;
 		}
+
 		return 'error';
 	}
 
@@ -301,7 +285,7 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Check if the channel has any posts older than $id
 	 *
-	 * @param int    $id The ID of the post to compare with.
+	 * @param int $id The ID of the post to compare with.
 	 * @param string $channel The channel to check.
 	 *
 	 * @return bool
@@ -344,15 +328,16 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
+
 		return; // no matches, so return nothing.
 	}
 
 
-
 	/** Follow a new URL in a channel. Or unfollow existing URL
+	 *
 	 * @param string $query_channel The channel ID.
 	 * @param string $url The URL to be followed/unfollowed.
-	 * @param bool   $unfollow  Toggle follow vs. unfollow.
+	 * @param bool $unfollow Toggle follow vs. unfollow.
 	 *
 	 * @return array|void
 	 */
@@ -380,6 +365,7 @@ class Yarns_Microsub_Channels {
 									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
 									update_option( 'yarns_channels', wp_json_encode( $channels ) );
+
 									return;
 								} else {
 									// if $unfollow == false then exit early because the subscription already exists.
@@ -409,8 +395,8 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array  $channels      Array of channels.
-	 * @param string $uid           The Channel ID.
+	 * @param array $channels Array of channels.
+	 * @param string $uid The Channel ID.
 	 *
 	 * @return int|void
 	 */
@@ -422,15 +408,16 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
+
 		return;
 	}
 
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array  $channels      Array of channels.
-	 * @param int    $channel_key   Key for a specific channel.
-	 * @param string $url           URL of a feed.
+	 * @param array $channels Array of channels.
+	 * @param int $channel_key Key for a specific channel.
+	 * @param string $url URL of a feed.
 	 *
 	 * @return int|void
 	 */
@@ -442,42 +429,43 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
+
 		return;
 	}
 
 
 
-	/*    Muting
+	/*
+	@@todo Add ability to mute feeds in a channel
 
 	GET
-
 	action=mute
 	channel={uid}
-
-	Retrieve the list of users that are muted in the given channel.*/
-
-	/*POST
-
-    action=mute
-    channel={uid}
-    url={url}
-
-	Mute a user in a channel, or with the uid global mutes the user across every channel. 
-	*/
-
-	/*Unmute
+	Retrieve the list of users that are muted in the given channel.
 
 	POST
+	action=mute
+	channel={uid}
+	url={url}
+	Mute a user in a channel, or with the uid global mutes the user across every channel.
 
-	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error. 
+
+	Unmute
+	POST
+	To unmute a user, use action=unmute and provide the URL of the account to unmute. Unmuting an account that was previously not muted has no effect and should not be considered an error.
 	 */
 
 
-	// Returns a list of post ids that are newer
+	/**
+	 * Returns a list of post ids that are newer than $before
+	 *
+	 * @param int   $before ID of the post to use for comparison.
+	 * @param array $args Arguments array.
+	 *
+	 * @return array|void
+	 */
 	public static function find_newer_posts( $before, $args ) {
-
 		$args['posts_per_page'] = - 1;
-
 		$query = new WP_Query( $args );
 
 		while ( $query->have_posts() ) {
@@ -486,45 +474,50 @@ class Yarns_Microsub_Channels {
 			$id    = get_the_ID();
 			$ids[] = $id;
 		}
-		wp_reset_query();
+		wp_reset_postdata();
 
-
-		// Only keep ids that are newer (higher) than $before
+		// Only keep ids that are newer (higher) than $before.
 		if ( $ids ) {
 			foreach ( $ids as $key => $id ) {
 				if ( ! $id > $before ) {
 					unset( $ids['$key'] );
 				}
 			}
-
 			return $ids;
 		}
-
 		return;
 	}
 
 
+	/**
+	 * Generate a random UID, ensuring it is unique.
+	 *
+	 * @return string
+	 */
 	private static function generate_uid() {
 		$uid = uniqid();
 
-		// Confirm the uid is unique (it always should be, but just in case)
+		// Confirm the uid is unique (it always should be, but just in case).
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ) );
-			//check if the channel already exists
+			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
-					if ( $item->uid == $uid ) {
-						// the $uid already exists, so make a new one
+					if ( $item->uid === $uid ) {
+						// the $uid already exists, so make a new one.
 						$uid = static::generate_uid();
 					}
 				}
 			}
 		}
-
 		return $uid;
 	}
 
-
+	/**
+	 * Returns an array of all post types recognized by Yarns.
+	 *
+	 * @return array
+	 */
 	public static function all_post_types() {
 		return array(
 			'photo',
@@ -537,7 +530,7 @@ class Yarns_Microsub_Channels {
 			'reply',
 			'like',
 			'bookmark',
-			'other'
+			'other',
 		);
 	}
 }
