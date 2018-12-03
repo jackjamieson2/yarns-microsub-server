@@ -306,8 +306,8 @@ class Parse_This_HTML {
 		);
 		$urls             = array();
 		foreach ( $xpath->query( '//a' ) as $link ) {
-			$url       = WP_Http::make_absolute_url( $link->getAttribute( 'href' ), $url );
-			$urls[]    = wp_http_validate_url( $url );
+			$u         = WP_Http::make_absolute_url( $link->getAttribute( 'href' ), $url );
+			$urls[]    = wp_http_validate_url( $u );
 			$extension = pathinfo( wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_EXTENSION );
 			if ( in_array( $extension, $audio_extensions, true ) ) {
 				$audios[] = $url;
@@ -454,7 +454,7 @@ class Parse_This_HTML {
 			$jf2['video'] = $raw['videos'];
 		}
 		//  If Site Name is not set use domain name less www
-		if ( ! isset( $jf2['publication'] ) ) {
+		if ( ! isset( $jf2['publication'] ) && isset( $jf2['url'] ) ) {
 			$jf2['publication'] = preg_replace( '/^www\./', '', wp_parse_url( $jf2['url'], PHP_URL_HOST ) );
 		}
 
