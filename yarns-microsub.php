@@ -85,10 +85,27 @@ class Yarns_MicroSub_Plugin {
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
 		// Set up cron job to check for posts.
+		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
 		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
-			wp_schedule_event( time(), 'hourly', 'yarns_microsub_server_cron' );
+			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
 		}
 		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
+	}
+
+
+	/**
+	 * Defines the interval for the cron job (15 minutes).
+	 *
+	 * @param array $schedules
+	 *
+	 * @return mixed
+	 */
+	public static function cron_definer($schedules){
+		$schedules['15mins'] = array(
+			'interval' => 900,
+			'display'  => __( 'Once Every 15 Minutes' ),
+		);
+		return $schedules;
 	}
 
 
