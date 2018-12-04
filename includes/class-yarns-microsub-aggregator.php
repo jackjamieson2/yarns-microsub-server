@@ -49,7 +49,7 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function poll() {
 		$poll_start_time = time();
-		$poll_time_limit = 600; // execution time limit in seconds.
+		$poll_time_limit = 60; // execution time limit in seconds.
 		/* todo: Figure out a good time limit and cron schedule.*/
 
 		$results = [];
@@ -105,8 +105,9 @@ class Yarns_Microsub_Aggregator {
 	 * @return array
 	 */
 	public static function poll_site( $url, $channel_uid ) {
-		$site_results = [];
-		$feed         = Yarns_Microsub_Parser::parse_feed( $url, 20 );
+		$site_results             = [];
+		$site_results['feed url'] = $url;
+		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
 
 		// If this is a preview return the feed as is.
 		if ( '_preview' === $channel_uid ) {
@@ -195,9 +196,28 @@ class Yarns_Microsub_Aggregator {
 					$empty_poll_count = 0;
 				}
 			}
+		} else {
+			// If the poll frequency isn't valid, then initialize it.
+			$poll_frequency = $poll_frequencies[0];
 		}
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = $empty_poll_count;
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = $poll_frequency;
+
+		// Log each poll attempt for debugging.
+		if ( get_site_option( 'yarns_poll_log' ) ) {
+			$poll_log = json_decode( get_site_option( 'yarns_poll_log' ), true );
+		}
+		$this_poll                      = [];
+		$this_poll['date']              = date( 'Y-m-d H:i:s' );
+		$this_poll['url']               = $url;
+		$this_poll['channel_uid']       = $channel_uid;
+		$this_poll['_empty_poll_count'] = $empty_poll_count;
+		$this_poll['_poll_frequency']   = $poll_frequency;
+		$this_poll['_n_posts_added']    = $n_posts_added;
+		$poll_log[]                     = $this_poll;
+		update_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
+
+
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 	}
 
