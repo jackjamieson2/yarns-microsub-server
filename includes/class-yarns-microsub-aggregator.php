@@ -14,6 +14,14 @@ class Yarns_Microsub_Aggregator {
 	 * @return bool
 	 */
 	public static function exists( $permalink, $channel ) {
+		// If a post has multiple permalinks, check each of them
+		if ( is_array( $permalink ) ) {
+			foreach ( $permalink as $single_url ) {
+				if ( get_page_by_title( $channel . '|' . $single_url, OBJECT, 'yarns_microsub_post' ) ) {
+					return true;
+				}
+			}
+		}
 		if ( get_page_by_title( $channel . '|' . $permalink, OBJECT, 'yarns_microsub_post' ) ) {
 			return true;
 		}
@@ -108,16 +116,23 @@ class Yarns_Microsub_Aggregator {
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $post ) {
-				if ( isset( $post['url'] ) ) {
-					if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
-						$site_results[] = $post['url']; // this is just returned for debugging when manually polling.
+				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
+					if ( 'entry' === $post['type'] ) {
+						if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
+							$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
+						}
 					}
 				}
 			}
 		}
-		$n_posts_added = count( $site_results );
+		if ( isset( $site_results['items'] ) ) {
+			$n_posts_added = count( $site_results['items'] );
+		} else {
+			$n_posts_added = 0;
+		}
+
+		// @todo: Get etag from $feed array and pass to update_polling_frequencies
 		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added );
-		//static::update_polling_frequencies( $channels, $channel_key, $feed_key, $n_posts_added );
 
 		return $site_results;
 	}
