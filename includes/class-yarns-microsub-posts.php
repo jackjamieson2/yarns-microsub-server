@@ -22,7 +22,7 @@ class Yarns_Microsub_Posts {
 					'name'          => __( 'Yarns Microsub Posts' ),
 					'singular_name' => __( 'Yarns Microsub Post' ),
 				),
-				'public'      => true,
+				'public'      => false,
 				'has_archive' => false,
 				'rewrite'     => array( 'slug' => 'yarns_post' ),
 			)
@@ -33,6 +33,7 @@ class Yarns_Microsub_Posts {
 			'yarns_microsub_post_channel',  // The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces).
 			'yarns_microsub_post',       // post type name.
 			array(
+				'public'      => false,
 				'hierarchical' => false,
 				'label'        => 'Channel',  // Display name.
 				'query_var'    => true,
@@ -47,6 +48,7 @@ class Yarns_Microsub_Posts {
 			'yarns_microsub_post_type',  // The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces)..
 			'yarns_microsub_post',       // post type name.
 			array(
+				'public'      => false,
 				'hierarchical' => false,
 				'label'        => 'Type',  // Display name.
 				'query_var'    => true,
