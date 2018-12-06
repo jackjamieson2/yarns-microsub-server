@@ -45,17 +45,25 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
-		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to' ];
+		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to', 'listen-of' ];
 		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
 		// so reduce them to the url.
 		foreach ( $ref_types as $ref_type ) {
-			if ( isset( $data[ $ref_type ]['url'] ) ) {
-				$data[ $ref_type ] = $data[ $ref_type ]['url'];
+			if ( isset( $data[ $ref_type ] ) ) {
+				if ( is_array( $data[ $ref_type ] ) ) {
+					if ( isset( $data[ $ref_type ]['url'] ) ) {
+						$data[ $ref_type ] = $data[ $ref_type ]['url'];
+					} else {
+						$data [ $ref_type ] = wp_json_encode( $data[ $ref_type ] );
+					}
+				}
 			}
 		}
-		$data = encode_array( array_filter( $data ) );
-
+		if ( is_array( $data ) ) {
+			$data = encode_array( array_filter( $data ) );
+		}
 		return $data;
+
 	}
 
 
@@ -111,8 +119,15 @@ class Yarns_Microsub_Parser {
 		$parse->fetch();
 		$parse->parse( $args );
 
-		return $parse->get();
+		$feed = $parse->get();
 
+		if ( isset( $feed['items'] ) ) {
+			foreach ( $feed['items'] as $key => $feeditem ) {
+				$feed['items'][ $key ] = static::clean_post( $feeditem );
+			}
+		}
+
+		return $feed;
 	}
 
 
