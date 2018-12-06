@@ -8,7 +8,7 @@ class Yarns_Microsub_Parser {
 	/**
 	 * Final clean up on post content before saving.
 	 *
-	 * @param string $data The post data to be cleaned.
+	 * @param array $data The post data to be cleaned.
 	 *
 	 * @return mixed
 	 */
@@ -106,14 +106,23 @@ class Yarns_Microsub_Parser {
 	 *
 	 * @return array|void
 	 */
-	public static function parse_feed( $url, $count = 20 ) {
+	public static function parse_feed( $url, $count = 20, $preview = false ) {
+		$parse_start_time = time();
 		if ( ! $url ) {
 			return;
 		}
 		$args = array(
 			'alternate' => false,
 			'feed'      => true,
+			'follow'    => true,
+			'limit'     => $count,
 		);
+
+		if ( true === $preview ) {
+			// When follow == true, Parse-This does some extra fetching to get an author hcard.
+			// Previews should be fast, so skip this step.
+			$args['follow'] = false;
+		}
 
 		$parse = new Parse_This( $url );
 		$parse->fetch();
