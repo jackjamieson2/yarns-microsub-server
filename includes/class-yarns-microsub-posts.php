@@ -63,10 +63,16 @@ class Yarns_Microsub_Posts {
 	 * Add a new post parsed from a feed.
 	 *
 	 * @param string $permalink The permalink of the source post.
-	 * @param array $post The post data.
+	 * @param array  $post The post data.
 	 * @param string $channel The channel to save the post to.
 	 */
 	public static function add_post( $permalink, $post, $channel ) {
+		// In rare cases, a post may have multiple permalinks, in which case $permalink will be an array.
+		// If that happens, use the first array item in the post title.
+		if ( is_array( $permalink ) ) {
+			$permalink = $permalink[0];
+		}
+
 		$my_post = array(
 			'post_type'   => 'yarns_microsub_post',
 			'post_title'  => $channel . '|' . $permalink,
