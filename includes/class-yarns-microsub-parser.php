@@ -135,6 +135,9 @@ class Yarns_Microsub_Parser {
 				$feed['items'][ $key ] = static::clean_post( $feeditem );
 			}
 		}
+		$parse_end_time      = time();
+		$parse_duration      = $parse_end_time - $parse_start_time;
+		$feed['_parse_time'] = $parse_duration;
 
 		return $feed;
 	}
