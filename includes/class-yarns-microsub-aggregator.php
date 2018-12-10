@@ -69,9 +69,17 @@ class Yarns_Microsub_Aggregator {
 								static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
-								if ( $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid, $channels, $channel_key, $feed_key );
-								}
+								//if ( $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
+									// If this feed has stored etag and/or last-modified response headers, send them.
+
+									if ( isset( $feed['_response_headers'] ) ) {
+										$conditions = $feed['_response_headers'];
+
+									} else {
+										$conditions = null;
+									}
+									$results[] = static::poll_site( $feed['url'], $channel_uid, $conditions );
+								//}
 							}
 
 							// exit early if polling is taking a long time.
@@ -104,10 +112,26 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid ) {
+	public static function poll_site( $url, $channel_uid, $conditions = null) {
+
 		$site_results             = [];
 		$site_results['feed url'] = $url;
-		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
+
+		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20, false, $conditions);
+
+
+		if ( isset( $feed['_parse_time'] ) ) {
+			$site_results['_parse_time'] = $feed['_parse_time'];
+		}
+		if ( isset( $feed['_response_headers'] ) ) {
+			$site_results['_response_headers'] = $feed['_response_headers'];
+		}
+		if ( $conditions ) {
+			$site_results['_request_conditions'] = $conditions;
+		}
+
+
+
 
 		// If this is a preview return the feed as is.
 		if ( '_preview' === $channel_uid ) {
@@ -133,7 +157,12 @@ class Yarns_Microsub_Aggregator {
 		}
 
 		// @todo: Get etag from $feed array and pass to update_polling_frequencies
-		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added );
+		$response_headers = [];
+		if (!empty($feed['_response_headers'])){
+			$response_headers = $feed['_response_headers'];
+		}
+
+		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added, $response_headers );
 
 		return $site_results;
 	}
@@ -162,8 +191,10 @@ class Yarns_Microsub_Aggregator {
 	 * @param string $channel_uid       Channel UID.
 	 * @param string $url               URL of the site.
 	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
+	 *
+	 * @todo: add param to store etag of the most recent fetch.
 	 */
-	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added ) {
+	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $response_headers ) {
 		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
@@ -202,6 +233,13 @@ class Yarns_Microsub_Aggregator {
 		}
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = $empty_poll_count;
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = $poll_frequency;
+
+
+		//if (!empty($response_headers)){
+			$channels[ $channel_key ]['items'][ $feed_key ]['_response_headers'] = $response_headers;
+		//}
+
+
 
 		// Log each poll attempt for debugging.
 		if ( get_site_option( 'yarns_poll_log' ) ) {

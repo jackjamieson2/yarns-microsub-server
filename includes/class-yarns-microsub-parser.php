@@ -106,7 +106,7 @@ class Yarns_Microsub_Parser {
 	 *
 	 * @return array|void
 	 */
-	public static function parse_feed( $url, $count = 20, $preview = false ) {
+	public static function parse_feed( $url, $count = 20, $preview = false, $conditions = null ) {
 		$parse_start_time = time();
 		if ( ! $url ) {
 			return;
@@ -125,11 +125,18 @@ class Yarns_Microsub_Parser {
 		}
 
 		$parse = new Parse_This( $url );
-		$parse->fetch();
+
+		$parse->fetch( $conditions );
+
+		$response_headers = $parse->get_response_headers();
+
+
 		$parse->parse( $args );
 
 		$feed = $parse->get();
 
+		$feed['_response_headers'] = $response_headers;
+/*
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $key => $feeditem ) {
 				$feed['items'][ $key ] = static::clean_post( $feeditem );
@@ -138,8 +145,11 @@ class Yarns_Microsub_Parser {
 		$parse_end_time      = time();
 		$parse_duration      = $parse_end_time - $parse_start_time;
 		$feed['_parse_time'] = $parse_duration;
-
+		$feed['_conditions'] = $conditions;
+*/
 		return $feed;
+
+
 	}
 
 
