@@ -202,13 +202,22 @@ class Yarns_Microsub_Posts {
 	/**
 	 * Parses json and returns array for a single post
 	 *
-	 * @param int $id The ID of the post to retrieve.
+	 * @param int   $id The ID of the post to retrieve.
+	 * @param mixed $channel (Optional) Channel of the post (for filtering).
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public static function get_single_post( $id ) {
+	public static function get_single_post( $id, $channel = null ) {
+		if ( null !== $channel ) {
+			$terms = wp_get_post_terms( $id, 'yarns_microsub_post_channel', array( 'fields' => 'names' ) );
+			if ( ! empty( $terms[0] ) ) {
+				if ( $terms[0] !== $channel ) {
+					// The requested channel does not match the returned post, so return nothing.
+					return;
+				}
+			}
+		}
 		$post = get_post_meta( $id, 'yarns_microsub_json', true );
-
 		if ( ! is_array( $post ) ) {
 			$post = stripcslashes( $post );
 		}

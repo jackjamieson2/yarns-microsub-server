@@ -257,7 +257,7 @@ class Yarns_Microsub_Channels {
 		while ( $query->have_posts() ) {
 			$query->the_post();
 			$id                = get_the_ID();
-			$item              = Yarns_Microsub_Posts::get_single_post( $id );
+			$item              = Yarns_Microsub_Posts::get_single_post( $id, $channel );
 			$timeline_items [] = $item;
 			$ids[]             = $id;
 		}
@@ -268,14 +268,15 @@ class Yarns_Microsub_Channels {
 
 		// Filter out posts that should be omitted.
 		if ( $timeline_items ) {
-			$timeline['items']            = $timeline_items;
-			$timeline['paging']['before'] = (string) max( $ids );
-			// Only add 'after' if there are older posts.
-			if ( self::older_posts_exist( min( $ids ), $channel ) ) {
-				$timeline['paging']['after'] = (string) min( $ids );
+			if ( is_array( $timeline_items ) ) {
+				$timeline['items']            = array_filter( $timeline_items );
+				$timeline['paging']['before'] = (string) max( $ids );
+				// Only add 'after' if there are older posts.
+				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
+					$timeline['paging']['after'] = (string) min( $ids );
+				}
+				return $timeline;
 			}
-
-			return $timeline;
 		}
 
 		return 'error';
