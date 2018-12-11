@@ -198,12 +198,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "e63d1a51473416e0d6000d601bcdc2cfebbc36ce"
+            "reference": "e950af3f274c65f565550356f94a97684186d6a5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/e63d1a51473416e0d6000d601bcdc2cfebbc36ce",
-            "reference": "e63d1a51473416e0d6000d601bcdc2cfebbc36ce",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/e950af3f274c65f565550356f94a97684186d6a5",
+            "reference": "e950af3f274c65f565550356f94a97684186d6a5",
             "shasum": ""
         },
         "require": {
@@ -220,7 +220,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2018-12-06T01:17:36+00:00",
+        "time": "2018-12-07T00:06:55+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
