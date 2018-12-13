@@ -15,20 +15,13 @@ class Parse_This_RSS {
 		$items     = array();
 		$rss_items = $feed->get_items();
 		$title     = $feed->get_title();
-		if ( $feed->get_type() & SIMPLEPIE_TYPE_NONE ) {
-			$type = 'unknown';
-		} elseif ( $feed->get_type() & SIMPLEPIE_TYPE_RSS_ALL ) {
-			$type = 'RSS';
-		} elseif ( $feed->get_type() & SIMPLEPIE_TYPE_ATOM_ALL ) {
-			$type = 'atom';
-		}
 		foreach ( $rss_items as $item ) {
 			$items[] = self::get_item( $item, $title );
 		}
 		return array_filter(
 			array(
 				'type'       => 'feed',
-				'_feed_type' => $type,
+				'_feed_type' => self::get_type( $feed ),
 				'summary'    => $feed->get_description(),
 				'author'     => self::get_author( $feed->get_author() ),
 				'name'       => $title,
@@ -37,6 +30,16 @@ class Parse_This_RSS {
 				'items'      => $items,
 			)
 		);
+	}
+
+	public static function get_type( $feed ) {
+		if ( $feed->get_type() & SIMPLEPIE_TYPE_NONE ) {
+			return 'unknown';
+		} elseif ( $feed->get_type() & SIMPLEPIE_TYPE_RSS_ALL ) {
+			return 'RSS';
+		} elseif ( $feed->get_type() & SIMPLEPIE_TYPE_ATOM_ALL ) {
+			return 'atom';
+		}
 	}
 
 	/*

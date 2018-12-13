@@ -533,10 +533,13 @@ class Parse_This_MF2 {
 	public static function parse( $input, $url, $args = array() ) {
 		$defaults = array(
 			'alternate' => true, // Use rel-alternate if set for jf2 or mf2
-			'feed'      => false, // Return entire feed if found
+			'return'    => 'single',
 			'follow'    => false, // Follow author links and return parsed data
 		);
 		$args     = wp_parse_args( $args, $defaults );
+		if ( ! in_array( $args['return'], array( 'single', 'feed' ), true ) ) {
+			$args['return'] = 'single';
+		}
 		// Normalize all urls to ensure comparisons
 		$url = normalize_url( $url );
 		if ( ! class_exists( 'Mf2\Parser' ) ) {
@@ -590,7 +593,7 @@ class Parse_This_MF2 {
 					$check = self::urls_match( $url, $parsed['url'] );
 				}
 				if ( $check ) {
-					if ( ! $args['feed'] ) {
+					if ( 'feed' !== $args['return'] ) {
 						return $parsed;
 					}
 					if ( 'card' === $parsed['type'] ) {
@@ -619,7 +622,7 @@ class Parse_This_MF2 {
 			'items' => array(),
 		);
 		$data['name'] = self::get_plaintext( $entry, 'name' );
-		if ( isset( $entry['children'] ) && $args['feed'] ) {
+		if ( isset( $entry['children'] ) && 'feed' === $args['return'] ) {
 			$data['items'] = self::parse_children( $entry['children'], $mf, $args );
 		}
 		return array_filter( $data );
@@ -633,7 +636,10 @@ class Parse_This_MF2 {
 			if ( isset( $args['limit'] ) && $args['limit'] === $index ) {
 				continue;
 			}
-			$items[] = self::parse_item( $child, $mf, $args );
+			$item = self::parse_item( $child, $mf, $args );
+			if ( 'feed' !== $item['type'] ) {
+				$items[] = $item;
+			}
 			$index++;
 		}
 		return array_filter( $items );
@@ -641,7 +647,7 @@ class Parse_This_MF2 {
 
 	public static function parse_item( $item, $mf, $args ) {
 		if ( self::is_type( $item, 'h-feed' ) ) {
-			if ( 1 !== count( $item['children'] ) ) {
+			if ( isset( $item['children'] ) && 1 !== count( $item['children'] ) ) {
 				return self::parse_hfeed( $item, $mf, $args );
 			} else {
 				return self::parse_item( $item['children'][0], $args );
@@ -747,7 +753,7 @@ class Parse_This_MF2 {
 		$data['type'] = 'card';
 		if ( isset( $hcard['children'] ) ) {
 			// In the case of sites like tantek.com where multiple feeds are nested inside h-card if it is a feed request return only the first feed
-			if ( $args['feed'] && self::is_type( $hcard['children'][0], 'h-feed' ) ) {
+			if ( 'feed' === $args['return'] && self::is_type( $hcard['children'][0], 'h-feed' ) ) {
 				$feed = self::parse_hfeed( $hcard['children'][0], $mf, $args );
 				unset( $data['children'] );
 				$feed['author'] = $data;
