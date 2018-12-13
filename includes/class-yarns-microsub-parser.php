@@ -113,7 +113,7 @@ class Yarns_Microsub_Parser {
 		}
 		$args = array(
 			'alternate' => false,
-			'feed'      => true,
+			'return'      => 'feed',
 			'follow'    => true,
 			'limit'     => $count,
 		);
