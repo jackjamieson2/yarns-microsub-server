@@ -137,7 +137,7 @@
     // Save the new channel name
 
     $( "body" ).on( "click", "#yarns-channel-update-save", function() {
-        button = this;
+        button = $(this);
 
 
         var uid =  $(this).data('uid');
