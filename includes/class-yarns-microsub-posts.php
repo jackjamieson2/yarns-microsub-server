@@ -125,10 +125,11 @@ class Yarns_Microsub_Posts {
 	 * @param string       $read_status     The read status to set.
 	 */
 	public static function toggle_read( $entry_id, $read_status ) {
+		$response = [];
 		// If $entry_id is an array, recursively process each item.
 		if ( is_array( $entry_id ) ) {
 			foreach ( $entry_id as $single_entry ) {
-				static::toggle_read( $single_entry, $read_status );
+				$response[] = static::toggle_read( $single_entry, $read_status );
 			}
 		} else {
 			$post = self::get_single_post( $entry_id );
@@ -139,8 +140,14 @@ class Yarns_Microsub_Posts {
 					update_post_meta( $entry_id, 'yarns_microsub_json', $post );
 				}
 			}
+			$response = array(
+				'result' => 'OK',
+				'updated' =>$post,
+			);
+
 		}
-		return;
+		return $response;
+
 	}
 
 

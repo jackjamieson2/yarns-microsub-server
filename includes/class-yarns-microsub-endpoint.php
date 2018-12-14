@@ -172,7 +172,7 @@ class Yarns_Microsub_Endpoint {
 					if ( $request->get_param( 'method' ) === 'mark_read' ) {
 						// mark one or more individual entries as read.
 						if ( $request->get_param( 'entry' ) ) {
-							Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), true );
+							return Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), true );
 							break;
 						}
 						// mark an entry read as well as everything before it in the timeline.
