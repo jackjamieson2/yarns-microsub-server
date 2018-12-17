@@ -92,7 +92,7 @@ class Yarns_Microsub_Parser {
 	 * @return array|void
 	 */
 	public static function preview( $url ) {
-		return static::parse_feed( $url, 5 , true);
+		return static::parse_feed( $url, 2 , true);
 	}
 
 	/**
