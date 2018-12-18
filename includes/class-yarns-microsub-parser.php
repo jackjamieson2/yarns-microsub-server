@@ -92,7 +92,7 @@ class Yarns_Microsub_Parser {
 	 * @return array|void
 	 */
 	public static function preview( $url ) {
-		return static::parse_feed( $url, 2 , true);
+		return static::parse_feed( $url, 5 , true);
 	}
 
 	/**
@@ -138,6 +138,7 @@ class Yarns_Microsub_Parser {
 		$parse_end_time      = time();
 		$parse_duration      = $parse_end_time - $parse_start_time;
 		$feed['_parse_time'] = $parse_duration;
+		$feed['_post_limit'] = $count;
 
 		return $feed;
 	}
