@@ -637,7 +637,7 @@ class Parse_This_MF2 {
 				continue;
 			}
 			$item = self::parse_item( $child, $mf, $args );
-			if ( 'feed' !== $item['type'] ) {
+			if ( isset( $item['type'] ) && 'feed' !== $item['type'] ) {
 				$items[] = $item;
 			}
 			$index++;

@@ -73,8 +73,13 @@ class Parse_This {
 				return 'atom';
 			case 'application/jf2feed+json':
 				return 'jf2feed';
-			default:
+			case 'application/json+oembed':
+			case 'text/xml+oembed':
 				return '';
+			case 'text/html':
+				return 'microformats';
+			default:
+				return 'microformats';
 		}
 	}
 
