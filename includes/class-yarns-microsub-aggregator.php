@@ -49,7 +49,7 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function poll() {
 		$poll_start_time = time();
-		$poll_time_limit = 60; // execution time limit in seconds.
+		$poll_time_limit = 100; // execution time limit in seconds.
 		/* todo: Figure out a good time limit and cron schedule.*/
 
 		$results = [];
