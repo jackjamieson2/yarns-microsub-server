@@ -132,8 +132,14 @@ class Yarns_Microsub_Aggregator {
 			$n_posts_added = 0;
 		}
 
+		if ( isset( $feed['_parse_time'] ) ) {
+			$parse_time = $feed['_parse_time'];
+		} else {
+			$parse_time = null;
+		}
+
 		// @todo: Get etag from $feed array and pass to update_polling_frequencies
-		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added );
+		static::update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time );
 
 		return $site_results;
 	}
@@ -163,7 +169,7 @@ class Yarns_Microsub_Aggregator {
 	 * @param string $url               URL of the site.
 	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
 	 */
-	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added ) {
+	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time  ) {
 		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
@@ -214,7 +220,8 @@ class Yarns_Microsub_Aggregator {
 		$this_poll['_empty_poll_count'] = $empty_poll_count;
 		$this_poll['_poll_frequency']   = $poll_frequency;
 		$this_poll['_n_posts_added']    = $n_posts_added;
-		$poll_log[]                     = $this_poll;
+		$this_poll['_parse_time']       = $parse_time;
+		$poll_log[]                    = $this_poll;
 		update_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
 
 
