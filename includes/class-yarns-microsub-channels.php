@@ -159,7 +159,21 @@ class Yarns_Microsub_Channels {
 	public static function save_filters() {
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options = sanitize_text_field( wp_unslash( $_POST['options'] ) );
+			$options = $_POST['options'];
+
+			$all_post_types = static::all_post_types();
+			// validate submitted options.
+			if ( is_array( $options ) ) {
+				foreach ( $options as $key => $option ) {
+					if ( ! in_array( $option, $all_post_types, true ) ) {
+						unset( $options[ $key ] );
+					}
+				}
+			} else {
+				// If options is not an array, something went wrong. In this case, reset to all post types.
+				$options = $all_post_types;
+			}
+
 			if ( get_site_option( 'yarns_channels' ) ) {
 				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
