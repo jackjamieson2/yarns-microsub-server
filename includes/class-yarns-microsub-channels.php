@@ -159,9 +159,11 @@ class Yarns_Microsub_Channels {
 	public static function save_filters() {
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options = $_POST['options'];
+			$options =  $_POST['options'] ;
+
 
 			$all_post_types = static::all_post_types();
+
 			// validate submitted options.
 			if ( is_array( $options ) ) {
 				foreach ( $options as $key => $option ) {
@@ -188,7 +190,6 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-
 		wp_die();
 	}
 
@@ -197,7 +198,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @param string $query_channel The ID of the channel.
 	 *
-	 * @return string|void
+	 * @return mixed
 	 */
 	public static function get_post_types( $query_channel ) {
 		if ( get_site_option( 'yarns_channels' ) ) {
@@ -206,9 +207,9 @@ class Yarns_Microsub_Channels {
 				if ( $channel['uid'] === $query_channel ) {
 					// This is the channel to be returned.
 					if ( isset( $channel['post-types'] ) ) {
-						$valid_types = '';
+						$valid_types = [];
 						foreach ( $channel['post-types'] as $type ) {
-							$valid_types .= $type . ',';
+							$valid_types[] = $type;
 						}
 
 						return $valid_types;
@@ -226,7 +227,7 @@ class Yarns_Microsub_Channels {
 	 * @param string $channel The channel ID.
 	 * @param string $after For pagination.
 	 * @param string $before For pagination.
-	 * @param int $num_posts The number of posts to return.
+	 * @param int    $num_posts The number of posts to return.
 	 *
 	 * @return string
 	 */
@@ -234,11 +235,25 @@ class Yarns_Microsub_Channels {
 		$valid_types = static::get_post_types( $channel );
 
 		$args = array(
-			'post_type'                   => 'yarns_microsub_post',
+			'post_type'  => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
-			'yarns_microsub_post_channel' => $channel,
-			'yarns_microsub_post_type'    => $valid_types,
-			'posts_per_page'              => $num_posts,
+			'posts_per_page' => $num_posts,
+			'orderby' => 'post_date',
+			'order' => 'DESC',
+			'tax_query' => array(
+				'relation' => 'AND',
+				array(
+					'taxonomy'     => 'yarns_microsub_post_channel',
+					'field' => 'name',
+					'terms'   => $channel,
+				),
+				array(
+					'taxonomy'     => 'yarns_microsub_post_type',
+					'field' => 'name',
+					'terms'   => $valid_types,
+				),
+			),
+
 		);
 
 		$id_list = [];
@@ -271,11 +286,10 @@ class Yarns_Microsub_Channels {
 		while ( $query->have_posts() ) {
 			$query->the_post();
 			$id                = get_the_ID();
-			$item              = Yarns_Microsub_Posts::get_single_post( $id, $channel );
+			$item              = Yarns_Microsub_Posts::get_single_post( $id );
 			$timeline_items [] = $item;
 			$ids[]             = $id;
 		}
-
 
 		wp_reset_postdata();
 
@@ -291,6 +305,8 @@ class Yarns_Microsub_Channels {
 				}
 				return $timeline;
 			}
+		} else {
+			return 'empty results';
 		}
 
 		return 'error';
@@ -300,7 +316,7 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Check if the channel has any posts older than $id
 	 *
-	 * @param int $id The ID of the post to compare with.
+	 * @param int    $id The ID of the post to compare with.
 	 * @param string $channel The channel to check.
 	 *
 	 * @return bool
@@ -352,7 +368,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @param string $query_channel The channel ID.
 	 * @param string $url The URL to be followed/unfollowed.
-	 * @param bool $unfollow Toggle follow vs. unfollow.
+	 * @param bool   $unfollow Toggle follow vs. unfollow.
 	 *
 	 * @return array|void
 	 */
@@ -404,13 +420,13 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-		return; // channel does not exist, so return nothing
+		return; // channel does not exist, so return nothing.
 	}
 
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array $channels Array of channels.
+	 * @param array  $channels Array of channels.
 	 * @param string $uid The Channel ID.
 	 *
 	 * @return int|void
@@ -430,8 +446,8 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array $channels Array of channels.
-	 * @param int $channel_key Key for a specific channel.
+	 * @param array  $channels Array of channels.
+	 * @param int    $channel_key Key for a specific channel.
 	 * @param string $url URL of a feed.
 	 *
 	 * @return int|void
@@ -477,10 +493,11 @@ class Yarns_Microsub_Channels {
 	 * @param int   $before ID of the post to use for comparison.
 	 * @param array $args Arguments array.
 	 *
-	 * @return array|void
+	 * @return mixed
 	 */
 	public static function find_newer_posts( $before, $args ) {
 		$args['posts_per_page'] = - 1;
+
 		$query = new WP_Query( $args );
 
 		while ( $query->have_posts() ) {
