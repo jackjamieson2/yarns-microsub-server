@@ -89,18 +89,19 @@ class Yarns_Microsub_Parser {
 	 *
 	 * @param string $url URL of the feed to be previewed.
 	 *
-	 * @return array|void
+	 * @return mixed
 	 */
 	public static function preview( $url ) {
-		return static::parse_feed( $url, 5 , true);
+		return static::parse_feed( $url, 5, true );
 	}
 
 	/**
 	 * Parses feed at $url.  Determines whether the feed is h-feed or rss and passes to appropriate
 	 * function.
 	 *
-	 * @param string $url URL to be parsed.
-	 * @param int    $count Number of posts to be returned.
+	 * @param string  $url URL to be parsed.
+	 * @param int     $count Number of posts to be returned.
+	 * @param boolean $preview Whether or not this is just a preview.
 	 *
 	 * @todo: add parameter for date of last polled update.
 	 *
