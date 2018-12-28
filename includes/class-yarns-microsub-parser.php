@@ -6,6 +6,45 @@
 class Yarns_Microsub_Parser {
 
 	/**
+	 * Loads Parse-This if it hasn't already been loaded.
+	 */
+	public static function load_parse_this() {
+
+		$response = [];
+
+		$path  = plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/';
+
+		// Load classes if they are not already loaded.
+		$files = array(
+			array( 'class-mf2-post.php', 'MF2_Post' ),
+			array( 'class-parse-this.php', 'Parse_This' ),
+			array( 'class-parse-this-api.php', 'Parse_This_API' ),
+			array( 'class-parse-this-html.php', 'Parse_This_HTML' ),
+			array( 'class-parse-this-jsonfeed.php', 'Parse_This_JSONFeed' ),
+			array( 'class-parse-this-mf2.php', 'Parse_This_MF2' ),
+			array( 'class-parse-this-rss.php', 'Parse_This_RSS' ),
+		);
+		foreach ( $files as $file ) {
+			if ( ! class_exists( $file[1] ) ) {
+				require_once $path . $file[0];
+				$response[] = $path . $file[0];
+			} else {
+				$response[] = 'already exists: ' . $file[1];
+			}
+		}
+
+		// Load functions.php.
+		require_once $path . 'functions.php';
+
+
+
+		return $response;
+
+
+	}
+
+
+	/**
 	 * Final clean up on post content before saving.
 	 *
 	 * @param array $data The post data to be cleaned.
@@ -21,6 +60,7 @@ class Yarns_Microsub_Parser {
 				}
 			}
 		}
+
 		// dedupe name with content['text'].
 		if ( isset( $data['name'] ) ) {
 			if ( isset( $data['content']['text'] ) ) {
@@ -79,6 +119,7 @@ class Yarns_Microsub_Parser {
 		// Check if $query is a valid URL, if not try to generate one
 		$url = static::validate_url( $query );
 		// Search using Parse-This.
+		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$search = new Parse_This( $url );
 		return $search->fetch_feeds();
 	}
@@ -125,6 +166,11 @@ class Yarns_Microsub_Parser {
 			$args['follow'] = false;
 		}
 
+		if ( ! class_exists( 'Parse_This' ) ) {
+			require_once plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/class-parse-this.php';
+		}
+
+		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$parse = new Parse_This( $url );
 		$parse->fetch();
 		$parse->parse( $args );

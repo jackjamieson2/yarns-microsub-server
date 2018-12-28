@@ -26,18 +26,12 @@ register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivat
 class Yarns_MicroSub_Plugin {
 
 	/**
-	 * Add parse-this dependency if it does not already exist.
+	 * Run when plugins are loaded.
 	 */
 	public static function plugins_loaded() {
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
 		}
-
-		// Parse This.
-		if ( ! class_exists( 'Parse_This_MF2' ) ) {
-			require_once plugin_dir_path( __FILE__ ) . '/vendor/parse-this/parse-this.php';
-		}
-
 	}
 
 	/**
