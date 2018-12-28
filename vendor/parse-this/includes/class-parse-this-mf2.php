@@ -680,6 +680,12 @@ class Parse_This_MF2 {
 		return $data;
 	}
 
+	public static function compare( $string1, $string2 ) {
+		$string1 = trim( $string1 );
+		$string2 = trim( $string2 );
+		return ( 0 === strpos( $string1, $string2 ) );
+	}
+
 	public static function parse_h( $entry, $mf, $args ) {
 		$data              = array();
 		$data['name']      = self::get_plaintext( $entry, 'name' );
@@ -690,6 +696,14 @@ class Parse_This_MF2 {
 		$data['author']    = self::parse_hcard( $author, $mf, $args, $data['url'] );
 		$data['content']   = self::parse_html_value( $entry, 'content' );
 		$data['summary']   = self::get_summary( $entry, $data['content'] );
+		// If name and content are equal remove name
+		if ( self::compare( $data['name'], $data['content']['text'] ) ) {
+			unset( $data['name'] );
+		}
+		// If summary and content are equal remove summary
+		if ( self::compare( $data['summary'], $data['content']['text'] ) ) {
+			unset( $data['summary'] );
+		}
 
 		if ( isset( $mf['rels']['syndication'] ) ) {
 			if ( isset( $data['syndication'] ) ) {
@@ -735,13 +749,13 @@ class Parse_This_MF2 {
 		);
 		$data         = self::get_prop_array( $entry, $properties );
 		$data['type'] = 'entry';
-		$properties   = array( 'url', 'weather', 'temperature', 'rsvp', 'featured', 'name', 'swarm-coins' );
+		$properties   = array( 'url', 'weather', 'temperature', 'rsvp', 'featured', 'swarm-coins' );
 		foreach ( $properties as $property ) {
 			$data[ $property ] = self::get_plaintext( $entry, $property );
 		}
 		$data              = array_filter( $data );
 		$data              = array_merge( $data, self::parse_h( $entry, $mf, $args ) );
-		$data['post-type'] = self::post_type_discovery( $entry );
+		$data['post-type'] = post_type_discovery( $data );
 		return array_filter( $data );
 	}
 
@@ -920,55 +934,4 @@ class Parse_This_MF2 {
 		}
 		return array_filter( $data );
 	}
-
-	public static function post_type_discovery( $mf ) {
-		if ( ! self::is_microformat( $mf ) ) {
-			return false;
-		}
-		$properties = array_keys( $mf['properties'] );
-		if ( self::is_type( $mf, 'h-entry' ) ) {
-			$map = array(
-				'rsvp'      => array( 'rsvp' ),
-				'checkin'   => array( 'checkin' ),
-				'itinerary' => array( 'itinerary' ),
-				'repost'    => array( 'repost-of' ),
-				'like'      => array( 'like-of' ),
-				'follow'    => array( 'follow-of' ),
-				'tag'       => array( 'tag-of' ),
-				'favorite'  => array( 'favorite-of' ),
-				'bookmark'  => array( 'bookmark-of' ),
-				'watch'     => array( 'watch-of' ),
-				'jam'       => array( 'jam-of' ),
-				'listen'    => array( 'listen-of' ),
-				'read'      => array( 'read-of' ),
-				'play'      => array( 'play-of' ),
-				'ate'       => array( 'eat', 'p3k-food' ),
-				'drink'     => array( 'drank' ),
-				'reply'     => array( 'in-reply-to' ),
-				'video'     => array( 'video' ),
-				'photo'     => array( 'photo' ),
-				'audio'     => array( 'audio' ),
-			);
-			foreach ( $map as $key => $value ) {
-				$diff = array_intersect( $properties, $value );
-				if ( ! empty( $diff ) ) {
-					return $key;
-				}
-			}
-			$name = static::get_plaintext( $mf, 'name' );
-			if ( ! empty( $name ) ) {
-				$name    = trim( $name );
-				$content = static::get_plaintext( $mf, 'content' );
-				if ( is_string( $content ) ) {
-					$content = trim( $content );
-					if ( 0 !== strpos( $content, $name ) ) {
-						return 'article';
-					}
-				}
-			}
-			return 'note';
-		}
-		return '';
-	}
-
 }

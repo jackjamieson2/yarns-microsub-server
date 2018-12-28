@@ -122,7 +122,7 @@ class Parse_This_RSS {
 			$return['featured'] = $return['photo'];
 			unset( $return['photo'] );
 		}
-		$return['post_type'] = Parse_This_MF2::post_type_discovery( jf2_to_mf2( $return ) );
+		$return['post_type'] = post_type_discovery( $return );
 		return array_filter( $return );
 	}
 

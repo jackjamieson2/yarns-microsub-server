@@ -101,7 +101,11 @@ class Parse_This_API {
 		$return    = $request->get_param( 'return' );
 		$discovery = $request->get_param( 'discovery' );
 		$follow    = $request->get_param( 'follow' );
-		$parse     = new Parse_This( $url );
+		if ( ! class_exists( 'Parse_This' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'class-parse-this.php';
+		}
+
+		$parse = new Parse_This( $url );
 		if ( $discovery ) {
 			return $parse->fetch_feeds();
 

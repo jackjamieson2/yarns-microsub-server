@@ -11,10 +11,6 @@ class ComposerStaticInit0bf1dec6c15755da5b0a1bedd4f5359d
     );
 
     public static $prefixLengthsPsr4 = array (
-        'M' => 
-        array (
-            'Masterminds\\' => 12,
-        ),
         'D' => 
         array (
             'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 55,
@@ -26,10 +22,6 @@ class ComposerStaticInit0bf1dec6c15755da5b0a1bedd4f5359d
     );
 
     public static $prefixDirsPsr4 = array (
-        'Masterminds\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/masterminds/html5/src',
-        ),
         'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 
         array (
             0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',

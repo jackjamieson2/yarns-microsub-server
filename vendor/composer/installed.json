@@ -198,12 +198,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "b4138ed481d3f30cc191770c6c6f30413d04f84a"
+            "reference": "09a7964106a264c4824be27ae3ad3bf17a15d017"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/b4138ed481d3f30cc191770c6c6f30413d04f84a",
-            "reference": "b4138ed481d3f30cc191770c6c6f30413d04f84a",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/09a7964106a264c4824be27ae3ad3bf17a15d017",
+            "reference": "09a7964106a264c4824be27ae3ad3bf17a15d017",
             "shasum": ""
         },
         "require": {
@@ -220,7 +220,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2018-12-14T01:57:00+00:00",
+        "time": "2018-12-26T07:15:29+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
@@ -239,78 +239,9 @@
         "description": "Parse This Library for WordPress"
     },
     {
-        "name": "masterminds/html5",
-        "version": "2.4.0",
-        "version_normalized": "2.4.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Masterminds/html5-php.git",
-            "reference": "cadcfaaa13153e0e8eb92c49a53e140cf1a85dea"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/cadcfaaa13153e0e8eb92c49a53e140cf1a85dea",
-            "reference": "cadcfaaa13153e0e8eb92c49a53e140cf1a85dea",
-            "shasum": ""
-        },
-        "require": {
-            "ext-ctype": "*",
-            "ext-dom": "*",
-            "ext-libxml": "*",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "4.*",
-            "sami/sami": "~2.0",
-            "satooshi/php-coveralls": "1.0.*"
-        },
-        "time": "2018-11-17T20:24:36+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.2-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Masterminds\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Matt Butcher",
-                "email": "technosophos@gmail.com"
-            },
-            {
-                "name": "Asmir Mustafic",
-                "email": "goetas@gmail.com"
-            },
-            {
-                "name": "Matt Farina",
-                "email": "matt@mattfarina.com"
-            }
-        ],
-        "description": "An HTML5 parser and serializer.",
-        "homepage": "http://masterminds.github.io/html5-php",
-        "keywords": [
-            "HTML5",
-            "dom",
-            "html",
-            "parser",
-            "querypath",
-            "serializer",
-            "xml"
-        ]
-    },
-    {
         "name": "mf2/mf2",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "0.4.6",
+        "version_normalized": "0.4.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/microformats/php-mf2.git",
@@ -427,17 +358,17 @@
     },
     {
         "name": "squizlabs/php_codesniffer",
-        "version": "3.3.2",
-        "version_normalized": "3.3.2.0",
+        "version": "3.4.0",
+        "version_normalized": "3.4.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-            "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e"
+            "reference": "379deb987e26c7cd103a7b387aea178baec96e48"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/6ad28354c04b364c3c71a34e4a18b629cc3b231e",
-            "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e",
+            "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/379deb987e26c7cd103a7b387aea178baec96e48",
+            "reference": "379deb987e26c7cd103a7b387aea178baec96e48",
             "shasum": ""
         },
         "require": {
@@ -449,7 +380,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
         },
-        "time": "2018-09-23T23:08:17+00:00",
+        "time": "2018-12-19T23:57:18+00:00",
         "bin": [
             "bin/phpcs",
             "bin/phpcbf"
