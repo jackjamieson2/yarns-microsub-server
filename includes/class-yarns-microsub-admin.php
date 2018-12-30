@@ -297,6 +297,8 @@ class Yarns_Microsub_Admin {
 	 * Echoes the channel JSON after it has been updated.
 	 */
 	public static function follow_feed() {
+		// @@todo: Return an error message if the feed is already followed in this channel.
+		// @@todo: Return success message when fo
 		if ( isset( $_POST['uid'] ) && isset( $_POST['url'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$url = sanitize_text_field( wp_unslash ( $_POST['url'] ) );
