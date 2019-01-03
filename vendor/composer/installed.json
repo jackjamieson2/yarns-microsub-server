@@ -198,17 +198,17 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "09a7964106a264c4824be27ae3ad3bf17a15d017"
+            "reference": "5c985168eb975f6d9b8ecc5e8c24f20a9169bdb9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/09a7964106a264c4824be27ae3ad3bf17a15d017",
-            "reference": "09a7964106a264c4824be27ae3ad3bf17a15d017",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/5c985168eb975f6d9b8ecc5e8c24f20a9169bdb9",
+            "reference": "5c985168eb975f6d9b8ecc5e8c24f20a9169bdb9",
             "shasum": ""
         },
         "require": {
             "composer/installers": "~1.0",
-            "mf2/mf2": "*",
+            "mf2/mf2": "dev-master",
             "php": ">=5.3.0"
         },
         "require-dev": {
@@ -220,7 +220,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2018-12-26T07:15:29+00:00",
+        "time": "2019-01-03T21:22:28+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
@@ -240,17 +240,17 @@
     },
     {
         "name": "mf2/mf2",
-        "version": "0.4.6",
-        "version_normalized": "0.4.6.0",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/microformats/php-mf2.git",
-            "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23"
+            "reference": "14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
-            "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
+            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c",
+            "reference": "14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c",
             "shasum": ""
         },
         "require": {
@@ -265,7 +265,7 @@
             "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
             "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
         },
-        "time": "2018-08-24T14:47:04+00:00",
+        "time": "2018-12-25T14:09:27+00:00",
         "bin": [
             "bin/fetch-mf2",
             "bin/parse-mf2"

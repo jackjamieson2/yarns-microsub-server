@@ -14,7 +14,7 @@
      },
     "require": {
 	"php": ">=5.3.0",
-	"mf2/mf2": "*",
+	"mf2/mf2": "dev-master",
 	"composer/installers": "~1.0"
     },
     "require-dev": {
