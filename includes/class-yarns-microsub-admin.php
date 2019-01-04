@@ -93,7 +93,7 @@ class Yarns_Microsub_Admin {
 		?>
 		<div class='wrap'>
 		<div id='yarns-admin-area'>
-			<div>
+
 				<div id="yarns-logo">
 					<img src="<?php echo esc_url( plugins_url( '../images/yarns_logo.png', __FILE__ ) ); ?>"
 						 alt="Yarns">
@@ -115,7 +115,12 @@ class Yarns_Microsub_Admin {
 				<div id='yarns-feeds'>
 				</div>
 
+
 			</div><!--#yarns-admin-area-->
+			<div id='yarns-debug-log-area'>
+				<?php echo static::yarns_debug_log(); ?>
+			</div>
+
 
 		</div>
 		<?php
@@ -267,6 +272,28 @@ class Yarns_Microsub_Admin {
 	}
 
 	/**
+	 * Echoes HTML for the debug log
+	 */
+	private static function yarns_debug_log(){
+		$html = '<h2> Debug log </h2>';
+		$html .= '<div id="yarns-debug-log"><pre>';
+
+		$log = json_decode(get_site_option( 'yarns_debug_log' ), true);
+		foreach ($log as $item){
+			$html .= htmlspecialchars($item);
+			$html .= '<br>';
+		}
+		//$html .= htmlspecialchars(get_site_option( 'yarns_debug_log' ));
+		//return json_decode( , true );
+
+
+		$html .= '</pre></div>';
+
+		return $html;
+
+	}
+
+	/**
 	 * Searches for feeds at a URL, then outputs HTML for a list of feeds and a subscribe button.
 	 */
 	public static function find_feeds() {
@@ -306,6 +333,8 @@ class Yarns_Microsub_Admin {
 			$channel = Yarns_Microsub_Channels::get_channel( $uid );
 			echo static::yarns_list_feeds( $channel );
 		}
+
+
 		wp_die();
 	}
 
@@ -368,4 +397,6 @@ class Yarns_Microsub_Admin {
 		}
 		wp_die();
 	}
+
+
 }

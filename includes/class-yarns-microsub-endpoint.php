@@ -10,7 +10,7 @@ if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
 	 * For debugging purposes this will bypass MICROSUB authentication
 	 * in favor of WordPress authentication
 	 */
-	define( 'MICROSUB_LOCAL_AUTH', 0 );
+	define( 'MICROSUB_LOCAL_AUTH', 1 );
 }
 
 // Allows for a custom Authentication and Token Endpoint.
@@ -83,11 +83,14 @@ class Yarns_Microsub_Endpoint {
 	 * @param string $request The rest to be logged.
 	 */
 	public static function log_request( $request ) {
-		$message  = 'Request:';
-		$message .= "\nmethod: " . $request->get_method();
-		$message .= "\nparams: " . wp_json_encode( $request->get_params() );
-		error_log( $message );
+		if ( ! empty( $request ) ) {
+			$message  = 'Request:';
+			$message .= "   Method: " . $request->get_method();
+			$message .= "   Params: " . wp_json_encode( $request->get_params() );
+			Yarns_MicroSub_Plugin::debug_log( $message );
+		}
 	}
+
 
 	/**
 	 *
@@ -113,7 +116,7 @@ class Yarns_Microsub_Endpoint {
 			$user_id = get_current_user_id();
 			// The WordPress IndieAuth plugin uses filters for this.
 			static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-			error_log( 'Scopes: ' . wp_json_encode( static::$scopes ) );
+			Yarns_MicroSub_Plugin::debug_log('Scopes: ' . wp_json_encode( static::$scopes ) );
 			static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
 			if ( ! $user_id ) {
 				static::handle_authorize_error( 401, 'Unauthorized' );

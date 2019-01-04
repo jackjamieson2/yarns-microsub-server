@@ -109,4 +109,23 @@ class Yarns_MicroSub_Plugin {
 	public static function plugin_textdomain() {
 		load_plugin_textdomain( 'yarns_microsub', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
+
+
+	/**
+	 * Save debug logs
+	 *
+	 * @param string $message Message to be written to the log.
+	 */
+	public static function debug_log( $message ) {
+		if ( get_site_option( 'yarns_debug_log' ) ) {
+			$debug_log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		}
+
+		$debug_entry = date( 'Y-m-d H:i:s' ) . '  ' . $message;
+		array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
+
+		// Limit log length to 1000 entries.
+		$debug_log = array_slice( $debug_log, 0, 1000 );
+		update_option( 'yarns_debug_log', wp_json_encode( $debug_log ) );
+	}
 }

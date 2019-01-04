@@ -34,6 +34,7 @@ class Yarns_Microsub_Parser {
 		}
 
 		// Load functions.php.
+		if ( ! function_exists("post_type_discovery"))
 		require_once $path . 'functions.php';
 
 
@@ -120,8 +121,10 @@ class Yarns_Microsub_Parser {
 		$url = static::validate_url( $query );
 		// Search using Parse-This.
 		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
-		$search = new Parse_This( $url );
-		return $search->fetch_feeds();
+		$search  = new Parse_This( $url );
+		$results = $search->fetch_feeds();
+		Yarns_MicroSub_Plugin::debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
+		return $results;
 	}
 
 
@@ -187,6 +190,7 @@ class Yarns_Microsub_Parser {
 		$feed['_parse_time'] = $parse_duration;
 		$feed['_post_limit'] = $count;
 
+		Yarns_MicroSub_Plugin::debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $feed ) );
 		return $feed;
 	}
 

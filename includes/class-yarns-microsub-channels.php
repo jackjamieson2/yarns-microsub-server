@@ -33,9 +33,13 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-		return [
+		$results = [
 			'channels' => $channels,
 		];
+
+		Yarns_MicroSub_Plugin::debug_log( 'Channels::get    ' . wp_json_encode( $results ) );
+
+		return $results;
 	}
 
 	/**
@@ -49,6 +53,7 @@ class Yarns_Microsub_Channels {
 		$channels = self::get( true )['channels'];
 		foreach ( $channels as $channel ) {
 			if ( $uid === $channel['uid'] ) {
+				Yarns_MicroSub_Plugin::debug_log( 'Channels::get_channel    ' . wp_json_encode( $channel ) );
 				return $channel;
 			}
 		}
@@ -70,7 +75,7 @@ class Yarns_Microsub_Channels {
 			foreach ( $channels as $item ) {
 				if ( $item ) {
 					if ( $item->uid === $uid ) {
-						error_log( 'deleting:' . $item->uid );
+						Yarns_MicroSub_Plugin::debug_log( 'deleting:' . $item->uid );
 					} else {
 						// Keep this channel in the new list.
 						$new_channel_list[] = $item;
@@ -303,6 +308,7 @@ class Yarns_Microsub_Channels {
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
+				Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $timeline ) );
 				return $timeline;
 			}
 		} else {
