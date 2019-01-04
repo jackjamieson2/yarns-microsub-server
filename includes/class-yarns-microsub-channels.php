@@ -312,10 +312,11 @@ class Yarns_Microsub_Channels {
 				return $timeline;
 			}
 		} else {
-			return 'empty results';
+			$results = 'empty results';
+			Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $results ) );
+			return $results;
 		}
 
-		return 'error';
 	}
 
 
