@@ -125,7 +125,9 @@ class Yarns_MicroSub_Plugin {
 		array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
 
 		// Limit log length to 1000 entries.
-		$debug_log = array_slice( $debug_log, 0, 1000 );
+		if ( is_array( $debug_log ) ) {
+			$debug_log = array_slice( $debug_log, 0, 1000 );
+		}
 		update_option( 'yarns_debug_log', wp_json_encode( $debug_log ) );
 	}
 }
