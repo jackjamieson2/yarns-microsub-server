@@ -274,18 +274,18 @@ class Yarns_Microsub_Admin {
 	/**
 	 * Echoes HTML for the debug log
 	 */
-	private static function yarns_debug_log(){
-		$html = '<h2> Debug log </h2>';
+	private static function yarns_debug_log() {
+		$html  = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
-		$log = json_decode(get_site_option( 'yarns_debug_log' ), true);
-		foreach ($log as $item){
-			$html .= htmlspecialchars($item);
-			$html .= '<br>';
+		$log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		if ( is_array( $log ) ) {
+			foreach ( $log as $item ) {
+				$html .= htmlspecialchars( $item ) . '<br>';
+			}
+		} else {
+			$html = htmlspecialchars( $log );
 		}
-		//$html .= htmlspecialchars(get_site_option( 'yarns_debug_log' ));
-		//return json_decode( , true );
-
 
 		$html .= '</pre></div>';
 
