@@ -14,7 +14,7 @@ class Yarns_Microsub_Aggregator {
 	 * @return bool
 	 */
 	public static function exists( $permalink, $channel ) {
-		// If a post has multiple permalinks, check each of them
+		// If a post has multiple permalinks, check each of them.
 		if ( is_array( $permalink ) ) {
 			foreach ( $permalink as $single_url ) {
 				if ( get_page_by_title( $channel . '|' . $single_url, OBJECT, 'yarns_microsub_post' ) ) {
@@ -36,6 +36,17 @@ class Yarns_Microsub_Aggregator {
 		return self::poll();
 	}
 
+	/**
+	 * A function used to force polling.
+	 *
+	 * @return array
+	 */
+	public static function force_poll() {
+		return self::poll( true ); // Force poll regardless of time last polled.
+	}
+
+
+
 
 	/**
 	 * Master polling function.
@@ -45,9 +56,11 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * Sets an upper limit on execution time to prevent Yarns from bogging down the server.
 	 *
+	 * @param boolean $force If set to true, will poll even if the site was recently polled.
+	 *
 	 * @return array|mixed
 	 */
-	public static function poll() {
+	public static function poll( $force = false) {
 		$poll_start_time = time();
 		$poll_time_limit = 300; // execution time limit in seconds.
 		/* todo: Figure out a good time limit and cron schedule.*/
@@ -69,8 +82,8 @@ class Yarns_Microsub_Aggregator {
 								static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
-								if ( $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid, $channels, $channel_key, $feed_key );
+								if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
+									$results[] = static::poll_site( $feed['url'], $channel_uid );
 								}
 							}
 
@@ -108,6 +121,7 @@ class Yarns_Microsub_Aggregator {
 		$site_results             = [];
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
+
 
 		// If this is a preview return the feed as is.
 		if ( '_preview' === $channel_uid ) {
@@ -249,4 +263,6 @@ class Yarns_Microsub_Aggregator {
 			static::poll_site( $url, $channel_uid, $channels, $channel_key, $feed_key );
 		}
 	}
+
+
 }

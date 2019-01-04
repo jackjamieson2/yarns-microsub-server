@@ -56,7 +56,7 @@
         } else {
             // create channel with entered name
             start_loading(button);
-            channel = $( '#yarns-new-channel-name').val()
+            channel = $( '#yarns-new-channel-name').val();
             if ( channel != '') {
                 $.ajax({
                     url : yarns_microsub_server_ajax.ajax_url,
@@ -118,8 +118,6 @@
 
                 }
             });
-        } else {
-            // Do nothing, delete was cancelled
         }
     });
 
@@ -128,8 +126,8 @@
      */
     // Show the input box to rename a channel
     $( "body" ).on( "click", "#yarns-channel-update", function() {
-       $(this).css('visibility', 'hidden')
-       $('#yarns-option-heading').css('visibility', 'hidden')
+       $(this).css('visibility', 'hidden');
+       $('#yarns-option-heading').css('visibility', 'hidden');
 
        $('#yarns-channel-update-options').show();
     });
@@ -162,8 +160,8 @@
                     $('#yarns-channels').html(response);
 
                     $('#yarns-option-heading').text(channel);
-                    $('#yarns-channel-update').css('visibility', 'visible')
-                    $('#yarns-option-heading').css('visibility', 'visible')
+                    $('#yarns-channel-update').css('visibility', 'visible');
+                    $('#yarns-option-heading').css('visibility', 'visible');
                     $('#yarns-channel-update-options').hide();
                     done_loading(button);
                 }
@@ -173,8 +171,8 @@
             //revert to old name
             $('#yarns-channel-update-input').val(old_channel);
 
-            $('#yarns-channel-update').css('visibility', 'visible')
-            $('#yarns-option-heading').css('visibility', 'visible')
+            $('#yarns-channel-update').css('visibility', 'visible');
+            $('#yarns-option-heading').css('visibility', 'visible');
 
             $('#yarns-channel-update-options').hide();
 
@@ -287,6 +285,8 @@
             success : function( response ) {
                 done_loading(button);
                 console.log("success");
+                $html_content = response.find('#yarns_follow_html');
+                $message = response.find('#yarns_follow_message');
                 $('#yarns-following-list').html(response);
 
             }
@@ -336,6 +336,45 @@
         //$('#yarns-channel-add-feed').show();
         //$('#yarns-channel-add-feed').data('url', $(this).val() );
         console.log($(this).val());
+    });
+
+
+    /**
+     * DEBUGGING COMMANDS
+     */
+    $("body").on("click","#yarns_delete_posts", function() {
+        if (confirm("This will delete content from all channels. ")) {
+            button = $(this);
+            start_loading(button);
+            $.ajax({
+                url: yarns_microsub_server_ajax.ajax_url,
+                type: 'post',
+                data: {
+                    action: 'delete_posts'
+                },
+                success: function (response) {
+                    done_loading(button);
+                    alert("Deleted all posts.");
+                }
+            });
+        }
+
+    });
+
+    $("body").on("click","#yarns_force_poll", function() {
+        button = $(this);
+        start_loading(button);
+        $.ajax({
+            url: yarns_microsub_server_ajax.ajax_url,
+            type: 'post',
+            data: {
+                action: 'force_poll'
+            },
+            success: function (response) {
+                done_loading(button);
+                alert("Done polling");
+            }
+        });
     });
 
 

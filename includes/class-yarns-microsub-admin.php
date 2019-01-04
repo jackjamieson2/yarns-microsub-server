@@ -19,6 +19,8 @@ class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_add_channel', array( 'Yarns_Microsub_Admin', 'add_channel' ) );
 		add_action( 'wp_ajax_update_channel', array( 'Yarns_Microsub_Admin', 'update_channel' ) );
 		add_action( 'wp_ajax_delete_channel', array( 'Yarns_Microsub_Admin', 'delete_channel' ) );
+		add_action( 'wp_ajax_delete_posts', array( 'Yarns_Microsub_Posts', 'delete_all_posts' ) );
+		add_action( 'wp_ajax_force_poll', array( 'Yarns_Microsub_Aggregator', 'force_poll' ) );
 	}
 
 	/**
@@ -120,8 +122,9 @@ class Yarns_Microsub_Admin {
 			<div id='yarns-debug-log-area'>
 				<?php echo static::yarns_debug_log(); ?>
 			</div>
-
-
+			<div id='yarns-debug-commands'>
+				<?php echo static::yarns_debug_commands(); ?>
+			</div>
 		</div>
 		<?php
 	}
@@ -294,6 +297,16 @@ class Yarns_Microsub_Admin {
 	}
 
 	/**
+	 * Echoes HTML for debug commands.
+	 */
+	private static function yarns_debug_commands(){
+		$html = '<h2> Debug commands </h2>';
+		$html .= '<button id="yarns_delete_posts">Delete all posts</button>';
+		$html .= '<button id="yarns_force_poll">Force poll</button>';
+		return $html;
+	}
+
+	/**
 	 * Searches for feeds at a URL, then outputs HTML for a list of feeds and a subscribe button.
 	 */
 	public static function find_feeds() {
@@ -397,6 +410,8 @@ class Yarns_Microsub_Admin {
 		}
 		wp_die();
 	}
+
+
 
 
 }
