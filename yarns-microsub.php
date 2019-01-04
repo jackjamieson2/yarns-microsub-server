@@ -119,14 +119,17 @@ class Yarns_MicroSub_Plugin {
 	public static function debug_log( $message ) {
 		if ( get_site_option( 'yarns_debug_log' ) ) {
 			$debug_log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		} else {
+			$debug_log = [];
 		}
 
 		$debug_entry = date( 'Y-m-d H:i:s' ) . '  ' . $message;
-		array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
 
-		// Limit log length to 1000 entries.
-		if ( is_array( $debug_log ) ) {
-			$debug_log = array_slice( $debug_log, 0, 1000 );
+		if ( is_array( $debug_log ) && ! empty( $debug_log ) ) {
+			array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
+			$debug_log = array_slice( $debug_log, 0, 1000 ); // Limit log length to 1000 entries.
+		} else {
+			$debug_log[] = $debug_entry;
 		}
 		update_option( 'yarns_debug_log', wp_json_encode( $debug_log ) );
 	}
