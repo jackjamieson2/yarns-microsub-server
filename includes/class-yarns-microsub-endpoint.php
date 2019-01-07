@@ -78,6 +78,26 @@ class Yarns_Microsub_Endpoint {
 	}
 
 	/**
+	 * Returns a WP_REST_Response as JSON.
+	 *
+	 * @param mixed $data       The data to be returned (usually array, can be string).
+	 * @param int   $status     Status code.
+	 * @param array $headers    Headers.
+	 *
+	 * @return WP_REST_Response
+	 */
+	private static function json_response( $data, $status = 200, array $headers = [] ) {
+		$status                  = 200;
+		$headers['Content-Type'] = 'application/json';
+		return new WP_REST_Response( $data, $status, $headers );
+	}
+
+
+
+
+
+
+	/**
 	 *  Logs requests for debug purposes.
 	 *
 	 * @param string $request The rest to be logged.
@@ -140,8 +160,8 @@ class Yarns_Microsub_Endpoint {
 					if ( ! self::check_scope( $action ) ) {
 						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 					}
-
-					return Yarns_Microsub_Channels::get();
+					$response = Yarns_Microsub_Channels::get();
+					return static::json_response( $response );
 				} elseif ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: channels.
 					$action = 'channels';
@@ -155,10 +175,12 @@ class Yarns_Microsub_Endpoint {
 					} elseif ( $request->get_param( 'name' ) ) {
 						if ( $request->get_param( 'channel' ) ) {
 							// update the channel.
-							return Yarns_Microsub_Channels::update( $request->get_param( 'channel' ), $request->get_param( 'name' ) );
+							$response = Yarns_Microsub_Channels::update( $request->get_param( 'channel' ), $request->get_param( 'name' ) );
+							return static::json_response( $response );
 						} else {
 							// create a new channel.
-							return Yarns_Microsub_Channels::add( $request->get_param( 'name' ) );
+							$response = Yarns_Microsub_Channels::add( $request->get_param( 'name' ) );
+							return static::json_response( $response );
 						}
 					}
 				}
@@ -175,25 +197,27 @@ class Yarns_Microsub_Endpoint {
 					if ( $request->get_param( 'method' ) === 'mark_read' ) {
 						// mark one or more individual entries as read.
 						if ( $request->get_param( 'entry' ) ) {
-							return Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), true );
-							break;
+
+							$response = Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), true );
+							return static::json_response( $response );
 						}
 						// mark an entry read as well as everything before it in the timeline.
 						if ( $request->get_param( 'last_read_entry' ) ) {
-							return Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), true );
+							$response = Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), true );
+							return static::json_response( $response );
 						}
 					}
 					// If method is 'mark_unread then mark post(s) as UNREAD.
 					if ( $request->get_param( 'method' ) === 'mark_unread' ) {
 						// mark one or more individual entries as read.
 						if ( $request->get_param( 'entry' ) ) {
-							return Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), false );
-							break;
+							$response = Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), false );
+							return static::json_response( $response );
 						}
 						// mark an entry read as well as everything before it in the timeline.
 						if ( $request->get_param( 'last_read_entry' ) ) {
-							return Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), false );
-							break;
+							$response = Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), false );
+							return static::json_response( $response );
 						}
 					}
 				} elseif ( 'GET' === $request->get_method() ) {
@@ -203,8 +227,8 @@ class Yarns_Microsub_Endpoint {
 					if ( ! self::check_scope( $action ) ) {
 						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 					}
-
-					return Yarns_Microsub_Channels::timeline( $request->get_param( 'channel' ), $request->get_param( 'after' ), $request->get_param( 'before' ) );
+					$response = Yarns_Microsub_Channels::timeline( $request->get_param( 'channel' ), $request->get_param( 'after' ), $request->get_param( 'before' ) );
+					return static::json_response( $response );
 				}
 
 				break;
@@ -214,18 +238,16 @@ class Yarns_Microsub_Endpoint {
 				if ( ! self::check_scope( $action ) ) {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
-
-				return Yarns_Microsub_Parser::search( $request->get_param( 'query' ) );
-
+				$response = Yarns_Microsub_Parser::search( $request->get_param( 'query' ) );
+				return static::json_response( $response );
 			case 'preview':
 				// REQUIRED SCOPE: follow.
 				$action = 'follow';
 				if ( ! self::check_scope( $action ) ) {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
-
-				return Yarns_Microsub_Parser::preview( $request->get_param( 'url' ) );
-
+				$response = Yarns_Microsub_Parser::preview( $request->get_param( 'url' ) );
+				return static::json_response( $response );
 			case 'follow':
 				if ( 'GET' === $request->get_method() ) {
 					// REQUIRED SCOPE: read.
@@ -235,8 +257,8 @@ class Yarns_Microsub_Endpoint {
 					}
 
 					// return a list of feeds being followed in the given channel.
-					return Yarns_Microsub_Channels::list_follows( $request->get_param( 'channel' ) );
-
+					$response = Yarns_Microsub_Channels::list_follows( $request->get_param( 'channel' ) );
+					return static::json_response( $response );
 				} elseif ( 'POST' === $request->get_method() ) {
 					// REQUIRED SCOPE: follow.
 					$action = 'follow';
@@ -245,7 +267,8 @@ class Yarns_Microsub_Endpoint {
 					}
 
 					// follow a new URL in the channel.
-					return Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ) );
+					$response = Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ) );
+					return static::json_response( $response );
 				}
 				break;
 			case 'unfollow':
@@ -255,31 +278,36 @@ class Yarns_Microsub_Endpoint {
 					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
 				}
 
-				return Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ), $unfollow = true );
+				$response = Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ), $unfollow = true );
+				return static::json_response( $response );
 			case 'poll-test':
 				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
 
-				return Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) );
+				$response = Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) );
+				return static::json_response( $response );
 			case 'test':
 				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
 
-				return test();
+				$response = test();
+				return static::json_response( $response );
 			case 'delete_all':
 				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
 				}
 
-				return Yarns_Microsub_Posts::delete_all_posts( $request->get_param( 'channel' ) );
+				$response = Yarns_Microsub_Posts::delete_all_posts( $request->get_param( 'channel' ) );
+				return static::json_response( $response );
 			default:
 				// The action was not recognized.
-				return 'No action defined';
+				$response = 'No action defined';
+				return static::json_response( $response );
 		}
 
 	}
