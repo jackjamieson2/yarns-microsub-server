@@ -157,6 +157,88 @@ class Yarns_Microsub_Channels {
 	}
 
 	/**
+	 * Returns a list of channel uids
+	 * @param array $channels   Array of channels.
+	 *
+	 * @return array            Array of Channel UIDs.
+	 */
+	private static function get_channel_uids($channels){
+		$channel_uids = [];
+		foreach ( $channels as $channel ) {
+			$channel_uids[] = $channel['uid'];
+		}
+		return $channel_uids;
+	}
+
+	/**
+	 * Sorts function. Sorts by key 'order'.
+	 *
+	 * @param mixed $a
+	 * @param mixed $b
+	 *
+	 * @return mixed
+	 */
+	private static function sort_by_order($a,$b) {
+		return (int)$a['order'] - (int)$b['order'];
+	}
+
+	/**
+	 * Change the order in which channels are presented.
+	 *
+	 * @param array $input   Array of channel uids in the new order.
+	 *
+	 * @return boolean          Return true on success.
+	 */
+	public static function order( $input ) {
+
+		$current_channels = json_decode( get_site_option( 'yarns_channels' ), true );
+
+		$current_channel_uids = static::get_channel_uids( $current_channels );
+		// Validate that all items in $channels refer to channels that exist.
+		foreach ( $input as $key => $channel ) {
+			if ( ! in_array( $channel, $current_channel_uids, true ) ) {
+				unset( $input[ $key ] );
+			}
+		}
+		if ( count( $input ) < 1 ) {
+			// There are no valid channels in the list, so return false.
+			return false;
+		}
+
+		// Map the current channel order and the input channel order .
+		$input_order   = [];
+		$input_key     = 0;
+		foreach ( $current_channels as $key => $channel ) {
+			if ( in_array( $channel['uid'], $input, true ) ) {
+				$input_order[ $key ]   = $input[ $input_key ];
+				$input_key ++;
+			}
+		}
+
+		// Add 'order' field to each channel.
+		foreach ( $current_channels as $key => $channel ) {
+			Yarns_MicroSub_Plugin::debug_log( 'Channel' . $channel['uid'] );
+			if ( in_array( $channel['uid'], $input_order, true ) ) {
+				$new_key                           = array_search( $channel['uid'], $input_order, true );
+				$current_channels[ $key ]['order'] = $new_key;
+				Yarns_MicroSub_Plugin::debug_log( 'channel  changed ' . $key . '>>>' . $new_key );
+			} else {
+				Yarns_MicroSub_Plugin::debug_log( 'channel not changed ' );
+				$current_channels[ $key ]['order'] = $key;
+			}
+		}
+
+		// Sort channel list by 'order'
+		usort($current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
+
+
+		Yarns_MicroSub_Plugin::debug_log( 'order result = ' . wp_json_encode( $current_channels ) );
+
+		update_option( 'yarns_channels', wp_json_encode( $current_channels) );
+		return true;
+	}
+
+	/**
 	 * Updates the filter options for a channel.
 	 *
 	 * @return mixed
@@ -240,22 +322,22 @@ class Yarns_Microsub_Channels {
 		$valid_types = static::get_post_types( $channel );
 
 		$args = array(
-			'post_type'  => 'yarns_microsub_post',
-			'post_status'                 => 'publish',
+			'post_type'      => 'yarns_microsub_post',
+			'post_status'    => 'publish',
 			'posts_per_page' => $num_posts,
-			'orderby' => 'post_date',
-			'order' => 'DESC',
-			'tax_query' => array(
+			'orderby'        => 'post_date',
+			'order'          => 'DESC',
+			'tax_query'      => array(
 				'relation' => 'AND',
 				array(
-					'taxonomy'     => 'yarns_microsub_post_channel',
-					'field' => 'name',
-					'terms'   => $channel,
+					'taxonomy' => 'yarns_microsub_post_channel',
+					'field'    => 'name',
+					'terms'    => $channel,
 				),
 				array(
-					'taxonomy'     => 'yarns_microsub_post_type',
-					'field' => 'name',
-					'terms'   => $valid_types,
+					'taxonomy' => 'yarns_microsub_post_type',
+					'field'    => 'name',
+					'terms'    => $valid_types,
 				),
 			),
 
@@ -350,7 +432,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @param string $query_channel The ID of the channel.
 	 *
-	 * @return array|void
+	 * @return mixed
 	 */
 	public static function list_follows( $query_channel ) {
 		if ( get_site_option( 'yarns_channels' ) ) {

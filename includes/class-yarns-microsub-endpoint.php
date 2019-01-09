@@ -172,6 +172,15 @@ class Yarns_Microsub_Endpoint {
 						// delete a channel.
 						Yarns_Microsub_Channels::delete( $request->get_param( 'channel' ) );
 						break;
+					} elseif ( $request->get_param( 'method' ) === 'order' ) {
+						Yarns_MicroSub_Plugin::debug_log( 'method == order');
+						if ( $request->get_param( 'channels' ) ) {
+							Yarns_MicroSub_Plugin::debug_log( 'valid order action');
+							$response = Yarns_Microsub_Channels::order( $request->get_param( 'channels' ) );
+						} else {
+							$response = false;
+						}
+						return static::json_response( $response );
 					} elseif ( $request->get_param( 'name' ) ) {
 						if ( $request->get_param( 'channel' ) ) {
 							// update the channel.
