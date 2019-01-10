@@ -25,9 +25,11 @@ Accompanied by other plugins that support [IndieWeb](https://indieweb.org) stand
 ## Installation
 Since Yarns is still in development, it is not yet available on the WordPress plugin repository. This means you'll have to install it from GitHub directly.
 
-You can do this by downloading the master branch from this repository as a zip. (release package coming soon)
+You can do this by downloading the [latest release](https://github.com/jackjamieson2/yarns-microsub-server/releases) as a .zip. 
 
 Then install in WordPress by going to Plugins->Add New->Upload Plugin, and selecting the .zip you just downloaded.
+
+(You can also download the master branch of this repository, which is usually slightly newer but may be less stable).
 
 ## Requirements
 Yarns is part of the IndieWeb ecosystem, and requires a few parts to get things working.
@@ -35,7 +37,7 @@ Yarns is part of the IndieWeb ecosystem, and requires a few parts to get things 
 The easiest way to get started is to install the [IndieWeb plugin](https://wordpress.org/plugins/indieweb/), with the following extensions:
 
 - IndieAuth: *To log into a Microsub client*
-- Micropub: *(optionalTo post to your site from a Microsub client*
+- Micropub: *(optional) To post to your site from a Microsub client*
 - IndieWeb Post Kinds: *(optional) To be able to post likes, replies, and other types of responses to your feeds*
 
 ## Using Yarns
