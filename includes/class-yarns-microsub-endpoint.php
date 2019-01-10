@@ -10,7 +10,7 @@ if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
 	 * For debugging purposes this will bypass MICROSUB authentication
 	 * in favor of WordPress authentication
 	 */
-	define( 'MICROSUB_LOCAL_AUTH', 1 );
+	define( 'MICROSUB_LOCAL_AUTH', 0 );
 }
 
 // Allows for a custom Authentication and Token Endpoint.
