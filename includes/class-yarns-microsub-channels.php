@@ -17,6 +17,7 @@ class Yarns_Microsub_Channels {
 	 * @@todo: add unread counts to each channel.
 	 */
 	public static function get( $details = false ) {
+
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		}
@@ -217,13 +218,10 @@ class Yarns_Microsub_Channels {
 
 		// Add 'order' field to each channel.
 		foreach ( $current_channels as $key => $channel ) {
-			Yarns_MicroSub_Plugin::debug_log( 'Channel' . $channel['uid'] );
 			if ( in_array( $channel['uid'], $input_order, true ) ) {
 				$new_key                           = array_search( $channel['uid'], $input_order, true );
 				$current_channels[ $key ]['order'] = $new_key;
-				Yarns_MicroSub_Plugin::debug_log( 'channel  changed ' . $key . '>>>' . $new_key );
 			} else {
-				Yarns_MicroSub_Plugin::debug_log( 'channel not changed ' );
 				$current_channels[ $key ]['order'] = $key;
 			}
 		}
@@ -232,7 +230,6 @@ class Yarns_Microsub_Channels {
 		usort($current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
 
-		Yarns_MicroSub_Plugin::debug_log( 'order result = ' . wp_json_encode( $current_channels ) );
 
 		update_option( 'yarns_channels', wp_json_encode( $current_channels) );
 		return true;
@@ -390,12 +387,11 @@ class Yarns_Microsub_Channels {
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
-				Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $timeline ) );
+				//Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $timeline ) );
 				return $timeline;
 			}
 		} else {
 			$results = 'empty results';
-			Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $results ) );
 			return $results;
 		}
 

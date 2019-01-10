@@ -5,7 +5,7 @@
  * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogether.now.io or monocole.p3k.io).  Still in development.
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
- * Version: 0.1.3 (beta)
+ * Version: 0.1.4 (beta)
  * License: MIT
  * License URI: http://opensource.org/licenses/MIT
  * Text Domain: yarns_microsub
@@ -127,7 +127,7 @@ class Yarns_MicroSub_Plugin {
 
 		if ( is_array( $debug_log ) && ! empty( $debug_log ) ) {
 			array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
-			$debug_log = array_slice( $debug_log, 0, 1000 ); // Limit log length to 1000 entries.
+			$debug_log = array_slice( $debug_log, 0, 30 ); // Limit log length to 30 entries.
 		} else {
 			$debug_log[] = $debug_entry;
 		}
