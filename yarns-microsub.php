@@ -72,7 +72,7 @@ class Yarns_MicroSub_Plugin {
 		Yarns_Microsub_Admin::init();
 
 		// Set timezone for plugin date functions.
-		date_default_timezone_set( get_option( 'timezone_string' ) );
+		//date_default_timezone_set( get_option( 'timezone_string' ) );
 
 
 		// list of various public helper functions.
