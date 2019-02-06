@@ -160,13 +160,25 @@ class Yarns_Microsub_Admin {
 
 		$html = '';
 
-		foreach ( $channels as $channel ) {
-			$name  = $channel['name'];
-			$uid   = $channel['uid'];
-			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
-			$html .= '</li>';
-		}
+		if ( is_array( $channels ) ) {
 
+			foreach ( $channels as $channel ) {
+				if ( isset( $channel['name'] ) ) {
+					$name = $channel['name'];
+				} else {
+					$name = '';
+				}
+
+				if ( isset( $channel['uid'] ) ) {
+					$uid  = $channel['uid'];
+					$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
+					$html .= '</li>';
+				} else {
+					// If uid is empty, something is wrong and the channel should be omitted.
+					$html = '';
+				}
+			}
+		}
 		return $html;
 	}
 
