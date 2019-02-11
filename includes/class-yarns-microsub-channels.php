@@ -38,6 +38,38 @@ class Yarns_Microsub_Channels {
 			$channels = '';
 		}
 
+
+		foreach ( $channels as $key=>$channel ) {
+			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
+			if ( false === $details ) {
+				if ( array_key_exists( 'items', $channel ) ) {
+					unset( $channels[ $key ]['items'] );
+				}
+				if ( array_key_exists( 'post-types', $channel ) ) {
+					unset( $channels[ $key ]['post-types'] );
+				}
+			}
+
+			// Calculate unread count for each channel.
+			// @@todo: Review this - seems like it may be slow to do this calculation for large timelines.
+			$unread_count = 0;
+			if ( is_array( $channel ) && ! empty( $channel['uid'] ) ) {
+				$timeline = static::timeline( $channel['uid'], false, false, 999 );
+				if ( is_array( $timeline ) ) {
+					$channels[ $key ]['timeline'] = $timeline;
+					foreach ( $timeline['items'] as $post ) {
+						if ( is_array( $post ) && isset( $post['_is_read'] ) ) {
+							if ( false === $post['_is_read'] ) {
+								$unread_count ++;
+							}
+						}
+					}
+				}
+			}
+			$channels[ $key ]['unread'] = $unread_count;
+		}
+
+
 		$results = [
 			'channels' => $channels,
 		];
