@@ -10,7 +10,7 @@
 Using your own WordPress site, aggregate a social timeline of your favourite sites from across the Web and then view and reply to your feeds using a [Microsub client](https://indieweb.org/Microsub#Clients).
 
 
-*Note: Yarns is still in development. It's close to ready, but still has some compatibility issues that are being worked on.*
+*Note: Yarns is in Beta. It works reasonably well, though still has a few bugs to be worked out. Please report bugs if you find them - thank you!*
 
 ## Description
 
