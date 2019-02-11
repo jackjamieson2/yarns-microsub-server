@@ -172,9 +172,6 @@ class Yarns_Microsub_Parser {
 			$args['follow'] = false;
 		}
 
-		if ( ! class_exists( 'Parse_This' ) ) {
-			require_once plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/class-parse-this.php';
-		}
 
 		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$parse = new Parse_This( $url );
@@ -183,17 +180,21 @@ class Yarns_Microsub_Parser {
 
 		$feed = $parse->get();
 
+
+
+
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $key => $feeditem ) {
 				$feed['items'][ $key ] = static::clean_post( $feeditem );
 			}
 		}
+
 		$parse_end_time      = time();
 		$parse_duration      = $parse_end_time - $parse_start_time;
 		$feed['_parse_time'] = $parse_duration;
 		$feed['_post_limit'] = $count;
 
-		Yarns_MicroSub_Plugin::debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $feed ) );
+
 		return $feed;
 	}
 
