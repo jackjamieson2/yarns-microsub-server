@@ -544,7 +544,7 @@ class Parse_This_MF2 {
 		// Normalize all urls to ensure comparisons
 		$url = normalize_url( $url );
 		if ( ! class_exists( 'Mf2\Parser' ) ) {
-			require_once plugin_dir_path( __DIR__ ) . 'vendor/mf2/mf2/Mf2/Parser.php';
+			require_once plugin_dir_path( __DIR__ ) . 'includes/Parser.php';
 		}
 		if ( is_string( $input ) || is_a( $input, 'DOMDocument' ) ) {
 			$parser = new Mf2\Parser( $input, $url );
@@ -581,9 +581,22 @@ class Parse_This_MF2 {
 			return array();
 		}
 
+		// If there is more than one item in the page it might be a feed but often feeds are not wrapped in h-feed
+		// Look for a top-level h-card that does not match the page URL and try working on that (anonymous function courtesy of aaronpk)
+		if ( $count > 1 ) {
+			$tmpmf2         = array_filter(
+				$input['items'],
+				function( $item ) use ( $url ) {
+						return ! ( in_array( 'h-card', $item['type'], true ) && isset( $item['properties']['url'][0] ) && $item['properties']['url'][0] !== $url );
+				}
+			);
+			$input['items'] = array_values( $tmpmf2 );
+		}
+
 		if ( 1 === $count ) {
 			return self::parse_item( $input['items'][0], $input, $args );
 		}
+
 		$return = array();
 		$card   = null;
 		foreach ( $input['items'] as $key => $item ) {
@@ -615,7 +628,10 @@ class Parse_This_MF2 {
 			$return[] = $parsed;
 		}
 
-		return $return;
+		return array(
+			'type'  => 'feed',
+			'items' => $return,
+		);
 	}
 
 	public static function parse_hfeed( $entry, $mf, $args ) {
@@ -625,7 +641,7 @@ class Parse_This_MF2 {
 		);
 		$data['name']   = self::get_plaintext( $entry, 'name' );
 		$author         = jf2_to_mf2( self::find_author( $entry, $args['follow'] ) );
-		$data['author'] = self::parse_hcard( $author, $mf, $args, $data['url'] );
+		$data['author'] = self::parse_hcard( $author, $mf, $args );
 		$data['uid']    = self::get_plaintext( $entry, 'uid' );
 		if ( isset( $entry['id'] ) && isset( $args['url'] ) && ! $data['uid'] ) {
 			$data['uid'] = $args['url'] . '#' . $entry['id'];
@@ -819,7 +835,7 @@ class Parse_This_MF2 {
 				$data[ $p ] = $v;
 			}
 		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
+		$data = array_merge( $data, self::parse_h( $entry, $mf, $args ) );
 		return array_filter( $data );
 	}
 
@@ -839,7 +855,7 @@ class Parse_This_MF2 {
 				$data[ $p ] = $v;
 			}
 		}
-		$data = array_merge( $data, self::parse_h( $entry, $mf ) );
+		$data = array_merge( $data, self::parse_h( $entry, $mf, $args ) );
 		return array_filter( $data );
 	}
 

@@ -4,6 +4,8 @@
 
 	<file>./parse-this.php</file>
 	<file>./includes</file>
+	<exclude-pattern>*/includes/Parser.php</exclude-pattern>
+	<exclude-pattern>*/includes/simplepie/*</exclude-pattern>
 	<rule ref="PHPCompatibility"/>
 	<config name="testVersion" value="5.3-"/>
 	<rule ref="PHPCompatibilityWP"/>

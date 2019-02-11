@@ -35,8 +35,13 @@
 	"update-readme": [
 		"wp2md -i readme.txt | tail -n +11 > readme.md"
 	],
+	"copy-files": [
+		"cp -u -r vendor/mf2/mf2/Mf2/Parser.php includes",
+		"cp -u -r vendor/simplepie/simplepie/library includes/simplepie"
+	],
 	"post-update-cmd": [
-		"@update-readme"
+		"@update-readme",
+		"@copy-files"
 	]
     }
 }
