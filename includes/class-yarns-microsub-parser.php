@@ -101,7 +101,8 @@ class Yarns_Microsub_Parser {
 			}
 		}
 		if ( is_array( $data ) ) {
-			$data = encode_array( array_filter( $data ) );
+			//$data = encode_array( array_filter( $data ) );
+			$data = array_filter( $data );
 		}
 		return $data;
 
