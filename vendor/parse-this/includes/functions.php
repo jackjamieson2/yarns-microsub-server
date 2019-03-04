@@ -48,7 +48,7 @@ if ( ! function_exists( 'mf2_to_jf2' ) ) {
 		$jf2['type'] = str_replace( 'h-', '', $type );
 		if ( isset( $entry['properties'] ) && is_array( $entry['properties'] ) ) {
 			foreach ( $entry['properties'] as $key => $value ) {
-				if ( is_array( $value ) && 1 === count( $value ) ) {
+				if ( is_array( $value ) && 1 === count( $value ) && wp_is_numeric_array( $value ) ) {
 					$value = array_pop( $value );
 				}
 				if ( ! wp_is_numeric_array( $value ) && isset( $value['type'] ) ) {
@@ -234,8 +234,8 @@ if ( ! function_exists( 'post_type_discovery' ) ) {
 				'listen'    => array( 'listen-of' ),
 				'read'      => array( 'read-of' ),
 				'play'      => array( 'play-of' ),
-				'ate'       => array( 'eat', 'p3k-food' ),
-				'drink'     => array( 'drank' ),
+				'eat'       => array( 'ate', 'pk-ate' ),
+				'drink'     => array( 'drank', 'pk-drank' ),
 				'reply'     => array( 'in-reply-to' ),
 				'video'     => array( 'video' ),
 				'photo'     => array( 'photo' ),

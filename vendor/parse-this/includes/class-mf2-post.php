@@ -241,30 +241,11 @@ class MF2_Post {
 				if ( is_string( $value ) ) {
 					$meta[ $key ] = array( $value );
 				} else {
-					$meta[ $key ] = self::ensure_mf2( $key, $value );
+					$meta[ $key ] = $value;
 				}
 			}
 		}
 		return array_filter( $meta );
-	}
-
-	// To fix issues with possible errors with mf2 parsing
-	private function ensure_mf2( $key, $value ) {
-		if ( ! is_array( $value ) ) {
-			return $value;
-		}
-		foreach ( $value as $k => $v ) {
-			$value[ $k ] = self::ensure_mf2( $key, $v );
-		}
-		if ( ! wp_is_numeric_array( $value ) && ! isset( $value['type'] ) ) {
-			// These were the only two ones used before the enhancement
-			if ( 'checkin' === $key ) {
-				$value['type'] = 'h-card';
-			} else {
-				$value['type'] = 'h-cite';
-			}
-		}
-		return $value;
 	}
 
 	/**
@@ -274,7 +255,7 @@ class MF2_Post {
 	 * @param  boolean $single Whether to return a a single value or array if there is only one value.
 	 * @return boolean|string|array The result or false if does not exist.
 	 */
-	public function get( $key = null, $single = true ) {
+	public function get( $key = null, $single = false ) {
 		if ( 'mf2' === $key ) {
 			return $this->mf2;
 		}
@@ -453,12 +434,12 @@ class MF2_Post {
 		return $value;
 	}
 
-	public function jf2_to_mf2( $cite, $type = 'cite' ) {
-		if ( ! $cite || ! is_array( $cite ) | isset( $cite['properties'] ) ) {
-			return $cite;
+	public function jf2_to_mf2( $item, $type = 'cite' ) {
+		if ( is_array( $item ) && isset( $item['type'] ) && ! isset( $item['properties'] ) ) {
+			return jf2_to_mf2( $item );
 		}
-		$cite = ifset( $cite['type'], $type );
-		return jf2_to_mf2( $cite );
+		$item['type'] = ifset( $item['type'], $type );
+		return jf2_to_mf2( $item );
 	}
 
 	// Retrieve the right property to use for the link preview based on the kind.
