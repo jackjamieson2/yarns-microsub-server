@@ -17,6 +17,9 @@
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 
+/* Functions to run upon activation */
+register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' ) );
+
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
 
@@ -44,7 +47,30 @@ class Yarns_MicroSub_Plugin {
 		}
 	}
 
+
 	/**
+	 * To be run on activation
+	 */
+	public static function activate() {
+		// Set up cron job to check for posts.
+		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
+		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
+			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
+		}
+		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
+
+		// Set default period for storing aggregated posts.
+		if ( ! get_site_option( 'yarns_storage_period' ) ) {
+			update_option( 'yarns_storage_period', 14 );  // in days.
+		}
+	}
+
+
+
+
+
+
+/**
 	 * Initialize Yarns Microsub Server plugin Plugin
 	 */
 	public static function init() {
@@ -78,12 +104,7 @@ class Yarns_MicroSub_Plugin {
 		// list of various public helper functions.
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
-		// Set up cron job to check for posts.
-		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
-		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
-			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
-		}
-		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
+
 	}
 
 

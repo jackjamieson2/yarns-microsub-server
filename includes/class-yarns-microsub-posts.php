@@ -179,7 +179,7 @@ class Yarns_Microsub_Posts {
 	 *
 	 * @return string
 	 */
-	public static function delete_all_posts( $channel ) {
+	public static function delete_all_posts( ) {
 		// This function is only available in local auth mode.
 		if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 			return 'not authorized';
@@ -187,13 +187,9 @@ class Yarns_Microsub_Posts {
 		$args = array(
 			'post_type'                   => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
-			'yarns_microsub_post_channel' => $channel,
 			'posts_per_page'              => - 1,
 		);
 
-		if ( $channel ) {
-			$args['yarns_microsub_post_channel'] = $channel;
-		}
 
 		$query = new WP_Query( $args );
 
@@ -203,6 +199,33 @@ class Yarns_Microsub_Posts {
 		}
 
 		return 'deleted posts';
+	}
+
+	/**
+	 * Deletes old posts to keep the database clean.
+	 *
+	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
+	 */
+	public static function delete_old_posts ( $storage_period ) {
+		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
+		$args = array(
+			'post_type'      => 'yarns_microsub_post',
+			'post_status'    => 'publish',
+			'posts_per_page' => - 1,
+			'date_query'     => array(
+				'before' => $date_before,
+			),
+		);
+
+		$query = new WP_Query( $args );
+
+		$count = 0;
+		while ( $query->have_posts() ) {
+			$count ++;
+			$query->the_post();
+			wp_delete_post( get_the_ID(), true );
+		}
+		return 'Deleted ' . $count . 'posts';
 	}
 
 

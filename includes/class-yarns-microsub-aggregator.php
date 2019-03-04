@@ -63,6 +63,7 @@ class Yarns_Microsub_Aggregator {
 	public static function poll( $force = false ) {
 		$poll_start_time = time();
 		$poll_time_limit = 300; // execution time limit in seconds.
+		$storage_period = get_site_option('yarns_storage_period');
 		/* todo: Figure out a good time limit and cron schedule.*/
 
 		$results = [];
@@ -83,7 +84,7 @@ class Yarns_Microsub_Aggregator {
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
 								if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid );
+									$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period);
 								}
 							}
 
@@ -106,6 +107,8 @@ class Yarns_Microsub_Aggregator {
 		$results['polling execution time'] = time() - $poll_start_time;
 		$results['polling time limit']     = $poll_time_limit;
 
+		Yarns_Microsub_Posts::delete_old_posts( $storage_period ); // Clear old posts.
+
 		return $results;
 	}
 
@@ -117,7 +120,7 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid ) {
+	public static function poll_site( $url, $channel_uid, $storage_period ) {
 		$site_results             = [];
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
@@ -128,13 +131,21 @@ class Yarns_Microsub_Aggregator {
 			return $feed;
 		}
 
+		// debugging:
+		$site_results['raw_feed'] = $feed;
+
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
 					if ( 'entry' === $post['type'] ) {
-						if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
-							$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
+						// Only poll if the post is within the storage period.
+						if ( yarns_date_compare( $post, $storage_period ) ) {
+							if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
+								$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
+							} else {
+								$site_results['already_exists'] = $post['url'];
+							}
 						}
 					}
 				}

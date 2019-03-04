@@ -39,7 +39,7 @@ class Yarns_Microsub_Channels {
 		}
 
 
-		foreach ( $channels as $key=>$channel ) {
+		foreach ( $channels as $key => $channel ) {
 			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
 			if ( false === $details ) {
 				if ( array_key_exists( 'items', $channel ) ) {
