@@ -123,6 +123,8 @@ class Yarns_Microsub_Posts {
 	 *
 	 * @param array|string $entry_id        Single ID or array of IDs of posts to toggle.
 	 * @param string       $read_status     The read status to set.
+	 *
+	 * @return array
 	 */
 	public static function toggle_read( $entry_id, $read_status ) {
 		$response = [];
@@ -141,8 +143,8 @@ class Yarns_Microsub_Posts {
 				}
 			}
 			$response = array(
-				'result' => 'OK',
-				'updated' =>$post,
+				'result'  => 'OK',
+				'updated' => $post,
 			);
 
 		}
@@ -175,9 +177,6 @@ class Yarns_Microsub_Posts {
 	/**
 	 * Delete all posts -- for debugging only.
 	 *
-	 * @param string $channel (Optional) Limit deletion to a specific channel.
-	 *
-	 * @return string
 	 */
 	public static function delete_all_posts( ) {
 		// This function is only available in local auth mode.
@@ -197,8 +196,6 @@ class Yarns_Microsub_Posts {
 			$query->the_post();
 			wp_delete_post( get_the_ID(), true );
 		}
-
-		return 'deleted posts';
 	}
 
 	/**
@@ -225,7 +222,6 @@ class Yarns_Microsub_Posts {
 			$query->the_post();
 			wp_delete_post( get_the_ID(), true );
 		}
-		return 'Deleted ' . $count . 'posts';
 	}
 
 

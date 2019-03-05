@@ -8,6 +8,21 @@
 class Yarns_Microsub_Admin {
 
 	/**
+	 * Stores the page query var for Yarns' options page.
+	 *
+	 * @var string
+	 */
+	private static $options_page_name = 'yarns_microsub_options';
+
+	private static function admin_page_link(){
+		return add_query_arg( array('page' => static::$options_page_name), admin_url() . 'admin.php' ) ;
+	}
+
+
+
+
+
+	/**
 	 *  Initialize the admin screen by adding actions for ajax calls.
 	 */
 	public static function init() {
@@ -21,6 +36,13 @@ class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_delete_channel', array( 'Yarns_Microsub_Admin', 'delete_channel' ) );
 		add_action( 'wp_ajax_delete_posts', array( 'Yarns_Microsub_Posts', 'delete_all_posts' ) );
 		add_action( 'wp_ajax_force_poll', array( 'Yarns_Microsub_Aggregator', 'force_poll' ) );
+
+		add_filter( 'query_vars', array('Yarns_Microsub_Admin','add_query_vars_filter' ) );
+	}
+
+	public static function add_query_vars_filter( $vars ) {
+		$vars[] = 'channel';
+		return $vars;
 	}
 
 	/**
@@ -52,7 +74,7 @@ class Yarns_Microsub_Admin {
 				__( 'Yarns Microsub Server', 'yarns-microsub-server' ), // page title.
 				__( 'Yarns Microsub Server', 'yarns-microsub-server' ), // menu title.
 				'manage_options', // access capability.
-				'yarns_microsub_options',
+				static::$options_page_name,
 				array( 'Yarns_Microsub_Admin', 'yarns_settings_html' )
 			);
 		} else {
@@ -63,7 +85,7 @@ class Yarns_Microsub_Admin {
 					'yarns-microsub-server'
 				),
 				'manage_options',
-				'yarns_microsub_options',
+				static::$options_page_name,
 				array(
 					'Yarns_Microsub_Admin',
 					'yarns_settings_html',
@@ -71,6 +93,7 @@ class Yarns_Microsub_Admin {
 			);
 		}
 
+		/*
 		add_submenu_page(
 			'settings.php',
 			'Yarns Microsub Server settings',
@@ -81,6 +104,7 @@ class Yarns_Microsub_Admin {
 			plugin_dir_url( __FILE__ ) . 'images/icon_wporg.png',
 			20
 		);
+		*/
 	}
 
 
@@ -92,7 +116,9 @@ class Yarns_Microsub_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
 		?>
+
 		<div class='wrap'>
 		<div id='yarns-admin-area'>
 
@@ -101,21 +127,20 @@ class Yarns_Microsub_Admin {
 						 alt="Yarns">
 					<span id="yarns-subheading">Microsub Server</span>
 				</div>
+				<?php
+
+				if ( isset( $_GET['channel'] ) ) {
+					// Show settings for specific channel if selected.
+					$channel = sanitize_text_field( wp_unslash( $_GET['channel'] ) );
+					echo static::yarns_channel_options($channel);
+				} else {
+					// Show general settings if no channel is selected.
+					echo static::yarns_general_options();
+				}
+				?>
 
 
-				<div id='yarns-sidebar'>
-					<h2> Channels </h2>
-					<ul id='yarns-channels'>
-						<?php echo static::yarns_list_channels(); ?>
-					</ul>
-					<input id="yarns-new-channel-name" type="text" placeholder="New channel name">
-					<button id="yarns-channel-add">+ Add channel</button>
 
-				</div>
-				<div id='yarns-channel-options'>
-				</div>
-				<div id='yarns-feeds'>
-				</div>
 
 
 			</div><!--#yarns-admin-area-->
@@ -125,6 +150,21 @@ class Yarns_Microsub_Admin {
 			<div id='yarns-debug-commands'>
 				<?php echo static::yarns_debug_commands(); ?>
 			</div>
+		</div>
+		<?php
+	}
+
+
+	private static function yarns_general_options(){
+		?>
+		<div id='yarns-sidebar'>
+			<h2> Channels </h2>
+			<ul id='yarns-channels'>
+				<?php echo static::yarns_list_channels(); ?>
+			</ul>
+			<input id="yarns-new-channel-name" type="text" placeholder="New channel name">
+			<button id="yarns-channel-add">+ Add channel</button>
+
 		</div>
 		<?php
 	}
@@ -171,7 +211,15 @@ class Yarns_Microsub_Admin {
 
 				if ( isset( $channel['uid'] ) ) {
 					$uid  = $channel['uid'];
-					$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
+					$link = esc_url(add_query_arg( array(
+							'page' => static::$options_page_name,
+							'channel' => $uid,
+						), static::admin_page_link())
+					);
+
+
+					$html .= '<li class="yarns-channel" data-uid="' . $uid . '">';
+					$html .= '<a href="'.$link.'">'.$name.'</a>';
 					$html .= '</li>';
 				} else {
 					// If uid is empty, something is wrong and the channel should be omitted.
@@ -248,12 +296,20 @@ class Yarns_Microsub_Admin {
 	/**
 	 * Echoes HTML for the channel options panel
 	 */
-	public static function yarns_channel_options() {
-		if ( isset( $_POST['uid'] ) ) {
-			$uid          = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options_html = '';
-			$channel      = Yarns_Microsub_Channels::get_channel( $uid );
+	public static function yarns_channel_options($uid) {
+		$options_html = '';
 
+		$channel       = Yarns_Microsub_Channels::get_channel( $uid );
+		if ( ! $channel ) {
+			$options_html .= 'Sorry, there is no channel with this uid.<br>';
+			$options_html .= 'Return to <a href="'.static::admin_page_link().'">Yarns Options</a>';
+
+		} else {
+			$options_html  .= '<div id="yarns-option-breadcrumbs">';
+			$options_html .= '<a href="'.static::admin_page_link().'">Yarns Options</a>';
+
+			$options_html .= ' / <span>'. $channel['name'].'</span>';
+			$options_html .= '</div><!--#yarns-option-breadcrumbs-->';
 			$options_html .= '<div id="yarns-channel-options" data-uid="' . $uid . '">';
 			$options_html .= '<h2 id="yarns-option-heading">' . $channel['name'] . '</h2>';
 			$options_html .= '<span id="yarns-channel-update-options">';
@@ -280,8 +336,11 @@ class Yarns_Microsub_Admin {
 			$options_html .= '</div><!--#yarns-channel-feeds-->';
 
 			$options_html .= '</div><!--#yarns_channel_options-->';
-			echo $options_html;
+
 		}
+
+		echo $options_html;
+
 
 		wp_die();
 	}

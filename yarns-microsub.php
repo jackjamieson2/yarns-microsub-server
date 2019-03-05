@@ -23,10 +23,14 @@ register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' )
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
 
+
+
 /**
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
+
+
 
 	/**
 	 * Run when plugins are loaded.

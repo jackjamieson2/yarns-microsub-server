@@ -10,7 +10,10 @@
     /**
      * Select a channel
      */
+    /*
     $( "body" ).on( "click", ".yarns-channel", function() {
+
+
         $('.yarns-channel').removeClass('selected');
         $(this).addClass('selected');
 
@@ -38,6 +41,7 @@
         });
 
     });
+    */
 
     /**
      * Click add new channel
