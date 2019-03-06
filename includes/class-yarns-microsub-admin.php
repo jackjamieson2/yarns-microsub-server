@@ -12,9 +12,9 @@ class Yarns_Microsub_Admin {
 	 *
 	 * @var string
 	 */
-	private static $options_page_name = 'yarns_microsub_options';
+	public static $options_page_name = 'yarns_microsub_options';
 
-	private static function admin_page_link(){
+	public static function admin_page_link(){
 		return add_query_arg( array('page' => static::$options_page_name), admin_url() . 'admin.php' ) ;
 	}
 
@@ -157,7 +157,7 @@ class Yarns_Microsub_Admin {
 
 	private static function yarns_general_options(){
 		?>
-		<div id='yarns-sidebar'>
+
 			<h2> Channels </h2>
 			<ul id='yarns-channels'>
 				<?php echo static::yarns_list_channels(); ?>
@@ -165,7 +165,7 @@ class Yarns_Microsub_Admin {
 			<input id="yarns-new-channel-name" type="text" placeholder="New channel name">
 			<button id="yarns-channel-add">+ Add channel</button>
 
-		</div>
+
 		<?php
 	}
 
@@ -196,18 +196,32 @@ class Yarns_Microsub_Admin {
 	 * @return string
 	 */
 	public static function yarns_list_channels() {
-		$channels = Yarns_Microsub_Channels::get( true )['channels'];
 
+		$channel_table = new Yarns_Microsub_Channel_List_Table();
+		$channel_table->prepare_items();
+		$channel_table->display();
+
+/*
 		$html = '';
 
 		if ( is_array( $channels ) ) {
 
 			foreach ( $channels as $channel ) {
+
+
 				if ( isset( $channel['name'] ) ) {
 					$name = $channel['name'];
 				} else {
 					$name = '';
 				}
+
+				// Get the number of feeds in this channel.
+				if ( isset( $channel['items'] ) && is_array( $channel['items'] ) ) {
+					$n_feeds = count( $channel['items'] );
+				} else {
+					$n_feeds = 0;
+				}
+
 
 				if ( isset( $channel['uid'] ) ) {
 					$uid  = $channel['uid'];
@@ -220,6 +234,7 @@ class Yarns_Microsub_Admin {
 
 					$html .= '<li class="yarns-channel" data-uid="' . $uid . '">';
 					$html .= '<a href="'.$link.'">'.$name.'</a>';
+					$html .= '<div class="n_feeds">' . $n_feeds . ' feeds </div>';
 					$html .= '</li>';
 				} else {
 					// If uid is empty, something is wrong and the channel should be omitted.
@@ -228,6 +243,7 @@ class Yarns_Microsub_Admin {
 			}
 		}
 		return $html;
+*/
 	}
 
 	/**

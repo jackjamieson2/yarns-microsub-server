@@ -224,11 +224,11 @@ class Yarns_Microsub_Channels {
 		}
 
 		// Map the current channel order and the input channel order .
-		$input_order   = [];
-		$input_key     = 0;
+		$input_order = [];
+		$input_key   = 0;
 		foreach ( $current_channels as $key => $channel ) {
 			if ( in_array( $channel['uid'], $input, true ) ) {
-				$input_order[ $key ]   = $input[ $input_key ];
+				$input_order[ $key ] = $input[ $input_key ];
 				$input_key ++;
 			}
 		}

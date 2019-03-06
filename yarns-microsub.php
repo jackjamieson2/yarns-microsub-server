@@ -101,6 +101,10 @@ class Yarns_MicroSub_Plugin {
 		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
 		Yarns_Microsub_Admin::init();
 
+
+		// Class: Admin.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
+
 		// Set timezone for plugin date functions.
 		//date_default_timezone_set( get_option( 'timezone_string' ) );
 
