@@ -7,14 +7,14 @@
  */
 class MF2_Post {
 	public $uid;
-	public $post_author;
+	public $_post_author;
 	public $author;
 	public $publication;
 	public $published;
 	public $updated;
 	public $content;
 	public $summary;
-	public $post_parent;
+	public $_post_parent;
 	public $kind;
 	public $url;
 	public $name;
@@ -42,43 +42,49 @@ class MF2_Post {
 		if ( ! $post ) {
 			return false;
 		}
-		$this->post_author = $post->post_author;
-		$this->author      = self::get_author();
-		$this->post_parent = $post->post_parent;
-		$this->published   = mysql2date( DATE_W3C, $post->post_date );
-		$this->updated     = mysql2date( DATE_W3C, $post->post_modified );
-		$this->publication = get_bloginfo( 'title' );
+		$this->_post_author = $post->post_author;
+		$this->author       = self::get_author();
+		$this->_post_parent = $post->post_parent;
+		$this->published    = get_the_date( DATE_W3C, $post );
+		$this->updated      = get_the_modified_date( DATE_W3C, $post );
+		$this->publication  = get_bloginfo( 'title' );
 		if ( ! empty( $post->post_content ) ) {
 			$this->content = array(
 				'html'  => $post->post_content,
 				'value' => wp_strip_all_tags( $post->post_content ),
 			);
 		}
-		$this->summary = $post->post_excerpt;
-		$this->mf2     = $this->get_mf2meta();
-		$this->url     = get_permalink( $post->ID );
-		$this->name    = $post->post_title;
+		$this->summary  = $post->post_excerpt;
+		$this->mf2      = $this->get_mf2meta();
+		$this->url      = get_permalink( $post->ID );
+		$this->name     = $post->post_title;
+		$this->category = $this->get_categories( $post->ID );
 		if ( $this->uid === (int) $this->name ) {
 			unset( $this->name );
-		}
-		// Get a list of categories and extract their names
-		$post_categories = get_the_terms( $post->ID, 'category' );
-		if ( ! empty( $post_categories ) && ! is_wp_error( $post_categories ) ) {
-			$this->category = wp_list_pluck( $post_categories, 'name' );
-		}
-
-		// Get a list of tags and extract their names
-		$post_tags = get_the_terms( $post->ID, 'post_tag' );
-		if ( ! empty( $post_tags ) && ! is_wp_error( $post_tags ) ) {
-			$this->category = array_merge( $this->category, wp_list_pluck( $post_tags, 'name' ) );
-		}
-		if ( in_array( 'Uncategorized', $this->category, true ) ) {
-			unset( $this->category[ array_search( 'Uncategorized', $this->category, true ) ] );
 		}
 		if ( has_post_thumbnail( $post ) ) {
 			$this->featured = wp_get_attachment_url( get_post_thumbnail_id( $post ), 'full' );
 		}
 		$this->kind = self::get_post_kind();
+	}
+
+	public function get_categories( $post_id ) {
+		$category = array();
+		// Get a list of categories and extract their names
+		$post_categories = get_the_terms( $post_id, 'category' );
+		if ( ! empty( $post_categories ) && ! is_wp_error( $post_categories ) ) {
+			$category = wp_list_pluck( $post_categories, 'name' );
+		}
+
+		// Get a list of tags and extract their names
+		$post_tags = get_the_terms( $post_id, 'post_tag' );
+		if ( ! empty( $post_tags ) && ! is_wp_error( $post_tags ) ) {
+			$category = array_merge( $this->category, wp_list_pluck( $post_tags, 'name' ) );
+		}
+		if ( in_array( 'Uncategorized', $category, true ) ) {
+			unset( $category[ array_search( 'Uncategorized', $category, true ) ] );
+		}
+		return $category;
 	}
 
 	private function get_post_kind() {
@@ -164,7 +170,7 @@ class MF2_Post {
 	 * @return boolean|array The result or false if does not exist.
 	 */
 	public function get_author() {
-		if ( ! $this->post_author ) {
+		if ( ! $this->_post_author ) {
 			return ifset( $this->meta['author'], false );
 		}
 		// Attachments may have been uploaded by a user but may have metadata for original author
@@ -174,9 +180,9 @@ class MF2_Post {
 		return array(
 			'type'       => array( 'h-card' ),
 			'properties' => array(
-				'name'  => array( get_the_author_meta( 'display_name', $this->post_author ) ),
-				'url'   => array( get_the_author_meta( 'user_url', $this->post_author ) ? get_the_author_meta( 'user_url', $this->post_author ) : get_author_posts_url( $this->post_author ) ),
-				'photo' => array( get_avatar_url( $this->post_author ) ),
+				'name'  => array( get_the_author_meta( 'display_name', $this->_post_author ) ),
+				'url'   => array( get_the_author_meta( 'user_url', $this->_post_author ) ? get_the_author_meta( 'user_url', $this->_post_author ) : get_author_posts_url( $this->_post_author ) ),
+				'photo' => array( get_avatar_url( $this->_post_author ) ),
 			),
 		);
 	}
@@ -268,12 +274,19 @@ class MF2_Post {
 			}
 			$properties = array_merge( $vars, $this->mf2 );
 			$properties = array_filter( $properties );
-			$return     = array(
-				'type'       => array( 'h-entry' ),
+			if ( isset( $properties['type'] ) ) {
+				$type = $properties['type'];
+				unset( $properties['type'] );
+			} else {
+				$type = array( 'h-entry' );
+			}
+			$return = array(
+				'type'       => $type,
 				'properties' => $properties,
 			);
 			if ( $single ) {
-				return mf2_to_jf2( $return );
+				$return = mf2_to_jf2( $return );
+				$return = jf2_references( $return );
 			}
 			return $return;
 		}

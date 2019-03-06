@@ -823,7 +823,7 @@ class Parse_This_MF2 {
 		$data = array_filter( $data );
 		$data = array_merge( $data, self::parse_h( $entry, $mf, $args ) );
 		if ( $args['references'] ) {
-			$data = self::references( $data );
+			$data = jf2_references( $data );
 		}
 		$data['post-type'] = post_type_discovery( $data );
 		return array_filter( $data );
@@ -1036,27 +1036,6 @@ class Parse_This_MF2 {
 			}
 		}
 		return array_filter( $data );
-	}
-
-	/* Turns nested properties into references per the jf2 spec
-	*/
-	public static function references( $data ) {
-		foreach ( $data as $key => $value ) {
-			if ( ! is_array( $value ) ) {
-				continue;
-			}
-			// Indicates nested type
-			if ( array_key_exists( 'type', $value ) && 'cite' === $value['type'] ) {
-				if ( ! isset( $data['references'] ) ) {
-					$data['references'] = array();
-				}
-				if ( isset( $value['url'] ) ) {
-					$data['references'][ $value['url'] ] = $value;
-					$data[ $key ]                        = array( $value['url'] );
-				}
-			}
-		}
-		return $data;
 	}
 
 }

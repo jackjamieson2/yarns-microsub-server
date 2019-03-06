@@ -66,6 +66,30 @@ if ( ! function_exists( 'mf2_to_jf2' ) ) {
 	}
 }
 
+
+if ( ! function_exists( 'jf2_references' ) ) {
+	/* Turns nested properties into references per the jf2 spec
+	*/
+	function jf2_references( $data ) {
+		foreach ( $data as $key => $value ) {
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
+			// Indicates nested type
+			if ( array_key_exists( 'type', $value ) && 'cite' === $value['type'] ) {
+				if ( ! isset( $data['references'] ) ) {
+					$data['references'] = array();
+				}
+				if ( isset( $value['url'] ) ) {
+					$data['references'][ $value['url'] ] = $value;
+					$data[ $key ]                        = array( $value['url'] );
+				}
+			}
+		}
+		return $data;
+	}
+}
+
 if ( ! function_exists( 'url_to_author' ) ) {
 	/**
 	 * Examine a url and try to determine the author ID it represents.
