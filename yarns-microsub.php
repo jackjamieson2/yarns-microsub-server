@@ -102,8 +102,11 @@ class Yarns_MicroSub_Plugin {
 		Yarns_Microsub_Admin::init();
 
 
-		// Class: Admin.
+		// Class: Channel List Table.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
+
+		// Class: Feed List Table.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-feed-list-table.php';
 
 		// Set timezone for plugin date functions.
 		//date_default_timezone_set( get_option( 'timezone_string' ) );

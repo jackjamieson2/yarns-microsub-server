@@ -461,8 +461,6 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-
-		return; // no matches, so return nothing.
 	}
 
 
@@ -666,5 +664,21 @@ class Yarns_Microsub_Channels {
 			'bookmark',
 			'other',
 		);
+	}
+
+	/**
+	 * Returns a list of post types displayed in a specific channel.
+	 *
+	 * @param array $channel The channel whose post types to be returned.
+	 *
+	 * @return array
+	 */
+	public static function channel_post_types( $channel ) {
+		if ( isset( $channel['post-types'] ) ) {
+			return $channel['post-types'];
+		} else {
+			// If the channel types haven't been set then return all types.
+			return static::all_post_types();
+		}
 	}
 }
