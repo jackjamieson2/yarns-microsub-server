@@ -22,7 +22,7 @@ if ( ! $channel ) {
 		<span id="yarns-channel-update" >Rename channel</span>
 		<span id="yarns-channel-update-options">
 			<input type="text" id="yarns-channel-update-input" name="yarns-channel-update-input" value="<?php echo $channel['name']; ?>" size="30" ></input>
-			<button id ="yarns-channel-update-save" data-uid="<?php echo $uid; ?>">Save</button>
+			<a class="button" id ="yarns-channel-update-save" data-uid="<?php echo $uid; ?>">Save</a>
 		</span><!--#yarns-channel-update-options-->
 
 
@@ -57,24 +57,33 @@ if ( ! $channel ) {
 			?>
 
 
-			<br><button class="yarns-channel-filters-save" data-uid="' . $channel['uid'] . '">Update</button>
+			<br><a class="button yarns-channel-filters-save" data-uid="' . $channel['uid'] . '">Update</a>
 		</div>
 
 
 		<!-- Follow new feed -->
 		<div id="yarns-add-subscription"><h2>Follow a new site:</h2>
 			<input type="text" id="yarns-URL-input" name="yarns-URL-input" value="" size="30"  placeholder = "Enter a URL to find its feeds."></input>
-			<button id ="yarns-channel-find-feeds">Search</button>
+			<a class="button" id ="yarns-channel-find-feeds">Search</a>
 			<div id="yarns-feed-picker-list"></div>
-			</div><!--#yarns-add-subscription-->
+		</div><!--#yarns-add-subscription-->
 
 		<!-- List of feeds in this channel -->
 		<div id="yarns-channel-feeds"><h2>Following:</h2>
 			<ul id="yarns-following-list">
 				<?php Yarns_Microsub_Admin::list_feeds($channel);?>
 
-				</ul><!--#yarns-following-list-->
-			</div><!--#yarns-channel-feeds-->
+			</ul><!--#yarns-following-list-->
+		</div><!--#yarns-channel-feeds-->
+
+		<!-- Modal for displaying previews -->
+		<div id="yarns-preview-modal" class="modal">
+			<div class="yarns-preview-container">
+				<span class="close">&times;</span>
+				<div id="yarns-preview-content"></div>
+			</div>
+
+		</div>
 
 		</div><!--#yarns_channel_options-->
 <?php } ?>

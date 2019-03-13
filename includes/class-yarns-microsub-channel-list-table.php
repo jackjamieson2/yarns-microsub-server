@@ -8,7 +8,6 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'channel_name' => __( 'Channel Name', 'yarns_microsub' ),
-			'channel_uid'  => __( 'Channel UID', 'yarns_microsub' ),
 			'n_feeds'      => __( 'Number of feeds', 'yarns_microsub' ),
 			/*'order' => __( 'Order', 'yarns_microsub' ),*/
 			// Removed for now, add back once I figure out the best method .
@@ -87,9 +86,6 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		return $html;
 	}
 
-	public function column_channel_uid( $item ) {
-		return $item['channel_uid'];
-	}
 
 	public function column_n_feeds( $item ) {
 		return $item['n_feeds'];

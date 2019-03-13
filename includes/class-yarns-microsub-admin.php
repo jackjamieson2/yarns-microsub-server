@@ -26,6 +26,7 @@ class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_save_filters', array( 'Yarns_Microsub_Channels', 'save_filters' ) );
 		add_action( 'wp_ajax_get_options', array( 'Yarns_Microsub_Admin', 'yarns_channel_options' ) );
 		add_action( 'wp_ajax_find_feeds', array( 'Yarns_Microsub_Admin', 'find_feeds' ) );
+		add_action( 'wp_ajax_preview_feed', array( 'Yarns_Microsub_Admin', 'preview_feed' ) );
 		add_action( 'wp_ajax_follow_feed', array( 'Yarns_Microsub_Admin', 'follow_feed' ) );
 		add_action( 'wp_ajax_unfollow_feed', array( 'Yarns_Microsub_Admin', 'unfollow_feed' ) );
 		add_action( 'wp_ajax_add_channel', array( 'Yarns_Microsub_Admin', 'add_channel' ) );
@@ -143,35 +144,12 @@ class Yarns_Microsub_Admin {
 		$feed_table->set_channel( $channel['uid'] );
 		$feed_table->prepare_items();
 		$feed_table->display();
-
-		/*
-		$html = '';
-		if ( ! isset( $channel['items'] ) ) {
-			$html = 'You are not following any feeds in this channel yet.';
-		} else {
-			$feeds = $channel['items'];
-
-			foreach ( $feeds as $feed ) {
-				if ( isset( $feed['url'] ) ) {
-					$html .= '<li>';
-					$html .= '<a href="' . urldecode( $feed['url'] ) . '" target="_blank">' . urldecode( $feed['url'] ) . '</a>';
-					$html .= '<button class="yarns-unfollow"></button>';
-					// todo: add a preview feed option.
-					$html .= '</li>';
-				} else {
-					$html .= 'DEBUG: ' . wp_json_encode( $feed );
-				}
-			}
-		}
-
-		return $html;
-		*/
 	}
 
 	/**
 	 * Returns a list of channels
 	 */
-	public static function yarns_list_channels() {
+	public static function list_channels() {
 		$channel_table = new Yarns_Microsub_Channel_List_Table();
 		$channel_table->prepare_items();
 		$channel_table->display();
@@ -184,11 +162,11 @@ class Yarns_Microsub_Admin {
 	/**
 	 * Echoes HTML for the debug log
 	 */
-	private static function yarns_debug_log() {
+	private static function debug_log() {
 		$html = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
-		$log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		$log = json_decode( get_site_option( 'debug_log' ), true );
 		if ( is_array( $log ) ) {
 			foreach ( $log as $item ) {
 				$html .= htmlspecialchars( $item ) . '<br>';
@@ -206,7 +184,7 @@ class Yarns_Microsub_Admin {
 	/**
 	 * Echoes HTML for debug commands.
 	 */
-	private static function yarns_debug_commands() {
+	private static function debug_commands() {
 		$html = '<h2> Debug commands </h2>';
 		$html .= '<button id="yarns_delete_posts">Delete all posts</button>';
 		$html .= '<button id="yarns_force_poll">Force poll</button>';
@@ -233,7 +211,8 @@ class Yarns_Microsub_Admin {
 				$html .= '<label><input type="radio" name="yarns-feed-picker" value="' . $result['url'] . '">' . $result['url'] . '</label>';
 
 			}
-			$html .= '<button id ="yarns-channel-add-feed">Subscribe</button>';
+			$html .= '<a class="button" id ="yarns-channel-preview-feed">Preview</a>';
+			$html .= '<a class="button" id ="yarns-channel-add-feed">Subscribe</a>';
 			echo $html;
 		}
 		wp_die();
@@ -283,7 +262,7 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['channel'] ) ) {
 			$channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			Yarns_Microsub_Channels::add( $channel );
-			echo static::yarns_list_channels();
+			echo static::list_channels();
 		}
 		wp_die();
 	}
@@ -298,7 +277,7 @@ class Yarns_Microsub_Admin {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			Yarns_Microsub_Channels::update( $uid, $channel );
-			echo static::yarns_list_channels();
+			echo static::list_channels();
 		}
 		wp_die();
 	}
@@ -312,8 +291,28 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['uid'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			Yarns_Microsub_Channels::delete( $uid );
-			echo static::yarns_list_channels();
+			echo static::list_channels();
 		}
+		wp_die();
+	}
+
+	/**
+	 * Echoes a preview of a feed.
+	 */
+	public static function preview_feed($url = null) {
+		if ( ! $url) {
+			if ( isset( $_POST['url'] ) ) {
+				$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
+			}
+		}
+		echo $url;
+		/*
+
+		$preview_data = Yarns_Microsub_Parser::preview($url);
+		$preview = new Yarns_Microsub_Preview($preview_data);
+		$preview_html = $preview->html();
+		echo $preview_html;
+		*/
 		wp_die();
 	}
 

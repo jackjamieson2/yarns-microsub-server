@@ -101,6 +101,8 @@ class Yarns_MicroSub_Plugin {
 		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
 		Yarns_Microsub_Admin::init();
 
+		// Class: Preview.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-preview.php';
 
 		// Class: Channel List Table.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
@@ -149,8 +151,8 @@ class Yarns_MicroSub_Plugin {
 	 * @param string $message Message to be written to the log.
 	 */
 	public static function debug_log( $message ) {
-		if ( get_site_option( 'yarns_debug_log' ) ) {
-			$debug_log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		if ( get_site_option( 'debug_log' ) ) {
+			$debug_log = json_decode( get_site_option( 'debug_log' ), true );
 		} else {
 			$debug_log = [];
 		}
@@ -163,6 +165,6 @@ class Yarns_MicroSub_Plugin {
 		} else {
 			$debug_log[] = $debug_entry;
 		}
-		update_option( 'yarns_debug_log', wp_json_encode( $debug_log ) );
+		update_option( 'debug_log', wp_json_encode( $debug_log ) );
 	}
 }
