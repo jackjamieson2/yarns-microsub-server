@@ -68,6 +68,12 @@ if ( ! $channel ) {
 			<div id="yarns-feed-picker-list"></div>
 		</div><!--#yarns-add-subscription-->
 
+		<!-- Box for displaying previews -->
+		<div id="yarns-preview-outer-container">
+			<div id="yarns-preview-header">Preview: <span id="yarns-preview-url"></span><a class="button" id="yarns-preview-close">Close preview</a></div>
+			<div id="yarns-preview-container"></div>
+		</div>
+
 		<!-- List of feeds in this channel -->
 		<div id="yarns-channel-feeds"><h2>Following:</h2>
 			<ul id="yarns-following-list">
@@ -76,14 +82,7 @@ if ( ! $channel ) {
 			</ul><!--#yarns-following-list-->
 		</div><!--#yarns-channel-feeds-->
 
-		<!-- Modal for displaying previews -->
-		<div id="yarns-preview-modal" class="modal">
-			<div class="yarns-preview-container">
-				<span class="close">&times;</span>
-				<div id="yarns-preview-content"></div>
-			</div>
 
-		</div>
 
 		</div><!--#yarns_channel_options-->
 <?php } ?>

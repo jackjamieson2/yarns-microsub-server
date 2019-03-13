@@ -247,9 +247,15 @@
             },
             success : function( response ) {
                 done_loading(button);
-                $('#yarns-preview-content').html(response);
+                $('#yarns-preview-container').html(response);
+                $('#yarns-preview-url').text(url);
 
-                $('#yarns-preview-modal').show();
+                // Change all links to open in new tab
+                $('#yarns-preview-container').find('a').each(function( index ) {
+                    $(this).attr('target','_blank');
+                });
+
+                $('#yarns-preview-outer-container').show();
 
             }
         });
@@ -257,10 +263,10 @@
     });
 
     /**
-     * Close the modal
+     * Close the preview
      */
-    $( "body" ).on( "click", ".yarns-preview-container .close", function() {
-        $('#yarns-preview-modal').hide();
+    $( "body" ).on( "click", "#yarns-preview-close .close", function() {
+        $('#yarns-preview-outer-container').hide();
     });
 
 

@@ -305,14 +305,16 @@ class Yarns_Microsub_Admin {
 				$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			}
 		}
-		echo $url;
-		/*
+
 
 		$preview_data = Yarns_Microsub_Parser::preview($url);
+		//echo wp_json_encode($preview_data);
+		//wp_die();
+
 		$preview = new Yarns_Microsub_Preview($preview_data);
 		$preview_html = $preview->html();
 		echo $preview_html;
-		*/
+
 		wp_die();
 	}
 

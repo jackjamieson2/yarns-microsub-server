@@ -186,39 +186,70 @@ button#yarns-channel-add-feed {
 
 /* Modal for previews */
 /* The Modal (background) */
-#yarns-preview-modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+#yarns-preview-outer-container {
+    display:none;
+    margin: 1rem 0;
+    width:100%;
+    background-color:#32373c;
+
 }
 
-/* Modal Content/Box */
-.yarns-preview-container {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+#yarns-preview-header {
+    font-weight:bold;
+    position:relative;
+    color:rgba(240, 245, 250, 0.7);
+    height:32px;
+    padding:4px;
 }
 
-/* The Close Button */
-.yarns-preview-container .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+#yarns-preview-url {
+    font-weight:normal;
 }
 
-.yarns-preview-container .close:hover,
-.yarns-preview-container .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+#yarns-preview-close {
+   float:right;
 }
+
+#yarns-preview-container {
+    position: relative;
+    overflow: scroll;
+    background: white;
+    color:#72777c;
+    max-height:800px;
+    width:100%;
+}
+
+.yarns-preview-item>div, .yarns-preview-item>h2 {
+    padding-left:2rem;
+    padding-right:2rem;
+}
+
+#yarns-preview-container img {
+    max-width:100%;
+}
+
+.yarns-preview-item {
+    margin: 1rem 0;
+    border-bottom: 1px solid #c9c9c9;
+}
+.yarns-preview-author img {
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.yarns-preview-published {
+    color: #898989;
+    font-size: smaller;
+}
+
+.yarns-preview-content {
+    padding-top: 2rem;
+}
+
+.yarns-preview-author span {
+    vertical-align:top;
+    font-weight:bold;
+    margin-left:1rem;
+}
+

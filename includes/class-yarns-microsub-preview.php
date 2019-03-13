@@ -8,7 +8,7 @@
 class Yarns_Microsub_Preview {
 
 	private $data = array();
-	private $output = '';
+	private $html = '';
 
 	/**
 	 * Constructor.
@@ -17,8 +17,8 @@ class Yarns_Microsub_Preview {
 	 * @access public
 	 */
 	public function __construct( $data = null ) {
-		if ( is_array( $data ) ) {
-			$this->data = $data;
+		if ( is_array( $data ) && isset ($data['items']) ) {
+			$this->data = $data['items'];
 		}
 		$this->html = $this::generate_html();
 	}
@@ -27,53 +27,103 @@ class Yarns_Microsub_Preview {
 		return $this->html;
 	}
 
+	public function debug(){
+		return $this->html;
+	}
+
 	private function generate_html() {
 		if ( ! $this->data ) {
 			return;
 		}
 
+		$html = '';
 		foreach ( $this->data as $item ) {
-			$html = '<div class="yarns-preview-item">';
-			$html .= $this::author( $item_html );
-			//$html .= $this::title($item_html);
-			//$html .= $this::content($item_html);
-			$html .= '</div><!--.yarns-preview-item-->';
+
+			if ( isset( $item['type']) && $item['type'] === 'entry'  ) {
+				$html .= '<div class="yarns-preview-item">';
+
+				$html .= $this::author( $item );
+				$html .= $this::title($item);
+				$html .= $this::published($item);
+				$html .= $this::content($item);
+				$html .= '</div><!--.yarns-preview-item-->';
+			}
+
+
 		}
-	}
-
-	private function author( $item ) {
-		$html = '<div class=yarns-preview-author>';
-		if ( ! $item['author'] ) {
-			$html .= 'no author information.';
-		} else {
-			$author = $item['author'];
-
-			if ( $author['photo'] ) {
-				$html .= '<img src="' . $author['photo'] . '">';
-			}
-
-			$html .= '<span>';
-			if ( $author['url'] ) {
-				$html .= '<a href="' . $author['url'] . '">';
-			}
-
-			if ( $author['name'] ) {
-				$html .= $author['name'];
-			} else {
-				$html .= 'unknown';
-			}
-
-			if ( $author['url'] ) {
-				$html .= '</a>';
-			}
-
-			$html .= '</span>';
-		}
-		$html .= '</div><!--.yarns-preview-author-->';
 
 		return $html;
 
 	}
+
+	private function author( $item ) {
+		$html = '<div class=yarns-preview-author>';
+		if ( ! isset( $item['author'] ) ) {
+			$html .= '(no author information)';
+		} else {
+			if ( $item['author']['photo'] ) {
+				$html .= '<img src="' . $item['author']['photo'] . '">';
+			}
+			$html .= '<span>';
+			if ( $item['author']['url'] ) {
+				$html .= '<a href="' . $item['author']['url'] . '">';
+			}
+			if ( $item['author']['name'] ) {
+				$html .= $item['author']['name'];
+			} else {
+				$html .= 'unknown';
+			}
+			if ( $item['author']['url'] ) {
+				$html .= '</a>';
+			}
+			$html .= '</span>';
+		}
+		$html .= '</div><!--.yarns-preview-author-->';
+		return $html;
+	}
+
+	private function title( $item ) {
+		if ( ! isset ( $item['title'] ) ) {
+			return;
+		} else {
+			$html  = '<h2 class=yarns-preview-title>';
+			$html .= $item['title'];
+			$html .= '</h2><!--.yarns-preview-title-->';
+			return $html;
+		}
+	}
+
+	private function published( $item ) {
+		if ( ! isset ( $item['published'] ) ) {
+			return;
+		} else {
+			$html  = '<div class=yarns-preview-published>';
+			$html .= '<a href="' . $item['url'] . '">';
+			$html .= $item['published'];
+			$html .= '</a>';
+			$html .= '</div><!--.yarns-preview-published-->';
+			return $html;
+		}
+	}
+
+	private function content( $item ) {
+		if ( ! isset ( $item['content'] ) ) {
+			return;
+		} else {
+			$html = '<div class=yarns-preview-content>';
+			if ( ! is_array( $item['content'] ) ) {
+				$html .= $item['content'];
+			} elseif ( isset( $item['content']['html'] ) ) {
+				$html .= $item['content']['html'];
+			} elseif ( isset( $item['content']['text'] ) ) {
+				$html .= $item['content']['text'];
+			}
+			$html .= '</div><!--.yarns-preview-content-->';
+
+			return $html;
+		}
+	}
+
 
 
 }
