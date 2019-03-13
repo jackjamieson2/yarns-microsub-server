@@ -5,7 +5,7 @@
  * @package Post Kinds
  * Assists in retrieving/saving microformats 2 properties from a post
  */
-class MF2_Post {
+class MF2_Post implements ArrayAccess {
 	public $uid;
 	public $_post_author;
 	public $author;
@@ -66,6 +66,33 @@ class MF2_Post {
 			$this->featured = wp_get_attachment_url( get_post_thumbnail_id( $post ), 'full' );
 		}
 		$this->kind = self::get_post_kind();
+	}
+
+	public function offsetExists( $offset ) {
+		$vars = get_object_vars( $this );
+		if ( array_key_exists( $offset, $vars ) ) {
+			return true;
+		}
+		return array_key_exists( $offset, $this->mf2 );
+	}
+
+	public function offsetGet( $offset ) {
+		$vars = get_object_vars( $this );
+		if ( array_key_exists( $offset, $vars ) ) {
+			return $vars[ $offset ];
+		}
+		if ( array_key_exists( $offset, $this->mf2 ) ) {
+			return $this->mf2[ $offset ];
+		}
+		return null;
+	}
+
+	public function offsetSet( $offset, $value ) {
+		$this->set( $offset, $value );
+	}
+
+	public function offsetUnset( $offset ) {
+		$this->delete( $offset );
 	}
 
 	public function get_categories( $post_id ) {
@@ -261,7 +288,7 @@ class MF2_Post {
 	 * @param  boolean $single Whether to return a a single value or array if there is only one value.
 	 * @return boolean|string|array The result or false if does not exist.
 	 */
-	public function get( $key = null, $single = false ) {
+	public function get( $key = null, $single = true ) {
 		if ( 'mf2' === $key ) {
 			return $this->mf2;
 		}
@@ -286,7 +313,6 @@ class MF2_Post {
 			);
 			if ( $single ) {
 				$return = mf2_to_jf2( $return );
-				$return = jf2_references( $return );
 			}
 			return $return;
 		}
