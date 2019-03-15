@@ -100,7 +100,7 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 
 
 		$actions = array(
-			'preview' => '<a class="yarns-feed-preview" href="' . $link_preview . '">Preview</a>',
+			'preview' => '<a class="yarns-feed-preview" data-url="' . $item['url'] . '" href="' . $link_preview . '">Preview</a>',
 			'delete'  => '<a class="yarns-feed-unfollow" data-url="' . $item['url'] . '" href="' . $link_unfollow . '">Unfollow</a>',
 			//'delete' => '<a class="yarns-feed-unfollow"  data-url="' . $item['url'] . '">Unfollow</a>',
 		);

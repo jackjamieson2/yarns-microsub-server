@@ -232,41 +232,58 @@
     /**
      * Display a preview
      */
-    $( "body" ).on( "click", "#yarns-channel-preview-feed", function() {
-        url = $('input[name=yarns-feed-picker]:checked').val();
 
-        button = $(this);
-        start_loading(button);
+    /**
+     * Detect preview clicks from the 'add feed' interface
+     */
+
+    $( "body" ).on( "click", "#yarns-channel-preview-feed", function() {
+        preview_url = $('input[name=yarns-feed-picker]:checked').val();
+        preview(preview_url);
+
+    });
+
+    /**
+     * Detect preview clicks from the list of already subscribed feeds
+     */
+
+
+    $( "body" ).on( "click", ".yarns-feed-preview", function() {
+        preview_url = $(this).data('url');
+        preview(preview_url);
+    });
+
+    function preview(preview_url) {
+        //Show the preview box while loading
+        start_loading($('#yarns-preview-container'));
+        $('#yarns-preview-url').text(preview_url);
+        $('#yarns-preview-outer-container').show();
+        $('body').addClass('noscroll');
 
         $.ajax({
             url : yarns_microsub_server_ajax.ajax_url,
             type : 'post',
             data : {
                 action : 'preview_feed',
-                url: url,
+                url: preview_url,
             },
             success : function( response ) {
-                done_loading(button);
                 $('#yarns-preview-container').html(response);
-                $('#yarns-preview-url').text(url);
-
                 // Change all links to open in new tab
                 $('#yarns-preview-container').find('a').each(function( index ) {
                     $(this).attr('target','_blank');
                 });
-
-                $('#yarns-preview-outer-container').show();
-
             }
         });
-
-    });
+    }
 
     /**
      * Close the preview
      */
-    $( "body" ).on( "click", "#yarns-preview-close .close", function() {
+    $( "body" ).on( "click", "#yarns-preview-close", function() {
         $('#yarns-preview-outer-container').hide();
+        $('body').removeClass('noscroll');
+
     });
 
 

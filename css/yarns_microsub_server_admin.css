@@ -189,10 +189,25 @@ button#yarns-channel-add-feed {
 
 #yarns-preview-outer-container {
     display:none;
-    margin: 1rem 0;
-    width:100%;
-    background-color:#32373c;
+    position:fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    z-index: 9991;
+    background: #000000b3;
+}
 
+#yarns-preview-inner-container {
+
+    margin: 50px auto;
+    width:90vw;
+    height:90vh;
+    max-width: 500px;
+    position:static;
+    background-color:#32373c;
+    overflow: hidden;
+    border: 1px solid #c9c9c9;
 }
 
 #yarns-preview-header {
@@ -216,7 +231,7 @@ button#yarns-channel-add-feed {
     overflow: scroll;
     background: white;
     color:#72777c;
-    max-height:800px;
+    height:100%;
     width:100%;
 }
 
@@ -253,3 +268,7 @@ button#yarns-channel-add-feed {
     margin-left:1rem;
 }
 
+
+.noscroll {
+    overflow:hidden;
+}
