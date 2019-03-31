@@ -8,8 +8,8 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'url'          => __( 'Feed URL', 'yarns_microsub' ),
-			'_name'        => __( 'Name', 'yarns_microsub' ),
-			'_type'        => __( 'Type', 'yarns_microsub' ),
+			/*'_name'        => __( 'Name', 'yarns_microsub' ),*/
+			/*'_type'        => __( 'Type', 'yarns_microsub' ),*/
 			'_last_polled' => __( 'Last Polled', 'yarns_microsub' ),
 		);
 	}
