@@ -407,12 +407,14 @@
 
 
     function start_loading(target) {
-        target.append('<span class="yarns-loading"></span>');
+        target.addClass('yarns-loading');
+        //target.append('<span class="yarns-loading"></span>');
     }
 
 
     function done_loading(target) {
-        target.find($('.yarns-loading')).remove();
+        target.removeClass('yarns-loading');
+        //target.find($('.yarns-loading')).remove();
     }
 
 
