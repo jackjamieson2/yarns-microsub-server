@@ -35,7 +35,7 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 		$this->_column_headers = array( $columns, $hidden, $this->get_sortable_columns() );
 		$this->items           = array();
 
-		echo wp_json_encode( $this->channel );
+		/*echo wp_json_encode( $this->channel );*/
 		foreach ( $feeds['items'] as $feed ) {
 			if ( isset( $feed['url'] ) ) {
 				$value['url'] = $feed['url'];
