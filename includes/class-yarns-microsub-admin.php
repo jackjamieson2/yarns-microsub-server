@@ -41,6 +41,7 @@ class Yarns_Microsub_Admin {
 
 	public static function add_query_vars_filter( $vars ) {
 		$vars[] = 'channel';
+		$vars[] = 'mode';
 
 		return $vars;
 	}
