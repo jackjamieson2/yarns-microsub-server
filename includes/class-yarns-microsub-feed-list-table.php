@@ -74,30 +74,17 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 
 	public function column_url( $item ) {
 
-		$link_unfollow = esc_url(
-			add_query_arg(
-				array(
-					'page'     => Yarns_Microsub_Admin::$options_page_name,
-					'action'   => 'unfollow',
-					'channel'  => $this->channel,
-					'feed_url' => $item['url'],
-				),
-				Yarns_Microsub_Admin::admin_page_link()
-			)
+		$link_unfollow_args = array(
+			'action' => 'unfollow',
+			'feed_url' => $item['url'],
 		);
+		$link_unfollow =	Yarns_Microsub_Admin::admin_channel_feeds_link($this->channel, $link_unfollow_args);
 
-		$link_preview = esc_url(
-			add_query_arg(
-				array(
-					'page'     => Yarns_Microsub_Admin::$options_page_name,
-					'action'   => 'preview',
-					'channel'  => $this->channel,
-					'feed_url' => $item['url'],
-				),
-				Yarns_Microsub_Admin::admin_page_link()
-			)
+		$link_preview_args = array(
+			'action' => 'preview',
+			'feed_url' => $item['url'],
 		);
-
+		$link_preview =	Yarns_Microsub_Admin::admin_channel_feeds_link($this->channel, $link_preview_args);
 
 		$actions = array(
 			'preview' => '<a class="yarns-feed-preview" data-url="' . $item['url'] . '" href="' . $link_preview . '">Preview</a>',
@@ -110,13 +97,14 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 
 
 	public function column__last_polled( $item ) {
-		$link_poll = esc_url( add_query_arg( array(
-				'page'     => Yarns_Microsub_Admin::$options_page_name,
-				'action'   => 'poll',
-				'channel'  => $this->channel,
-				'feed_url' => $item['url'],
-			), Yarns_Microsub_Admin::admin_page_link() )
+
+		/* The polling link doesn't work yet, so removing it for now */
+		/*
+		$link_poll_args = array(
+			'action' => 'poll',
+			'feed_url' => $item['url'],
 		);
+		$link_poll =	Yarns_Microsub_Admin::admin_channel_feeds_link($this->channel, $link_poll_args);
 
 
 		$actions = array(
@@ -124,6 +112,8 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 		);
 
 		return $item['_last_polled'] . $this->row_actions( $actions );
+		*/
+		return $item['_last_polled'];
 	}
 
 
