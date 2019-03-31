@@ -47,7 +47,7 @@ function encode_array( $data ) {
 }
 
 /**
- * Checks if a post is newer than the storage period. Returns true if so
+ * Checks if a post is newer than the storage period. Returns true if so.
  *
  * @param array $post               The post data.
  * @param int   $storage_period     The time to store posts (in days).

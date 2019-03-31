@@ -89,6 +89,7 @@ class Yarns_Microsub_Aggregator {
 							}
 
 							// exit early if polling is taking a long time.
+
 							if ( time() - $poll_start_time > $poll_time_limit ) {
 								$results['polling start time']     = $poll_start_time;
 								$results['polling end time']       = time();
@@ -140,13 +141,24 @@ class Yarns_Microsub_Aggregator {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
 					if ( 'entry' === $post['type'] ) {
 						// Only poll if the post is within the storage period.
-						if ( yarns_date_compare( $post, $storage_period ) ) {
+						// Set $post['date'] to updated if it exists, otherwise use 'published'
+						if (isset($post['updated'])) {
+							$post['date'] = $post['updated'];
+						} elseif (isset($post['published'])) {
+							$post['date'] = $post['published'];
+						}
+
+						if ( ! yarns_date_compare( $post, $storage_period ) ) {
 							if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
 								$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
 							} else {
 								$site_results['already_exists'] = $post['url'];
 							}
+						} else {
+							//debugging
+							$site_results['post too old'] = $post['url'];
 						}
+
 					}
 				}
 			}
