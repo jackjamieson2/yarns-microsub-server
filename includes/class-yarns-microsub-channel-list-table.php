@@ -77,6 +77,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		$link = esc_url( add_query_arg( array(
 				'page'    => Yarns_Microsub_Admin::$options_page_name,
 				'channel' => $uid,
+				'mode'    => 'channel-feeds'
 			), Yarns_Microsub_Admin::admin_page_link() )
 		);
 

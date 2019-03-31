@@ -14,9 +14,37 @@ class Yarns_Microsub_Admin {
 	 */
 	public static $options_page_name = 'yarns_microsub_options';
 
-	public static function admin_page_link() {
-		return add_query_arg( array( 'page' => static::$options_page_name ), admin_url() . 'admin.php' );
+	public static function admin_page_link( $args = [] ) {
+		$default_args = array(
+			'page' => static::$options_page_name,
+		);
+
+		$args = array_merge( $default_args, $args );
+
+		return add_query_arg( $args, admin_url() . 'admin.php' );
+		//return add_query_arg( array( 'page' => static::$options_page_name ), admin_url() . 'admin.php' );
 	}
+
+	public static function admin_channel_settings_link($uid, $args = []) {
+		$default_args = array(
+			'mode'    => 'channel-feeds',
+			'channel' => $uid,
+		);
+		// merge additional args if defined.
+		$args = array_merge( $default_args, $args );
+		return static::admin_page_link( $args );
+	}
+
+	public static function admin_channel_feeds_link( $uid, $args = [] ) {
+		$default_args = array(
+			'mode'    => 'channel-feeds',
+			'channel' => $uid,
+		);
+		// merge additional args if defined.
+		$args = array_merge( $default_args, $args );
+		return static::admin_page_link( $args );
+	}
+
 
 
 	/**
@@ -231,8 +259,9 @@ class Yarns_Microsub_Admin {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url );
-			$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::yarns_list_feeds( $channel );
+			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
+			echo static::admin_channel_feeds_link($uid);
+			//echo static::yarns_list_feeds( $channel );
 		}
 
 
@@ -248,8 +277,10 @@ class Yarns_Microsub_Admin {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url, $unfollow = true );
-			$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::yarns_list_feeds( $channel );
+			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
+			echo static::admin_channel_feeds_link($uid);
+
+			//echo static::yarns_list_feeds( $channel );
 		}
 		wp_die();
 	}
