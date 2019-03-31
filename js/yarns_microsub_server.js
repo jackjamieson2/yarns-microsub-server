@@ -92,12 +92,12 @@
     /**
      * Rename a channel (update)
      */
-    // Show the input box to rename a channel
-    $( "body" ).on( "click", "#yarns-channel-update", function() {
-       $(this).css('visibility', 'hidden');
-       $('#yarns-option-heading').css('visibility', 'hidden');
 
-       $('#yarns-channel-update-options').show();
+
+    // Show the channel settings
+    $( "body" ).on( "click", "#yarns-show-channel-settings", function() {
+        $(this).hide();
+        $('#yarns-channel-settings-box').show();
     });
 
     // Save the new channel name
@@ -165,6 +165,9 @@
         //console.log(parent);
         //console.log(parent.data('test'));
         var uid =  $(this).data('uid');
+
+        //var old_channel = $('#yarns-option-heading').text();
+        var channel = $('#yarns-channel-update-name').val().trim();
 
 
         console.log(uid);
