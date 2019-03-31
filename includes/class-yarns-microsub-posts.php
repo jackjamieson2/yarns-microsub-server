@@ -81,10 +81,10 @@ class Yarns_Microsub_Posts {
 		);
 
 		if ( isset( $post['published'] ) ) {
-			$my_post['post_date'] = date( 'Y-m-d H:i:s', strtotime( $post['published'] ) );
+			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
 		}
 		if ( isset( $post['updated'] ) ) {
-			$my_post['post_modified'] = date( 'Y-m-d H:i:s', strtotime( $post['updated'] ) );
+			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
 
 		}
 
