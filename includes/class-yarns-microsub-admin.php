@@ -27,7 +27,7 @@ class Yarns_Microsub_Admin {
 
 	public static function admin_channel_settings_link($uid, $args = []) {
 		$default_args = array(
-			'mode'    => 'channel-feeds',
+			'mode'    => 'channel-settings',
 			'channel' => $uid,
 		);
 		// merge additional args if defined.
