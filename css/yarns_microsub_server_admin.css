@@ -17,6 +17,12 @@
     margin: 2em 0 1em;
 }
 
+/* Links in list tables */
+.wp-list-table .row-actions a {
+    cursor:pointer;
+}
+
+/*
 #yarns-sidebar {
     float:left;
     max-width:200px;
@@ -32,37 +38,29 @@
 #yarns-new-channel-name {
     display:none;
 }
+*/
 
 
 
 #yarns-channel-options {
-    float:left;
     max-width:800px;
-    width:70%;
-    margin-left:2em;
 }
+
 
 #yarns-option-heading {
 
 }
 
 #yarns-channel-update-options {
-    display:none;
     margin: 1em 0;
 }
 
-#yarns-channel-update{
-    /* "rename channel" button */
-    cursor:pointer;
-
-    color:darkslategrey;
-}
 
 #yarns-channel-delete {
     /* "delete channel" button */
-    cursor:pointer;
+    /*cursor:pointer;*/
     float:right;
-    color:darkred;
+    /*color:darkred;*/
 }
 
 .yarns-channel {
@@ -107,9 +105,6 @@
     border-radius: 2px;
 }
 
-button#yarns-channel-add-feed {
-    /*display:none;*/
-}
 #yarns-channel-options .yarns-channel-filters label {
     cursor: pointer;
     padding: 0 1rem 1rem 0;
@@ -153,6 +148,8 @@ button#yarns-channel-add-feed {
     content: "Unfollow";
 }
 
+
+
 /* Debug log area */
 #yarns-debug-log-area {
     clear:both;
@@ -170,17 +167,29 @@ button#yarns-channel-add-feed {
 
 
 .yarns-loading {
+    padding-right:1.5rem!important;
+    position:relative;
+}
+.yarns-loading:after {
     background: url(../images/Wedges.svg) no-repeat top right;
     background-size: 100% auto;
     height:100%;
-
-    height: 1rem;
-    width: 1rem;
+    content: ' ';
+    height: 1.2rem;
+    width: 1.2rem;
 
     position:absolute;
     top:.2rem;
     right:.2rem;
+
+    /*content: url('../images/Wedges.svg');*/
+
 }
+
+/*
+
+}
+*/
 
 
 
