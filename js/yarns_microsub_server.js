@@ -273,6 +273,8 @@
                 url: preview_url,
             },
             success : function( response ) {
+                done_loading($('#yarns-preview-container'))
+
                 $('#yarns-preview-container').html(response);
                 // Change all links to open in new tab
                 $('#yarns-preview-container').find('a').each(function( index ) {
