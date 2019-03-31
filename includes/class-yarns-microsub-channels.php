@@ -277,6 +277,14 @@ class Yarns_Microsub_Channels {
 				$options = $all_post_types;
 			}
 
+			// Update the channel name.
+			if ( isset( $_POST['channel'] ) ) {
+				$name = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
+				static::update( $uid, $name );
+			}
+
+
+
 			if ( get_site_option( 'yarns_channels' ) ) {
 				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
