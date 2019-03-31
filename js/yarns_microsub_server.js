@@ -186,10 +186,15 @@
                 action : 'save_filters',
                 uid: uid,
                 options: options,
+                channel: channel,
+
             },
             success : function( response ) {
+                var channel_feeds_url = $('#yarns-breadcrumb-channel').attr('href');
+                console.log(channel_feeds_url);
                 done_loading(button);
                 console.log("success");
+                window.location = channel_feeds_url;
 
             }
         });
@@ -313,9 +318,10 @@
             success : function( response ) {
                 done_loading(button);
                 console.log("success");
-                $html_content = response.find('#yarns_follow_html');
+                window.location = response;
+                /*$html_content = response.find('#yarns_follow_html');
                 $message = response.find('#yarns_follow_message');
-                $('#yarns-following-list').html(response);
+                $('#yarns-following-list').html(response);*/
 
             }
         });
@@ -348,7 +354,7 @@
             success : function( response ) {
                 done_loading(button);
                 console.log("success");
-                $('#yarns-following-list').html(response);
+                window.location = response;
             }
         });
     });
