@@ -207,6 +207,7 @@ class Yarns_Microsub_Aggregator {
 	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
 	 */
 	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time  ) {
+		//@@todo: Change this to update_feed_meta.  This should (1) update polling frequencies and (2) update the feed name, summary, and _feed_type
 		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
