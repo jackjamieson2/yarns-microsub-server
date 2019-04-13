@@ -78,7 +78,7 @@ class Yarns_Microsub_Endpoint {
 				array(
 					'methods'             => array( WP_REST_Server::CREATABLE, WP_REST_Server::READABLE ),
 					'callback'            => array( $cls, 'serve_request' ),
-					//'permission_callback' => array( $cls, 'check_request_permissions' ),
+					'permission_callback' => array( $cls, 'check_request_permissions' ),
 				),
 			)
 		);
@@ -1070,7 +1070,7 @@ class Yarns_Microsub_Endpoint {
 	 */
 	public static function serve_request( $request ) {
 		$permissions = static::check_request_permissions( $request );
-		return $permissions;
+
 		// For debugging, log all requests.
 		static::log_request( $request );
 
@@ -1281,7 +1281,7 @@ class Yarns_Microsub_Endpoint {
 	 */
 	public static function log_request( $request ) {
 		if ( ! empty( $request ) ) {
-			$message .= "   Method: " . $request->get_method();
+			$message = "   Method: " . $request->get_method();
 			$message .= "   Scopes: " . wp_json_encode(static::$scopes);
 			$message .= "   Params: " . wp_json_encode( $request->get_params() );
 
