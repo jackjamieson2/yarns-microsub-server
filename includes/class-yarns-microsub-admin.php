@@ -1,5 +1,9 @@
 <?php
 
+add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
+add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
+add_action( 'plugins_loaded', array( 'Yarns_Microsub_Admin', 'init' ), 10 );
+
 /**
  *  Yarns_Microsub_Admin Class
  *

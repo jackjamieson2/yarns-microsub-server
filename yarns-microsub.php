@@ -14,8 +14,70 @@
  * @package Yarns_Microsub_Server
  */
 
-add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
-add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
+if ( ! defined( 'MICROSUB_NAMESPACE' ) ) {
+	define( 'MICROSUB_NAMESPACE', 'yarns-microsub/1.0' );
+}
+
+if ( ! defined( 'MICROSUB_DISABLE_NAG' ) ) {
+	define( 'MICROSUB_DISABLE_NAG', 0 );
+}
+
+if ( ! defined( 'MICROSUB_LOCAL_AUTH' ) ) {
+	define( 'MICROSUB_LOCAL_AUTH', 0 );
+}
+
+
+// Global functions.
+require_once dirname( __FILE__ ) . '/includes/functions.php';
+
+// Class: Admin.        Admin menu and UI.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-admin.php';
+
+
+function load_microsub_auth() {
+	// Always disable local auth when the IndieAuth Plugin is installed.
+	if ( class_exists( 'IndieAuth_Plugin' ) ) {
+		return;
+	}
+	// If this configuration option is set to 0 then load this file.
+	if ( 0 === MICROSUB_LOCAL_AUTH ) {
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-yarns-microsub-authorize.php';
+	}
+}
+
+add_action( 'plugins_loaded', 'load_microsub_auth', 20 );
+
+
+
+// Class: Error.        Error handling.
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-yarns-microsub-error.php';
+
+// Class: Endpoint.     Microsub endpoint.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
+
+// Class: Posts.        Read and write aggregated feeds as posts.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-posts.php';
+
+
+// Class: Channels.     Return and modify stored channels.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channels.php';
+
+// Class: Parser.       Parse URLs during preview and aggregation.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-parser.php';
+
+// Class: Aggregator.   Aggregate content from Feed URLs (polling functions).
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-aggregator.php';
+
+// Class: Preview.      Construct HTML for feed previews.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-preview.php';
+
+// Class: Channel List Table.       Construct list table to display channels.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
+
+// Class: Feed List Table.          Construct list table to display feeds within a channel.
+require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-feed-list-table.php';
+
+
 
 /* Functions to run upon activation */
 register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' ) );
@@ -25,21 +87,11 @@ register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivat
 
 
 
+
 /**
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
-
-
-
-	/**
-	 * Run when plugins are loaded.
-	 */
-	public static function plugins_loaded() {
-		if ( WP_DEBUG ) {
-			require_once dirname( __FILE__ ) . '/includes/debug.php';
-		}
-	}
 
 	/**
 	 * To be run on deactivation
@@ -74,51 +126,6 @@ class Yarns_MicroSub_Plugin {
 
 
 
-/**
-	 * Initialize Yarns Microsub Server plugin Plugin
-	 */
-	public static function init() {
-		// Initialize Microsub endpoint.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
-		Yarns_Microsub_Endpoint::init();
-
-		// Initialize Microsub posts.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-posts.php';
-		Yarns_Microsub_Posts::init();
-
-		// Class: channels.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channels.php';
-
-		// Class: Parser.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-parser.php';
-
-		// Class: Aggregator.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-aggregator.php';
-
-		// Class: Admin.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-admin.php';
-		add_action( 'admin_menu', array( 'Yarns_Microsub_Admin', 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
-		Yarns_Microsub_Admin::init();
-
-		// Class: Preview.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-preview.php';
-
-		// Class: Channel List Table.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
-
-		// Class: Feed List Table.
-		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-feed-list-table.php';
-
-		// Set timezone for plugin date functions.
-		//date_default_timezone_set( get_option( 'timezone_string' ) );
-
-
-		// list of various public helper functions.
-		require_once dirname( __FILE__ ) . '/includes/functions.php';
-
-
-	}
 
 
 	/**
@@ -145,26 +152,6 @@ class Yarns_MicroSub_Plugin {
 	}
 
 
-	/**
-	 * Save debug logs
-	 *
-	 * @param string $message Message to be written to the log.
-	 */
-	public static function debug_log( $message ) {
-		if ( get_site_option( 'debug_log' ) ) {
-			$debug_log = json_decode( get_site_option( 'debug_log' ), true );
-		} else {
-			$debug_log = [];
-		}
 
-		$debug_entry = date( 'Y-m-d H:i:s' ) . '  ' . $message;
-
-		if ( is_array( $debug_log ) && ! empty( $debug_log ) ) {
-			array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
-			$debug_log = array_slice( $debug_log, 0, 30 ); // Limit log length to 30 entries.
-		} else {
-			$debug_log[] = $debug_entry;
-		}
-		update_option( 'debug_log', wp_json_encode( $debug_log ) );
-	}
 }
+

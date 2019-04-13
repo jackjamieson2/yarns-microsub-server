@@ -6,13 +6,24 @@
  */
 
 
+function dummysort_by_order($a,$b) {
+	return (int)$a['order'] - (int)$b['order'];
+}
+
+
+
 function test() {
 
+	$post['published'] = "2019-03-31T10:10:37-04:00";
 
+	$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
+	return wp_json_encode($my_post);
 
-	return Yarns_Microsub_Parser::load_parse_this();
-	// Return poll log for review.
-	return json_decode( get_site_option( 'yarns_poll_log' ), true );
+	/*
+	$poll_log = json_decode( get_site_option( 'yarns_poll_log' ), true );
+	return $poll_log;
+	*/
+
 }
 
 /**
@@ -62,3 +73,66 @@ function yarns_date_compare( $post, $storage_period ) {
 	}
 }
 
+
+/**
+ * Everything below blatantly stolen from function.php in Micropub plugin
+ * @todo link to blob
+ */
+
+
+	function yarns_is_assoc_array( $array ) {
+		return is_array( $array ) && array_values( $array ) !== $array;
+	}
+
+
+
+
+// blatantly stolen from https://github.com/idno/Known/blob/master/Idno/Pages/File/View.php#L25
+if ( ! function_exists( 'getallheaders' ) ) {
+	function getallheaders() {
+		$headers = array();
+		foreach ( $_SERVER as $name => $value ) {
+			if ( 'HTTP_' === substr( $name, 0, 5 ) ) {
+				$headers[ str_replace( ' ', '-', strtolower( str_replace( '_', ' ', substr( $name, 5 ) ) ) ) ] = $value;
+			} elseif ( 'CONTENT_TYPE' === $name ) {
+				$headers['content-type'] = $value;
+			} elseif ( 'CONTENT_LENGTH' === $name ) {
+				$headers['content-length'] = $value;
+			}
+		}
+		return $headers;
+	}
+}
+
+if ( ! function_exists( 'ms_get' ) ) {
+	function ms_get( $array, $key, $default = array() ) {
+		if ( is_array( $array ) ) {
+			return isset( $array[ $key ] ) ? $array[ $key ] : $default;
+		}
+		return $default;
+	}
+}
+
+
+/**
+ * Save debug logs
+ *
+ * @param string $message Message to be written to the log.
+ */
+function yarns_ms_debug_log( $message ) {
+	if ( get_site_option( 'debug_log' ) ) {
+		$debug_log = json_decode( get_site_option( 'debug_log' ), true );
+	} else {
+		$debug_log = [];
+	}
+
+	$debug_entry = date( 'Y-m-d H:i:s' ) . '  ' . $message;
+
+	if ( is_array( $debug_log ) && ! empty( $debug_log ) ) {
+		array_unshift( $debug_log, $debug_entry ); // Add item to start of array.
+		$debug_log = array_slice( $debug_log, 0, 30 ); // Limit log length to 30 entries.
+	} else {
+		$debug_log[] = $debug_entry;
+	}
+	update_option( 'debug_log', wp_json_encode( $debug_log ) );
+}

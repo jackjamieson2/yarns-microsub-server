@@ -1,5 +1,7 @@
 <?php
 
+add_action( 'init', array( 'Yarns_Microsub_Posts', 'init' ), 20 );
+
 /**
  * Microsub Posts Class
  *

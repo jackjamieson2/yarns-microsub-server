@@ -124,7 +124,7 @@ class Yarns_Microsub_Parser {
 		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$search  = new Parse_This( $url );
 		$results = $search->fetch_feeds();
-		Yarns_MicroSub_Plugin::debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
+		yarns_ms_debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
 		return $results;
 	}
 
@@ -139,7 +139,7 @@ class Yarns_Microsub_Parser {
 	public static function preview( $url ) {
 		$preview = static::parse_feed( $url, 5, true );
 
-		Yarns_MicroSub_Plugin::debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $preview ) );
+		yarns_ms_debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $preview ) );
 		return $preview;
 	}
 
