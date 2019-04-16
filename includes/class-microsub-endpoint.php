@@ -1,11 +1,11 @@
 <?php
-add_action( 'plugins_loaded', array( 'Yarns_Microsub_Endpoint', 'init' ) );
 
+add_action( 'plugins_loaded', array( 'Microsub_Endpoint', 'init' ) );
 
 /**
  * Microsub Endpoint Class
  */
-class Yarns_Microsub_Endpoint {
+class Microsub_Endpoint {
 	// associative array
 	public static $request_headers;
 
@@ -25,7 +25,6 @@ class Yarns_Microsub_Endpoint {
 	 * Initialize the plugin.
 	 */
 	public static function init() {
-
 		$cls = get_called_class();
 
 		// endpoint discovery
@@ -38,12 +37,11 @@ class Yarns_Microsub_Endpoint {
 		add_action( 'rest_api_init', array( $cls, 'register_route' ) );
 
 		add_filter( 'rest_request_after_callbacks', array( $cls, 'return_microsub_error' ), 10, 3 );
-
 	}
 
 	public static function return_microsub_error( $response, $handler, $request ) {
-		if ( '/microsub/1.0/endpoint' !== $request->get_route() ) {
-			return $response;
+		if ( '/yarns-microsub/1.0/endpoint' !== $request->get_route() ) {
+				return $response;
 		}
 		if ( is_wp_error( $response ) ) {
 			return microsub_wp_error( $response );
@@ -76,9 +74,16 @@ class Yarns_Microsub_Endpoint {
 			'/endpoint',
 			array(
 				array(
-					'methods'             => array( WP_REST_Server::CREATABLE, WP_REST_Server::READABLE ),
-					'callback'            => array( $cls, 'serve_request' ),
-					'permission_callback' => array( $cls, 'check_request_permissions' ),
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $cls, 'post_handler' ),
+					'permission_callback' => array( $cls, 'check_post_permissions' ),
+
+				),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $cls, 'query_handler' ),
+					'permission_callback' => array( $cls, 'check_query_permissions' ),
+
 				),
 			)
 		);
@@ -86,11 +91,13 @@ class Yarns_Microsub_Endpoint {
 
 	public static function load_auth() {
 		static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
-		static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-
+		static::$scopes                 = apply_filters( 'indieauth_scopes', static::$scopes );
 		// Every user should have this capability which reflects the ability to access your user profile and the admin dashboard
+
+		$logs = wp_json_encode(static::$microsub_auth_response);
+		$logs .= wp_json_encode(static::$scopes);
 		if ( ! current_user_can( 'read' ) ) {
-			return new WP_Error( 'forbidden', 'Unauthorized', array( 'status' => 403 ) );
+			return new WP_Error( 'forbidden', 'Unauthorized : ' . $logs , array( 'status' => 403 ) );
 		}
 
 		// If there is no auth response this is cookie authentication which should be rejected
@@ -101,24 +108,81 @@ class Yarns_Microsub_Endpoint {
 		return true;
 	}
 
-	public static function check_request_permissions( $request ) {
+	public static function check_query_permissions( $request ) {
 		$auth = self::load_auth();
-		yarns_ms_debug_log("micrpub auth debug: ");
-		yarns_ms_debug_log("auth = " . wp_json_encode($auth));
-		yarns_ms_debug_log("user = " . wp_json_encode(get_current_user_id()));
 		if ( is_wp_error( $auth ) ) {
 			return $auth;
 		}
-
-		$query = $request->get_param( 'action' );
+		$query = $request->get_param( 'q' );
 		if ( ! $query ) {
-			return new WP_Error( 'invalid_request', 'Missing Action Parameter', array( 'status' => 400 ) );
+			return new WP_Error( 'invalid_request', 'Missing Query Parameter', array( 'status' => 400 ) );
 		}
 
 		return true;
 	}
 
+	public static function check_post_permissions( $request ) {
+		$auth = self::load_auth();
+		if ( is_wp_error( $auth ) ) {
+			return $auth;
+		}
 
+		$action = $request->get_param( 'action' );
+		$action = $action ? $action : 'create';
+
+		$permission = self::check_scope( $action, get_current_user_id() );
+		if ( is_microsub_error( $permission ) ) {
+			return $permission->to_wp_error();
+		}
+		return $permission;
+	}
+
+
+	/**
+	 * Parse the microsub request and render the document
+	 *
+	 * @param WP_REST_Request $request WordPress request
+	 *
+	 * @uses apply_filter() Calls 'before_microsub' on the default request
+	 */
+	protected static function load_input( $request ) {
+		$content_type = $request->get_content_type();
+		$content_type = $content_type['value'];
+
+		if ( 'GET' === $request->get_method() ) {
+			static::$input = $request->get_query_params();
+		} elseif ( 'application/json' === $content_type ) {
+			static::$input = $request->get_json_params();
+		} elseif ( ! $content_type ||
+			'application/x-www-form-urlencoded' === $content_type ||
+			'multipart/form-data' === $content_type ) {
+				static::$input = self::form_to_json( $request->get_body_params() );
+				static::$files = $request->get_file_params();
+		} else {
+			return new WP_Microsub_Error( 'invalid_request', 'Unsupported Content Type: ' . $content_type, 400 );
+		}
+		if ( empty( static::$input ) ) {
+			return new WP_Microsub_Error( 'invalid_request', 'No input provided', 400 );
+		}
+		if ( WP_DEBUG ) {
+			if ( ! empty( static::$files ) ) {
+				static::log_error( array_keys( static::$files ), 'Microsub File Parameters' );
+			}
+			static::log_error( static::$input, 'Microsub Input' );
+		}
+
+		if ( isset( static::$input['properties'] ) ) {
+			$properties = static::$input['properties'];
+			if ( isset( $properties['location'] ) ) {
+				static::$input['properties']['location'] = self::parse_geo_uri( $properties['location'][0] );
+			}
+			if ( isset( $properties['checkin'] ) ) {
+				static::$input['properties']['checkin'] = self::parse_geo_uri( $properties['checkin'][0] );
+			}
+		}
+
+		static::$input = apply_filters( 'before_microsub', static::$input );
+	}
 
 	/**
 	 * Check scope.
@@ -128,7 +192,7 @@ class Yarns_Microsub_Endpoint {
 	 * @param id $user_id. Optional.
 	 *
 	 * @return boolean|WP_Microsub_Error
-	 **/
+	**/
 	protected static function check_scope( $scope, $user_id = null ) {
 		$inscope = in_array( $scope, static::$scopes, true ) || in_array( 'post', static::$scopes, true );
 		if ( ! $inscope ) {
@@ -167,8 +231,6 @@ class Yarns_Microsub_Endpoint {
 	 * @param WP_REST_Request $request.
 	 */
 	public static function post_handler( $request ) {
-
-
 		$user_id  = get_current_user_id();
 		$response = new WP_REST_Response();
 		$load     = static::load_input( $request );
@@ -679,7 +741,7 @@ class Yarns_Microsub_Endpoint {
 			$content = $props['content'][0];
 			if ( is_array( $content ) ) {
 				$args['post_content'] = $content['html'] ?:
-					htmlspecialchars( $content['value'] );
+							htmlspecialchars( $content['value'] );
 			} elseif ( $content ) {
 				$args['post_content'] = htmlspecialchars( $content );
 			}
@@ -1037,8 +1099,8 @@ class Yarns_Microsub_Endpoint {
 			} else {
 				$input['properties']         = ms_get( $input, 'properties' );
 				$input['properties'][ $key ] =
-					( is_array( $val ) && wp_is_numeric_array( $val ) )
-						? $val : array( $val );
+				( is_array( $val ) && wp_is_numeric_array( $val ) )
+				? $val : array( $val );
 			}
 		}
 		return $input;
@@ -1058,253 +1120,5 @@ class Yarns_Microsub_Endpoint {
 	public static function header( $header, $value ) {
 		header( $header . ': ' . $value, false );
 	}
-
-
-	/**
-	 *
-	 * Serves a request.
-	 *
-	 * @param string $request The request being served.
-	 *
-	 * @return array|int|mixed|string|void|
-	 */
-	public static function serve_request( $request ) {
-		$permissions = static::check_request_permissions( $request );
-
-		// For debugging, log all requests.
-		static::log_request( $request );
-
-
-		$user_id = get_current_user_id();
-		$response = new WP_REST_Response();
-
-		//$action = $request=>get_param('action');
-		$action = ms_get( static::$input, 'channels', 'timeline', 'search' ,'preview', 'follow', 'unfollow', 'poll-test', 'poll' );
-
-
-		if ( ! self::check_scope( $action ) ) {
-			return new WP_Microsub_Error( 'insufficient_scope', sprintf( 'scope insufficient to %1$s posts', $action ), 403 );
-		}
-
-
-		// The WordPress IndieAuth plugin uses filters for this.
-		/*
-		static::$scopes = apply_filters( 'indieauth_scopes', static::$scopes );
-		yarns_ms_debug_log('Scopes: ' . wp_json_encode( static::$scopes ) );
-		static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
-		if ( ! $user_id ) {
-			static::handle_authorize_error( 401, 'Unauthorized' );
-		}
-		*/
-
-
-		/*
-		* Once authorization is complete, respond to the query:
-		*
-		* Call functions based on 'action' parameter of the request
-		*/
-		switch ( $request->get_param( 'action' ) ) {
-			case 'channels':
-				if ( 'GET' === $request->get_method() ) {
-					// return a list of the channels.
-					// REQUIRED SCOPE: read.
-					$action = 'read';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-					$response = Yarns_Microsub_Channels::get();
-					return static::json_response( $response );
-				} elseif ( 'POST' === $request->get_method() ) {
-					// REQUIRED SCOPE: channels.
-					$action = 'channels';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-					if ( $request->get_param( 'method' ) === 'delete' ) {
-						// delete a channel. d
-						Yarns_Microsub_Channels::delete( $request->get_param( 'channel' ) );
-						break;
-					} elseif ( $request->get_param( 'method' ) === 'order' ) {
-						yarns_ms_debug_log( 'method == order');
-						if ( $request->get_param( 'channels' ) ) {
-							yarns_ms_debug_log( 'valid order action');
-							$response = Yarns_Microsub_Channels::order( $request->get_param( 'channels' ) );
-						} else {
-							$response = false;
-						}
-						return static::json_response( $response );
-					} elseif ( $request->get_param( 'name' ) ) {
-						if ( $request->get_param( 'channel' ) ) {
-							// update the channel.
-							$response = Yarns_Microsub_Channels::update( $request->get_param( 'channel' ), $request->get_param( 'name' ) );
-							return static::json_response( $response );
-						} else {
-							// create a new channel.
-							$response = Yarns_Microsub_Channels::add( $request->get_param( 'name' ) );
-							return static::json_response( $response );
-						}
-					}
-				}
-				break;
-
-			case 'timeline':
-				if ( 'POST' === $request->get_method() ) {
-					// REQUIRED SCOPE: channels.
-					$action = 'channels';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-					// If method is 'mark_read' then mark post(s) as READ.
-					if ( $request->get_param( 'method' ) === 'mark_read' ) {
-						// mark one or more individual entries as read.
-						if ( $request->get_param( 'entry' ) ) {
-
-							$response = Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), true );
-							return static::json_response( $response );
-						}
-						// mark an entry read as well as everything before it in the timeline.
-						if ( $request->get_param( 'last_read_entry' ) ) {
-							$response = Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), true );
-							return static::json_response( $response );
-						}
-					}
-					// If method is 'mark_unread then mark post(s) as UNREAD.
-					if ( $request->get_param( 'method' ) === 'mark_unread' ) {
-						// mark one or more individual entries as read.
-						if ( $request->get_param( 'entry' ) ) {
-							$response = Yarns_Microsub_Posts::toggle_read( $request->get_param( 'entry' ), false );
-							return static::json_response( $response );
-						}
-						// mark an entry read as well as everything before it in the timeline.
-						if ( $request->get_param( 'last_read_entry' ) ) {
-							$response = Yarns_Microsub_Posts::toggle_last_read( $request->get_param( 'last_read_entry' ), $request->get_param( 'channel' ), false );
-							return static::json_response( $response );
-						}
-					}
-				} elseif ( 'GET' === $request->get_method() ) {
-					// Return a timeline of the channel.
-					// REQUIRED SCOPE: read.
-					$action = 'read';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-					$response = Yarns_Microsub_Channels::timeline( $request->get_param( 'channel' ), $request->get_param( 'after' ), $request->get_param( 'before' ) );
-					return static::json_response( $response );
-				}
-
-				break;
-			case 'search':
-				// REQUIRED SCOPE: follow.
-				$action = 'follow';
-				if ( ! self::check_scope( $action ) ) {
-					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-				}
-				$response = Yarns_Microsub_Parser::search( $request->get_param( 'query' ) );
-				return static::json_response( $response );
-			case 'preview':
-				// REQUIRED SCOPE: follow.
-				$action = 'follow';
-				if ( ! self::check_scope( $action ) ) {
-					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-				}
-				$response = Yarns_Microsub_Parser::preview( $request->get_param( 'url' ) );
-				return static::json_response( $response );
-			case 'follow':
-				if ( 'GET' === $request->get_method() ) {
-					// REQUIRED SCOPE: read.
-					$action = 'read';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-
-					// return a list of feeds being followed in the given channel.
-					$response = Yarns_Microsub_Channels::list_follows( $request->get_param( 'channel' ) );
-					return static::json_response( $response );
-				} elseif ( 'POST' === $request->get_method() ) {
-					// REQUIRED SCOPE: follow.
-					$action = 'follow';
-					if ( ! self::check_scope( $action ) ) {
-						static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-					}
-
-					// follow a new URL in the channel.
-					$response = Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ) );
-					return static::json_response( $response );
-				}
-				break;
-			case 'unfollow':
-				// REQUIRED SCOPE: follow.
-				$action = 'follow';
-				if ( ! self::check_scope( $action ) ) {
-					static::error( 403, sprintf( 'Scope insufficient. Requires: %1$s', $action ) );
-				}
-
-				$response = Yarns_Microsub_Channels::follow( $request->get_param( 'channel' ), $request->get_param( 'url' ), $unfollow = true );
-				return static::json_response( $response );
-			case 'poll-test':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
-
-				$response = Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) );
-				return static::json_response( $response );
-			case 'test':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
-
-				$response = test();
-				return static::json_response( $response );
-			case 'delete_all':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
-
-				$response = Yarns_Microsub_Posts::delete_all_posts( $request->get_param( 'channel' ) );
-				return static::json_response( $response );
-			default:
-				// The action was not recognized.
-				$response = 'No action defined';
-				return static::json_response( $response );
-		}
-
-	}
-
-
-	/**
-	 *  Logs requests for debug purposes.
-	 *
-	 * @param string $request The rest to be logged.
-	 */
-	public static function log_request( $request ) {
-		if ( ! empty( $request ) ) {
-			$message = "   Method: " . $request->get_method();
-			$message .= "   Scopes: " . wp_json_encode(static::$scopes);
-			$message .= "   Params: " . wp_json_encode( $request->get_params() );
-
-			yarns_ms_debug_log( $message );
-		}
-	}
-
-
-	/**
-	 * Returns a WP_REST_Response as JSON.
-	 *
-	 * @param mixed $data       The data to be returned (usually array, can be string).
-	 * @param int   $status     Status code.
-	 * @param array $headers    Headers.
-	 *
-	 * @return WP_REST_Response
-	 */
-	private static function json_response( $data, $status = 200, array $headers = [] ) {
-		$status                  = 200;
-		$headers['Content-Type'] = 'application/json';
-		return new WP_REST_Response( $data, $status, $headers );
-	}
-
-
 }
 

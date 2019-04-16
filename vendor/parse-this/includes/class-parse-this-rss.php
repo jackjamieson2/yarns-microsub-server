@@ -111,6 +111,8 @@ class Parse_This_RSS {
 					$return[ $medium ] = array( $return[ $medium ] );
 				}
 				$return[ $medium ][] = $enclosure->get_link();
+
+
 			} else {
 				$return[ $medium ] = $enclosure->get_link();
 			}
