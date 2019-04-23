@@ -14,6 +14,10 @@
  * @package Yarns_Microsub_Server
  */
 
+if ( ! defined( 'YARNS_MICROSUB_NAMESPACE' ) ) {
+		define( 'YARNS_MICROSUB_NAMESPACE', 'yarns-microsub/1.0' );
+}
+
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 
@@ -23,6 +27,16 @@ register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' )
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
 
+function load_microsub_auth() {
+	// Always disable local auth when the IndieAuth Plugin or the Micropub Auth Class is installed
+	if ( class_exists( 'IndieAuth_Plugin' ) || class_exists( 'Micropub_Authorize' ) ) {
+		return;
+	}
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-authorize.php';
+}
+
+// Load auth at the plugins loaded stage in order to ensure it occurs after the IndieAuth plugin is loaded and the Micropub Plugin
+add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
 
 
 /**
@@ -74,10 +88,14 @@ class Yarns_MicroSub_Plugin {
 
 
 
-/**
-	 * Initialize Yarns Microsub Server plugin Plugin
-	 */
+	/**
+		 * Initialize Yarns Microsub Server plugin Plugin
+		 */
 	public static function init() {
+
+		// Initialize Microsub Error Handling Class.
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-error.php';
+
 		// Initialize Microsub endpoint.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
@@ -113,10 +131,8 @@ class Yarns_MicroSub_Plugin {
 		// Set timezone for plugin date functions.
 		//date_default_timezone_set( get_option( 'timezone_string' ) );
 
-
 		// list of various public helper functions.
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
-
 
 	}
 
@@ -128,10 +144,10 @@ class Yarns_MicroSub_Plugin {
 	 *
 	 * @return mixed
 	 */
-	public static function cron_definer($schedules){
+	public static function cron_definer( $schedules ) {
 		$schedules['15mins'] = array(
 			'interval' => 900,
-			'display'  => __( 'Once Every 15 Minutes' ),
+			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
 		);
 		return $schedules;
 	}
