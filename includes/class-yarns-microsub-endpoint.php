@@ -106,6 +106,13 @@ class Yarns_Microsub_Endpoint {
 		}
 	}
 
+	public static function log_response ($response ) {
+		$message  = 'Response:';
+		$message .= wp_json_encode($response);
+		Yarns_MicroSub_Plugin::debug_log( $message );
+	}
+
+
 	public static function load_auth() {
 		static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
 		static::$scopes                 = apply_filters( 'indieauth_scopes', static::$scopes );
@@ -228,7 +235,9 @@ class Yarns_Microsub_Endpoint {
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
-			return $response;
+
+		static::log_response($response);
+		return $response;
 
 	}
 
@@ -342,6 +351,8 @@ class Yarns_Microsub_Endpoint {
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
+		
+		static::log_response($response);
 		return $response;
 
 	}
