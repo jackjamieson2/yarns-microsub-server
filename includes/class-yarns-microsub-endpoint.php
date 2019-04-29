@@ -116,6 +116,7 @@ class Yarns_Microsub_Endpoint {
 	public static function load_auth() {
 		static::$microsub_auth_response = apply_filters( 'indieauth_response', static::$microsub_auth_response );
 		static::$scopes                 = apply_filters( 'indieauth_scopes', static::$scopes );
+
 		// Every user should have this capability which reflects the ability to access your user profile and the admin dashboard
 		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error( 'forbidden', 'Unauthorized', array( 'status' => 403 ) );
@@ -209,7 +210,7 @@ class Yarns_Microsub_Endpoint {
 		// For debugging, log all requests.
 		static::log_request( $request );
 		$load = static::load_input( $request );
-		if ( is_micropub_error( $load ) ) {
+		if ( is_microsub_error( $load ) ) {
 			return $load;
 		}
 		$response = new WP_REST_Response();
@@ -220,8 +221,7 @@ class Yarns_Microsub_Endpoint {
 		* Call functions based on 'action' parameter of the request
 		*/
 		switch ( static::$input['action'] ) {
-			case 'channels':
-				// return a list of the channels.
+			case 'channels': // return a list of the channels.
 				$response->set_data( Yarns_Microsub_Channels::get() );
 				break;
 			case 'timeline': // Return a timeline of the channel.
@@ -263,10 +263,11 @@ class Yarns_Microsub_Endpoint {
 		// For debugging, log all requests.
 		static::log_request( $request );
 		$load = static::load_input( $request );
-		if ( is_micropub_error( $load ) ) {
+		if ( is_microsub_error( $load ) ) {
 			return $load;
 		}
 		$response = new WP_REST_Response();
+
 
 		/*
 		* Once authorization is complete, respond to the query:
@@ -342,14 +343,7 @@ class Yarns_Microsub_Endpoint {
 
 				$response->set_data( Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) ) );
 				break;
-			case 'test':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
 
-				$response->set_data( test() );
-				break;
 			case 'delete_all':
 				// REQUIRED SCOPE: local auth.
 				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
@@ -411,5 +405,7 @@ class Yarns_Microsub_Endpoint {
 	public static function get_microsub_endpoint() {
 		return apply_filters( 'microsub_endpoint', get_rest_url( null, '/yarns-microsub/1.0/endpoint' ) );
 	}
+
+
 
 }
