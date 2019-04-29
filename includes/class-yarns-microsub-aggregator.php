@@ -84,12 +84,10 @@ class Yarns_Microsub_Aggregator {
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
 								if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period);
+									$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period );
 								}
 							}
-
 							// exit early if polling is taking a long time.
-
 							if ( time() - $poll_start_time > $poll_time_limit ) {
 								$results['polling start time']     = $poll_start_time;
 								$results['polling end time']       = time();
@@ -141,7 +139,7 @@ class Yarns_Microsub_Aggregator {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
 					if ( 'entry' === $post['type'] ) {
 						// Only poll if the post is within the storage period.
-						// Set $post['date'] to updated if it exists, otherwise use 'published'
+						// Set $post['date'] to updated if it exists, otherwise use 'published'.
 						if (isset($post['updated'])) {
 							$post['date'] = $post['updated'];
 						} elseif (isset($post['published'])) {
