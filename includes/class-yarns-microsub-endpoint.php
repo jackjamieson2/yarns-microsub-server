@@ -224,12 +224,22 @@ class Yarns_Microsub_Endpoint {
 				// return a list of the channels.
 				$response->set_data( Yarns_Microsub_Channels::get() );
 				break;
-			case 'timeline':
-				// Return a timeline of the channel.
-				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], static::$input['after'], static::$input['before'] ) );
+			case 'timeline': // Return a timeline of the channel.
+				// Required parameters.
+				if ( empty( static::$input['channel'] ) ) {
+					return new WP_Microsub_Error( 'invalid_request', 'missing parameter: channel', 400 );
+				}
+				// Optional parameters.
+				$after  = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
+				$before = ( isset( static::$input['before'] ) ) ? static::$input['before'] : null;
+
+				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], $after, $before ) );
 				break;
-			case 'follow':
-				// return a list of feeds being followed in the given channel.
+			case 'follow': // return a list of feeds being followed in the given channel.
+				// Required parameters.
+				if ( empty( static::$input['channel'] ) ) {
+					return new WP_Microsub_Error( 'invalid_request', 'missing parameter: channel', 400 );
+				}
 				$response->set_data( Yarns_Microsub_Channels::list_follows( static::$input['channel'] ) );
 				break;
 			default:
