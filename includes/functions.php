@@ -45,3 +45,20 @@ function encode_array( $data ) {
 	}
 	return $data;
 }
+
+/**
+ * Checks if a post is newer than the storage period. Returns true if so.
+ *
+ * @param array $post               The post data.
+ * @param int   $storage_period     The time to store posts (in days).
+ *
+ * @return bool
+ */
+function yarns_date_compare( $post, $storage_period ) {
+	if ( isset( $post['date'] ) && strtotime( $post['date'] ) ) {
+		if ( strtotime( $post['date'] ) < strtotime( '-' . $storage_period . ' days' ) ) {
+			return true;
+		}
+	}
+}
+

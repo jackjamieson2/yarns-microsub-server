@@ -39,7 +39,7 @@ class Yarns_Microsub_Channels {
 		}
 
 
-		foreach ( $channels as $key=>$channel ) {
+		foreach ( $channels as $key => $channel ) {
 			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
 			if ( false === $details ) {
 				if ( array_key_exists( 'items', $channel ) ) {
@@ -72,6 +72,7 @@ class Yarns_Microsub_Channels {
 		foreach ( $channels as $channel ) {
 			if ( $uid === $channel['uid'] ) {
 				Yarns_MicroSub_Plugin::debug_log( 'Channels::get_channel    ' . wp_json_encode( $channel ) );
+
 				return $channel;
 			}
 		}
@@ -176,15 +177,17 @@ class Yarns_Microsub_Channels {
 
 	/**
 	 * Returns a list of channel uids
-	 * @param array $channels   Array of channels.
+	 *
+	 * @param array $channels Array of channels.
 	 *
 	 * @return array            Array of Channel UIDs.
 	 */
-	private static function get_channel_uids($channels){
+	private static function get_channel_uids( $channels ) {
 		$channel_uids = [];
 		foreach ( $channels as $channel ) {
 			$channel_uids[] = $channel['uid'];
 		}
+
 		return $channel_uids;
 	}
 
@@ -196,14 +199,14 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return mixed
 	 */
-	private static function sort_by_order($a,$b) {
-		return (int)$a['order'] - (int)$b['order'];
+	private static function sort_by_order( $a, $b ) {
+		return (int) $a['order'] - (int) $b['order'];
 	}
 
 	/**
 	 * Change the order in which channels are presented.
 	 *
-	 * @param array $input   Array of channel uids in the new order.
+	 * @param array $input Array of channel uids in the new order.
 	 *
 	 * @return boolean          Return true on success.
 	 */
@@ -224,11 +227,11 @@ class Yarns_Microsub_Channels {
 		}
 
 		// Map the current channel order and the input channel order .
-		$input_order   = [];
-		$input_key     = 0;
+		$input_order = [];
+		$input_key   = 0;
 		foreach ( $current_channels as $key => $channel ) {
 			if ( in_array( $channel['uid'], $input, true ) ) {
-				$input_order[ $key ]   = $input[ $input_key ];
+				$input_order[ $key ] = $input[ $input_key ];
 				$input_key ++;
 			}
 		}
@@ -244,11 +247,11 @@ class Yarns_Microsub_Channels {
 		}
 
 		// Sort channel list by 'order'
-		usort($current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
+		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
 
+		update_option( 'yarns_channels', wp_json_encode( $current_channels ) );
 
-		update_option( 'yarns_channels', wp_json_encode( $current_channels) );
 		return true;
 	}
 
@@ -260,7 +263,7 @@ class Yarns_Microsub_Channels {
 	public static function save_filters() {
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options =  $_POST['options'] ;
+			$options = $_POST['options'];
 
 
 			$all_post_types = static::all_post_types();
@@ -277,6 +280,13 @@ class Yarns_Microsub_Channels {
 				$options = $all_post_types;
 			}
 
+			// Update the channel name.
+			if ( isset( $_POST['channel'] ) ) {
+				$name = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
+				static::update( $uid, $name );
+			}
+
+
 			if ( get_site_option( 'yarns_channels' ) ) {
 				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
@@ -290,6 +300,8 @@ class Yarns_Microsub_Channels {
 					}
 				}
 			}
+
+
 		}
 		wp_die();
 	}
@@ -328,7 +340,7 @@ class Yarns_Microsub_Channels {
 	 * @param string $channel The channel ID.
 	 * @param string $after For pagination.
 	 * @param string $before For pagination.
-	 * @param int    $num_posts The number of posts to return.
+	 * @param int $num_posts The number of posts to return.
 	 *
 	 * @return string
 	 */
@@ -405,10 +417,12 @@ class Yarns_Microsub_Channels {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
 				Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $timeline ) );
+
 				return $timeline;
 			}
 		} else {
 			$results = 'empty results';
+
 			return $results;
 		}
 
@@ -418,7 +432,7 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Check if the channel has any posts older than $id
 	 *
-	 * @param int    $id The ID of the post to compare with.
+	 * @param int $id The ID of the post to compare with.
 	 * @param string $channel The channel to check.
 	 *
 	 * @return bool
@@ -461,8 +475,6 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-
-		return; // no matches, so return nothing.
 	}
 
 
@@ -470,7 +482,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @param string $query_channel The channel ID.
 	 * @param string $url The URL to be followed/unfollowed.
-	 * @param bool   $unfollow Toggle follow vs. unfollow.
+	 * @param bool $unfollow Toggle follow vs. unfollow.
 	 *
 	 * @return array|void
 	 */
@@ -480,7 +492,6 @@ class Yarns_Microsub_Channels {
 			'type' => 'feed',
 			'url'  => $url,
 		];
-
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 			// Check if the channel has any subscriptions yet.
@@ -490,6 +501,7 @@ class Yarns_Microsub_Channels {
 						// no subscriptions in this channel yet.
 						$channels[ $key ]['items'] = [];
 					} else {
+
 						// Check if the subscription exists in this channel.
 						foreach ( $channel['items'] as $channel_key => $feed ) {
 							if ( $feed['url'] === $url ) {
@@ -528,7 +540,7 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array  $channels Array of channels.
+	 * @param array $channels Array of channels.
 	 * @param string $uid The Channel ID.
 	 *
 	 * @return int|void
@@ -548,8 +560,8 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Return the key for a specific channel.
 	 *
-	 * @param array  $channels Array of channels.
-	 * @param int    $channel_key Key for a specific channel.
+	 * @param array $channels Array of channels.
+	 * @param int $channel_key Key for a specific channel.
 	 * @param string $url URL of a feed.
 	 *
 	 * @return int|void
@@ -592,7 +604,7 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Returns a list of post ids that are newer than $before
 	 *
-	 * @param int   $before ID of the post to use for comparison.
+	 * @param int $before ID of the post to use for comparison.
 	 * @param array $args Arguments array.
 	 *
 	 * @return mixed
@@ -617,8 +629,10 @@ class Yarns_Microsub_Channels {
 					unset( $ids['$key'] );
 				}
 			}
+
 			return $ids;
 		}
+
 		return;
 	}
 
@@ -644,6 +658,7 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
+
 		return $uid;
 	}
 
@@ -666,5 +681,21 @@ class Yarns_Microsub_Channels {
 			'bookmark',
 			'other',
 		);
+	}
+
+	/**
+	 * Returns a list of post types displayed in a specific channel.
+	 *
+	 * @param array $channel The channel whose post types to be returned.
+	 *
+	 * @return array
+	 */
+	public static function channel_post_types( $channel ) {
+		if ( isset( $channel['post-types'] ) ) {
+			return $channel['post-types'];
+		} else {
+			// If the channel types haven't been set then return all types.
+			return static::all_post_types();
+		}
 	}
 }

@@ -1,43 +1,13 @@
 (function($) {
 
     /**
-     *
-     * @@todo: Add remove option for each feed
-     * @@todo: 'Add feed' button for each channel.  Search->Preview->Follow (same workflow as alltogethernow.io)
-     * @@todo:
+     * Remove links from items that will use javascript instead.
      */
-
-    /**
-     * Select a channel
-     */
-    $( "body" ).on( "click", ".yarns-channel", function() {
-        $('.yarns-channel').removeClass('selected');
-        $(this).addClass('selected');
-
-        $('#yarns-channel-options').empty();
-        button = $(this);
-        start_loading(button);
-
-        var uid =  $(this).data('uid');
-
-        $.ajax({
-            url : yarns_microsub_server_ajax.ajax_url,
-            type : 'post',
-            data : {
-                action : 'get_options',
-                uid: uid,
-            },
-            success : function( response ) {
-                //done_loading(button);
-
-                console.log("success");
-                done_loading(button);
-
-                $('#yarns-channel-options').html(response);
-            }
-        });
-
+    $(document).ready(function () {
+        $( '.yarns-feed-unfollow' ).removeAttr( 'href' );
+        $( '.yarns-feed-preview' ).removeAttr( 'href' );
     });
+
 
     /**
      * Click add new channel
@@ -122,19 +92,18 @@
     /**
      * Rename a channel (update)
      */
-    // Show the input box to rename a channel
-    $( "body" ).on( "click", "#yarns-channel-update", function() {
-       $(this).css('visibility', 'hidden');
-       $('#yarns-option-heading').css('visibility', 'hidden');
 
-       $('#yarns-channel-update-options').show();
+
+    // Show the channel settings
+    $( "body" ).on( "click", "#yarns-show-channel-settings", function() {
+        $(this).hide();
+        $('#yarns-channel-settings-box').show();
     });
 
     // Save the new channel name
 
     $( "body" ).on( "click", "#yarns-channel-update-save", function() {
         button = $(this);
-
 
         var uid =  $(this).data('uid');
         var old_channel = $('#yarns-option-heading').text();
@@ -158,6 +127,7 @@
                     $('#yarns-channels').html(response);
 
                     $('#yarns-option-heading').text(channel);
+                    $('#yarns-option-breadcrumbs span').text(channel);
                     $('#yarns-channel-update').css('visibility', 'visible');
                     $('#yarns-option-heading').css('visibility', 'visible');
                     $('#yarns-channel-update-options').hide();
@@ -196,6 +166,9 @@
         //console.log(parent.data('test'));
         var uid =  $(this).data('uid');
 
+        //var old_channel = $('#yarns-option-heading').text();
+        var channel = $('#yarns-channel-update-name').val().trim();
+
 
         console.log(uid);
 
@@ -216,10 +189,15 @@
                 action : 'save_filters',
                 uid: uid,
                 options: options,
+                channel: channel,
+
             },
             success : function( response ) {
+                var channel_feeds_url = $('#yarns-breadcrumb-channel').attr('href');
+                console.log(channel_feeds_url);
                 done_loading(button);
                 console.log("success");
+                window.location = channel_feeds_url;
 
             }
         });
@@ -260,6 +238,68 @@
     });
 
     /**
+     * Display a preview
+     */
+
+    /**
+     * Detect preview clicks from the 'add feed' interface
+     */
+
+    $( "body" ).on( "click", "#yarns-channel-preview-feed", function() {
+        preview_url = $('input[name=yarns-feed-picker]:checked').val();
+        preview(preview_url);
+
+    });
+
+    /**
+     * Detect preview clicks from the list of already subscribed feeds
+     */
+
+
+    $( "body" ).on( "click", ".yarns-feed-preview", function() {
+        preview_url = $(this).data('url');
+        preview(preview_url);
+    });
+
+    function preview(preview_url) {
+        //Show the preview box while loading
+        start_loading($('#yarns-preview-container'));
+        $('#yarns-preview-url').text(preview_url);
+        $('#yarns-preview-outer-container').show();
+        $('body').addClass('noscroll');
+
+        $.ajax({
+            url : yarns_microsub_server_ajax.ajax_url,
+            type : 'post',
+            data : {
+                action : 'preview_feed',
+                url: preview_url,
+            },
+            success : function( response ) {
+                done_loading($('#yarns-preview-container'))
+
+                $('#yarns-preview-container').html(response);
+                // Change all links to open in new tab
+                $('#yarns-preview-container').find('a').each(function( index ) {
+                    $(this).attr('target','_blank');
+                });
+            }
+        });
+    }
+
+    /**
+     * Close the preview
+     */
+    $( "body" ).on( "click", "#yarns-preview-close", function() {
+        $('#yarns-preview-outer-container').hide();
+        $('body').removeClass('noscroll');
+
+    });
+
+
+
+
+    /**
      * Follow a feed
      *
      */
@@ -283,9 +323,10 @@
             success : function( response ) {
                 done_loading(button);
                 console.log("success");
-                $html_content = response.find('#yarns_follow_html');
+                window.location = response;
+                /*$html_content = response.find('#yarns_follow_html');
                 $message = response.find('#yarns_follow_message');
-                $('#yarns-following-list').html(response);
+                $('#yarns-following-list').html(response);*/
 
             }
         });
@@ -293,20 +334,19 @@
     });
 
     /**
-     * UNfollow a feed
+     * Unfollow a feed
      *
      */
-    $( "body" ).on( "click", ".yarns-unfollow", function() {
+    $( "body" ).on( "click", ".yarns-feed-unfollow", function() {
         console.log("clicked unfollow");
-        url = $(this).parent('li').find('a').text();
-
+        //url = $(this).parent('.column-url').text()
+        url = $(this).data('url');
         uid = $('#yarns-options-uid').text();
         console.log(uid);
         console.log(url);
 
         button = $(this);
         start_loading(button);
-
 
         $.ajax({
             url : yarns_microsub_server_ajax.ajax_url,
@@ -319,12 +359,12 @@
             success : function( response ) {
                 done_loading(button);
                 console.log("success");
-                $('#yarns-following-list').html(response);
-
+                window.location = response;
             }
         });
-
     });
+
+
 
     /**
      * Update feed url when radio button is clicked
@@ -378,12 +418,14 @@
 
 
     function start_loading(target) {
-        target.append('<span class="yarns-loading"></span>');
+        target.addClass('yarns-loading');
+        //target.append('<span class="yarns-loading"></span>');
     }
 
 
     function done_loading(target) {
-        target.find($('.yarns-loading')).remove();
+        target.removeClass('yarns-loading');
+        //target.find($('.yarns-loading')).remove();
     }
 
 

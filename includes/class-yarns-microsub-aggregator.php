@@ -63,6 +63,7 @@ class Yarns_Microsub_Aggregator {
 	public static function poll( $force = false ) {
 		$poll_start_time = time();
 		$poll_time_limit = 300; // execution time limit in seconds.
+		$storage_period = get_site_option('yarns_storage_period');
 		/* todo: Figure out a good time limit and cron schedule.*/
 
 		$results = [];
@@ -83,10 +84,9 @@ class Yarns_Microsub_Aggregator {
 							} else {
 								// Poll the site if _last_polled is longer ago than _polling_frequency.
 								if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid );
+									$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period );
 								}
 							}
-
 							// exit early if polling is taking a long time.
 							if ( time() - $poll_start_time > $poll_time_limit ) {
 								$results['polling start time']     = $poll_start_time;
@@ -106,6 +106,8 @@ class Yarns_Microsub_Aggregator {
 		$results['polling execution time'] = time() - $poll_start_time;
 		$results['polling time limit']     = $poll_time_limit;
 
+		Yarns_Microsub_Posts::delete_old_posts( $storage_period ); // Clear old posts.
+
 		return $results;
 	}
 
@@ -117,7 +119,7 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid ) {
+	public static function poll_site( $url, $channel_uid, $storage_period ) {
 		$site_results             = [];
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
@@ -128,14 +130,33 @@ class Yarns_Microsub_Aggregator {
 			return $feed;
 		}
 
+		// debugging:
+		$site_results['raw_feed'] = $feed;
+
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
 					if ( 'entry' === $post['type'] ) {
-						if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
-							$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
+						// Only poll if the post is within the storage period.
+						// Set $post['date'] to updated if it exists, otherwise use 'published'.
+						if (isset($post['updated'])) {
+							$post['date'] = $post['updated'];
+						} elseif (isset($post['published'])) {
+							$post['date'] = $post['published'];
 						}
+
+						if ( ! yarns_date_compare( $post, $storage_period ) ) {
+							if ( static::poll_post( $post['url'], $post, $channel_uid ) ) {
+								$site_results['items'][] = $post['url']; // this is just returned for debugging when manually polling.
+							} else {
+								$site_results['already_exists'] = $post['url'];
+							}
+						} else {
+							//debugging
+							$site_results['post too old'] = $post['url'];
+						}
+
 					}
 				}
 			}
@@ -184,6 +205,7 @@ class Yarns_Microsub_Aggregator {
 	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
 	 */
 	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time  ) {
+		//@@todo: Change this to update_feed_meta.  This should (1) update polling frequencies and (2) update the feed name, summary, and _feed_type
 		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );

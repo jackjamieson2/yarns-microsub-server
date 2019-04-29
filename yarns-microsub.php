@@ -14,16 +14,37 @@
  * @package Yarns_Microsub_Server
  */
 
+if ( ! defined( 'YARNS_MICROSUB_NAMESPACE' ) ) {
+		define( 'YARNS_MICROSUB_NAMESPACE', 'yarns-microsub/1.0' );
+}
+
 add_action( 'plugins_loaded', array( 'Yarns_MicroSub_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Yarns_MicroSub_Plugin', 'init' ) );
 
+/* Functions to run upon activation */
+register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' ) );
+
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
+
+function load_microsub_auth() {
+	// Always disable local auth when the IndieAuth Plugin or the Micropub Auth Class is installed
+	if ( class_exists( 'IndieAuth_Plugin' ) || class_exists( 'Micropub_Authorize' ) ) {
+		return;
+	}
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-authorize.php';
+}
+
+// Load auth at the plugins loaded stage in order to ensure it occurs after the IndieAuth plugin is loaded and the Micropub Plugin
+add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
+
 
 /**
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
+
+
 
 	/**
 	 * Run when plugins are loaded.
@@ -44,10 +65,37 @@ class Yarns_MicroSub_Plugin {
 		}
 	}
 
+
 	/**
-	 * Initialize Yarns Microsub Server plugin Plugin
+	 * To be run on activation
 	 */
+	public static function activate() {
+		// Set up cron job to check for posts.
+		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
+		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
+			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
+		}
+		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
+
+		// Set default period for storing aggregated posts.
+		if ( ! get_site_option( 'yarns_storage_period' ) ) {
+			update_option( 'yarns_storage_period', 14 );  // in days.
+		}
+	}
+
+
+
+
+
+
+	/**
+		 * Initialize Yarns Microsub Server plugin Plugin
+		 */
 	public static function init() {
+
+		// Initialize Microsub Error Handling Class.
+		require_once dirname( __FILE__ ) . '/includes/class-microsub-error.php';
+
 		// Initialize Microsub endpoint.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
@@ -71,19 +119,21 @@ class Yarns_MicroSub_Plugin {
 		add_action( 'admin_enqueue_scripts', array( 'Yarns_Microsub_Admin', 'yarns_microsub_admin_enqueue_scripts' ) );
 		Yarns_Microsub_Admin::init();
 
+		// Class: Preview.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-preview.php';
+
+		// Class: Channel List Table.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-channel-list-table.php';
+
+		// Class: Feed List Table.
+		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-feed-list-table.php';
+
 		// Set timezone for plugin date functions.
 		//date_default_timezone_set( get_option( 'timezone_string' ) );
-
 
 		// list of various public helper functions.
 		require_once dirname( __FILE__ ) . '/includes/functions.php';
 
-		// Set up cron job to check for posts.
-		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
-		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
-			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
-		}
-		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
 	}
 
 
@@ -94,10 +144,10 @@ class Yarns_MicroSub_Plugin {
 	 *
 	 * @return mixed
 	 */
-	public static function cron_definer($schedules){
+	public static function cron_definer( $schedules ) {
 		$schedules['15mins'] = array(
 			'interval' => 900,
-			'display'  => __( 'Once Every 15 Minutes' ),
+			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
 		);
 		return $schedules;
 	}
@@ -117,8 +167,8 @@ class Yarns_MicroSub_Plugin {
 	 * @param string $message Message to be written to the log.
 	 */
 	public static function debug_log( $message ) {
-		if ( get_site_option( 'yarns_debug_log' ) ) {
-			$debug_log = json_decode( get_site_option( 'yarns_debug_log' ), true );
+		if ( get_site_option( 'debug_log' ) ) {
+			$debug_log = json_decode( get_site_option( 'debug_log' ), true );
 		} else {
 			$debug_log = [];
 		}
@@ -131,6 +181,6 @@ class Yarns_MicroSub_Plugin {
 		} else {
 			$debug_log[] = $debug_entry;
 		}
-		update_option( 'yarns_debug_log', wp_json_encode( $debug_log ) );
+		update_option( 'debug_log', wp_json_encode( $debug_log ) );
 	}
 }

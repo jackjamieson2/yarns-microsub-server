@@ -138,6 +138,7 @@ class Yarns_Microsub_Parser {
 	 */
 	public static function preview( $url ) {
 		$preview = static::parse_feed( $url, 5, true );
+
 		Yarns_MicroSub_Plugin::debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $preview ) );
 		return $preview;
 	}
@@ -177,7 +178,6 @@ class Yarns_Microsub_Parser {
 		$parse = new Parse_This( $url );
 		$parse->fetch();
 		$parse->parse( $args );
-
 		$feed = $parse->get();
 
 

@@ -81,10 +81,10 @@ class Yarns_Microsub_Posts {
 		);
 
 		if ( isset( $post['published'] ) ) {
-			$my_post['post_date'] = date( 'Y-m-d H:i:s', strtotime( $post['published'] ) );
+			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
 		}
 		if ( isset( $post['updated'] ) ) {
-			$my_post['post_modified'] = date( 'Y-m-d H:i:s', strtotime( $post['updated'] ) );
+			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
 
 		}
 
@@ -123,6 +123,8 @@ class Yarns_Microsub_Posts {
 	 *
 	 * @param array|string $entry_id        Single ID or array of IDs of posts to toggle.
 	 * @param string       $read_status     The read status to set.
+	 *
+	 * @return array
 	 */
 	public static function toggle_read( $entry_id, $read_status ) {
 		$response = [];
@@ -141,8 +143,8 @@ class Yarns_Microsub_Posts {
 				}
 			}
 			$response = array(
-				'result' => 'OK',
-				'updated' =>$post,
+				'result'  => 'OK',
+				'updated' => $post,
 			);
 
 		}
@@ -175,11 +177,8 @@ class Yarns_Microsub_Posts {
 	/**
 	 * Delete all posts -- for debugging only.
 	 *
-	 * @param string $channel (Optional) Limit deletion to a specific channel.
-	 *
-	 * @return string
 	 */
-	public static function delete_all_posts( $channel ) {
+	public static function delete_all_posts( ) {
 		// This function is only available in local auth mode.
 		if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
 			return 'not authorized';
@@ -187,13 +186,9 @@ class Yarns_Microsub_Posts {
 		$args = array(
 			'post_type'                   => 'yarns_microsub_post',
 			'post_status'                 => 'publish',
-			'yarns_microsub_post_channel' => $channel,
 			'posts_per_page'              => - 1,
 		);
 
-		if ( $channel ) {
-			$args['yarns_microsub_post_channel'] = $channel;
-		}
 
 		$query = new WP_Query( $args );
 
@@ -201,8 +196,32 @@ class Yarns_Microsub_Posts {
 			$query->the_post();
 			wp_delete_post( get_the_ID(), true );
 		}
+	}
 
-		return 'deleted posts';
+	/**
+	 * Deletes old posts to keep the database clean.
+	 *
+	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
+	 */
+	public static function delete_old_posts ( $storage_period ) {
+		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
+		$args = array(
+			'post_type'      => 'yarns_microsub_post',
+			'post_status'    => 'publish',
+			'posts_per_page' => - 1,
+			'date_query'     => array(
+				'before' => $date_before,
+			),
+		);
+
+		$query = new WP_Query( $args );
+
+		$count = 0;
+		while ( $query->have_posts() ) {
+			$count ++;
+			$query->the_post();
+			wp_delete_post( get_the_ID(), true );
+		}
 	}
 
 

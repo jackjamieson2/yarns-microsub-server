@@ -1,6 +1,7 @@
 #yarns-admin-area #yarns-logo {
     height:3rem;
     position:relative;
+    margin-bottom: 2rem;
 }
 
 #yarns-admin-area #yarns-logo img{
@@ -16,6 +17,12 @@
     margin: 2em 0 1em;
 }
 
+/* Links in list tables */
+.wp-list-table .row-actions a {
+    cursor:pointer;
+}
+
+/*
 #yarns-sidebar {
     float:left;
     max-width:200px;
@@ -31,37 +38,29 @@
 #yarns-new-channel-name {
     display:none;
 }
+*/
 
 
 
 #yarns-channel-options {
-    float:left;
     max-width:800px;
-    width:70%;
-    margin-left:2em;
 }
+
 
 #yarns-option-heading {
 
 }
 
 #yarns-channel-update-options {
-    display:none;
     margin: 1em 0;
 }
 
-#yarns-channel-update{
-    /* "rename channel" button */
-    cursor:pointer;
-
-    color:darkslategrey;
-}
 
 #yarns-channel-delete {
     /* "delete channel" button */
-    cursor:pointer;
+    /*cursor:pointer;*/
     float:right;
-    color:darkred;
+    /*color:darkred;*/
 }
 
 .yarns-channel {
@@ -106,13 +105,11 @@
     border-radius: 2px;
 }
 
-button#yarns-channel-add-feed {
-    /*display:none;*/
-}
 #yarns-channel-options .yarns-channel-filters label {
     cursor: pointer;
-    padding: 0 1rem 0 0;
+    padding: 0 1rem 1rem 0;
     display: inline-block;
+    width:150px;
 }
 
 #yarns-options-uid {
@@ -151,6 +148,8 @@ button#yarns-channel-add-feed {
     content: "Unfollow";
 }
 
+
+
 /* Debug log area */
 #yarns-debug-log-area {
     clear:both;
@@ -168,14 +167,117 @@ button#yarns-channel-add-feed {
 
 
 .yarns-loading {
+    padding-right:1.5rem!important;
+    position:relative;
+}
+.yarns-loading:after {
     background: url(../images/Wedges.svg) no-repeat top right;
     background-size: 100% auto;
     height:100%;
-
-    height: 1rem;
-    width: 1rem;
+    content: ' ';
+    height: 1.2rem;
+    width: 1.2rem;
 
     position:absolute;
     top:.2rem;
     right:.2rem;
+
+    /*content: url('../images/Wedges.svg');*/
+
+}
+
+/*
+
+}
+*/
+
+
+
+/* Modal for previews */
+/* The Modal (background) */
+
+#yarns-preview-outer-container {
+    display:none;
+    position:fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    z-index: 9991;
+    background: #000000b3;
+}
+
+#yarns-preview-inner-container {
+
+    margin: 50px auto;
+    width:90vw;
+    height:90vh;
+    max-width: 500px;
+    position:static;
+    background-color:#32373c;
+    overflow: hidden;
+    border: 1px solid #c9c9c9;
+}
+
+#yarns-preview-header {
+    font-weight:bold;
+    position:relative;
+    color:rgba(240, 245, 250, 0.7);
+    height:32px;
+    padding:4px;
+}
+
+#yarns-preview-url {
+    font-weight:normal;
+}
+
+#yarns-preview-close {
+   float:right;
+}
+
+#yarns-preview-container {
+    position: relative;
+    overflow: scroll;
+    background: white;
+    color:#72777c;
+    height:100%;
+    width:100%;
+}
+
+.yarns-preview-item>div, .yarns-preview-item>h2 {
+    padding-left:2rem;
+    padding-right:2rem;
+}
+
+#yarns-preview-container img {
+    max-width:100%;
+}
+
+.yarns-preview-item {
+    margin: 1rem 0;
+    border-bottom: 1px solid #c9c9c9;
+}
+.yarns-preview-author img {
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.yarns-preview-published {
+    color: #898989;
+    font-size: smaller;
+}
+
+.yarns-preview-content {
+    padding-top: 2rem;
+}
+
+.yarns-preview-author span {
+    vertical-align:top;
+    font-weight:bold;
+    margin-left:1rem;
+}
+
+
+.noscroll {
+    overflow:hidden;
 }
