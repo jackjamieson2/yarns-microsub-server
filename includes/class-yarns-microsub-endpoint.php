@@ -214,6 +214,7 @@ class Yarns_Microsub_Endpoint {
 			return $load;
 		}
 		$response = new WP_REST_Response();
+		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
 
 		/*
 		* Once authorization is complete, respond to the query:
@@ -267,6 +268,7 @@ class Yarns_Microsub_Endpoint {
 			return $load;
 		}
 		$response = new WP_REST_Response();
+		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
 
 
 		/*
