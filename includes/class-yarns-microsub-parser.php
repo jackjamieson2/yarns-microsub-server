@@ -124,6 +124,7 @@ class Yarns_Microsub_Parser {
 		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$search  = new Parse_This( $url );
 		$results = $search->fetch_feeds();
+
 		Yarns_MicroSub_Plugin::debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
 		return $results;
 	}
@@ -160,11 +161,15 @@ class Yarns_Microsub_Parser {
 		if ( ! $url ) {
 			return;
 		}
+
+
 		$args = array(
-			'alternate' => false,
-			'return'      => 'feed',
-			'follow'    => true,
-			'limit'     => $count,
+			'alternate'  => false,
+			'return'     => 'feed',
+			'follow'     => true,
+			'limit'      => $count,
+			'html'       => true, // If mf2 parsing does not work look for html parsing
+			'references' => true, // Store nested citations as references per the JF2 spec
 		);
 
 		if ( true === $preview ) {
