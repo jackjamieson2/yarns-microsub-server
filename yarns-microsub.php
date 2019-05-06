@@ -38,6 +38,10 @@ function load_microsub_auth() {
 // Load auth at the plugins loaded stage in order to ensure it occurs after the IndieAuth plugin is loaded and the Micropub Plugin
 add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
 
+// Add filter for polling cron job
+add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
+
+
 
 /**
  * Class Yarns_MicroSub_Plugin
@@ -71,7 +75,6 @@ class Yarns_MicroSub_Plugin {
 	 */
 	public static function activate() {
 		// Set up cron job to check for posts.
-		add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
 		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
 			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
 		}
@@ -83,14 +86,9 @@ class Yarns_MicroSub_Plugin {
 		}
 	}
 
-
-
-
-
-
 	/**
-		 * Initialize Yarns Microsub Server plugin Plugin
-		 */
+	 * Initialize Yarns Microsub Server plugin Plugin
+	 */
 	public static function init() {
 
 		// Initialize Microsub Error Handling Class.
@@ -145,13 +143,13 @@ class Yarns_MicroSub_Plugin {
 	 * @return mixed
 	 */
 	public static function cron_definer( $schedules ) {
+
 		$schedules['15mins'] = array(
 			'interval' => 900,
 			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
 		);
 		return $schedules;
 	}
-
 
 	/**
 	 * Load language files
