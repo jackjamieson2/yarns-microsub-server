@@ -51,12 +51,16 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
+		// Add 'unread' field to each channel. Indicates number of unread posts.
+		foreach ( $channels as $key => $channel ) {
+			$channels[ $key ]['unread'] = static::get_unread_count($channel['uid']);
+		}
+
+
 
 		$results = [
 			'channels' => $channels,
 		];
-		Yarns_MicroSub_Plugin::debug_log( 'Channels::get    ' . wp_json_encode( $results ) );
-
 		return $results;
 	}
 
@@ -71,8 +75,6 @@ class Yarns_Microsub_Channels {
 		$channels = self::get( true )['channels'];
 		foreach ( $channels as $channel ) {
 			if ( $uid === $channel['uid'] ) {
-				Yarns_MicroSub_Plugin::debug_log( 'Channels::get_channel    ' . wp_json_encode( $channel ) );
-
 				return $channel;
 			}
 		}
@@ -246,6 +248,8 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
+
+
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
@@ -334,6 +338,85 @@ class Yarns_Microsub_Channels {
 		return;
 	}
 
+
+	public static function get_unread_count($channel){
+		$query = static::get_timeline_query($channel, False, False, -1, True );
+		return $query->post_count;
+	}
+
+
+	private static function get_timeline_query( $channel, $after = False, $before = False, $num_posts = 20, $unread_only = False ) {
+		$valid_types = static::get_post_types( $channel );
+
+		$args = array(
+			'post_type'      => 'yarns_microsub_post',
+			'post_status'    => 'publish',
+			'posts_per_page' => $num_posts,
+			'orderby'        => 'post_date',
+			'order'          => 'DESC',
+			'tax_query'      => array(
+				'relation' => 'AND',
+				array(
+					'taxonomy' => 'yarns_microsub_post_channel',
+					'field'    => 'name',
+					'terms'    => $channel,
+				),
+				array(
+					'taxonomy' => 'yarns_microsub_post_type',
+					'field'    => 'name',
+					'terms'    => $valid_types,
+				),
+
+			),
+		);
+
+
+		if ( $unread_only === True ) {
+			$args['meta_key'] = 'yarns_microsub_post_read';
+			$args['meta_value'] = 'false';
+
+				/*
+			$args['meta_query'] =
+				array(
+					'relation' => 'AND',
+					array(
+						'meta_key'     => 'yarns_microsub_post_read',
+						'meta_value'   => 'false', // Only get unread posts
+						'meta_compare' => '=',
+					),
+				);
+				*/
+		}
+
+
+		$id_list = [];
+
+		// Pagination.
+		if ( $after ) {
+			// Fetch additional posts older (lower id) than $after.
+			$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
+		}
+		if ( $before ) {
+			// Check for additional posts newer (higher id) than $before.
+			$new_posts = static::find_newer_posts( $before, $args );
+			if ( $new_posts ) {
+				$id_list = array_merge( $id_list, $new_posts );
+			}
+		}
+		// use rsort to sort the list of ids in descending order.
+		if ( $id_list ) {
+			if ( is_array( $id_list ) ) {
+				rsort( $id_list );
+			}
+			$args['post__in'] = $id_list;
+		}
+
+		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
+		$ids            = []; // store a list of post ids returned by the query.
+		$timeline_items = [];
+		$query          = new WP_Query( $args );
+		return $query;
+	}
 	/**
 	 * Retrieve Entries in a Channel (Timeline endpoint action)
 	 *
@@ -416,7 +499,6 @@ class Yarns_Microsub_Channels {
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
-				Yarns_MicroSub_Plugin::debug_log( 'Channels::timeline   ' . wp_json_encode( $timeline ) );
 
 				return $timeline;
 			}
