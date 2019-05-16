@@ -41,6 +41,8 @@ add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
 // Add filter for polling cron job
 add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
 
+// Add actions to be triggered by cron hooks
+add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
 
 
 /**
@@ -78,7 +80,6 @@ class Yarns_MicroSub_Plugin {
 		if ( ! wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
 			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
 		}
-		add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
 
 		// Set default period for storing aggregated posts.
 		if ( ! get_site_option( 'yarns_storage_period' ) ) {
@@ -148,6 +149,7 @@ class Yarns_MicroSub_Plugin {
 			'interval' => 900,
 			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
 		);
+
 		return $schedules;
 	}
 
