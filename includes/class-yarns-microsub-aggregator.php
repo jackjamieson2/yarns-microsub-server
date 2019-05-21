@@ -61,10 +61,11 @@ class Yarns_Microsub_Aggregator {
 	 * @return array|mixed
 	 */
 	public static function poll( $force = false ) {
+		Yarns_MicroSub_Plugin::debug_log( 'RUNNING POLL' );
+
 		$poll_start_time = time();
 		$poll_time_limit = 300; // execution time limit in seconds.
-		$storage_period = get_site_option('yarns_storage_period');
-		/* todo: Figure out a good time limit and cron schedule.*/
+		$storage_period  = get_site_option( 'yarns_storage_period' );
 
 		$results = [];
 
