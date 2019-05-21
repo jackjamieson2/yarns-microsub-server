@@ -167,7 +167,6 @@ class Yarns_Microsub_Channels {
 					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
 						update_option( 'yarns_channels', wp_json_encode( $channels ) );
-
 						return $channels[ $key ];
 					}
 				}
@@ -265,11 +264,12 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function save_filters() {
+		$response = '';
+
+
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options = $_POST['options'];
-
-
+			$options =  $_POST['options'];
 			$all_post_types = static::all_post_types();
 
 			// validate submitted options.
@@ -284,13 +284,15 @@ class Yarns_Microsub_Channels {
 				$options = $all_post_types;
 			}
 
+
 			// Update the channel name.
 			if ( isset( $_POST['channel'] ) ) {
 				$name = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 				static::update( $uid, $name );
+				$response .= 'Updated Name.  ';
 			}
 
-
+			// update channel filters
 			if ( get_site_option( 'yarns_channels' ) ) {
 				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
@@ -299,7 +301,7 @@ class Yarns_Microsub_Channels {
 						if ( $item['uid'] === $uid ) {
 							$channels[ $key ]['post-types'] = $options;
 							update_option( 'yarns_channels', wp_json_encode( $channels ) );
-							echo 'Saved';
+							$response .= 'Updated filters.  ';
 						}
 					}
 				}
@@ -307,7 +309,9 @@ class Yarns_Microsub_Channels {
 
 
 		}
+		echo $response;
 		wp_die();
+
 	}
 
 	/**
