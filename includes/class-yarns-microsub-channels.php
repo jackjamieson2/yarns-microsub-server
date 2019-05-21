@@ -354,7 +354,7 @@ class Yarns_Microsub_Channels {
 
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
-			'post_status'    => 'publish',
+			'post_status'    => 'yarns_unread',
 			'posts_per_page' => $num_posts,
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
@@ -376,20 +376,9 @@ class Yarns_Microsub_Channels {
 
 
 		if ( $unread_only === True ) {
-			$args['meta_key'] = 'yarns_microsub_post_read';
-			$args['meta_value'] = 'false';
-
-				/*
-			$args['meta_query'] =
-				array(
-					'relation' => 'AND',
-					array(
-						'meta_key'     => 'yarns_microsub_post_read',
-						'meta_value'   => 'false', // Only get unread posts
-						'meta_compare' => '=',
-					),
-				);
-				*/
+			$args['post_status'] = 'yarns_unread';
+		} else {
+			$args['post_status'] = array('yarns_unread', 'yarns_read');
 		}
 
 
@@ -432,11 +421,12 @@ class Yarns_Microsub_Channels {
 	 * @return string
 	 */
 	public static function timeline( $channel, $after, $before, $num_posts = 20 ) {
+
 		$valid_types = static::get_post_types( $channel );
 
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
-			'post_status'    => 'publish',
+			'post_status'    => array('yarns_unread', 'yarns_read'),
 			'posts_per_page' => $num_posts,
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
@@ -530,7 +520,6 @@ class Yarns_Microsub_Channels {
 		$args = array(
 			'post__in'                    => $post_ids,
 			'post_type'                   => 'yarns_microsub_post',
-			'post_status'                 => 'publish',
 			'yarns_microsub_post_channel' => $channel,
 			'posts_per_page'              => 1,
 		);
