@@ -521,6 +521,7 @@ class Yarns_Microsub_Channels {
 			'post__in'                    => $post_ids,
 			'post_type'                   => 'yarns_microsub_post',
 			'yarns_microsub_post_channel' => $channel,
+			'post_status'                 => array( 'yarns_unread', 'yarns_read' ),
 			'posts_per_page'              => 1,
 		);
 		if ( get_posts( $args ) ) {

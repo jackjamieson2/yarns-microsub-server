@@ -133,7 +133,12 @@ class Yarns_Microsub_Posts {
 			wp_set_post_terms( $post_id, 'article', 'yarns_microsub_post_type' );
 		}
 
-		update_post_meta( $post_id, 'yarns_microsub_post_read', 'false' );
+		$update_post_args = array(
+			'ID'          => $post_id,
+			'post_status' => 'yarns_unread',
+		);
+		wp_update_post($update_post_args);
+
 
 		// Save the post JSON as a custom meta field.
 		update_post_meta( $post_id, 'yarns_microsub_json', $post );
@@ -218,8 +223,9 @@ class Yarns_Microsub_Posts {
 			return 'not authorized';
 		}
 		$args = array(
-			'post_type'                   => 'yarns_microsub_post',
-			'posts_per_page'              => - 1,
+			'post_type'      => 'yarns_microsub_post',
+			'posts_per_page' => - 1,
+			'post_status'    => array( 'yarns_read', 'yarns_unread' ),
 		);
 
 
@@ -241,6 +247,7 @@ class Yarns_Microsub_Posts {
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,
+			'post_status'    => array( 'yarns_read', 'yarns_unread' ),
 			'date_query'     => array(
 				'before' => $date_before,
 			),
