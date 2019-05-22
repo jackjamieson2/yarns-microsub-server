@@ -53,14 +53,14 @@ class Yarns_Microsub_Channels {
 
 		// Add 'unread' field to each channel. Indicates number of unread posts.
 		foreach ( $channels as $key => $channel ) {
-			$channels[ $key ]['unread'] = static::get_unread_count($channel['uid']);
+			$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
 		}
-
 
 
 		$results = [
 			'channels' => $channels,
 		];
+
 		return $results;
 	}
 
@@ -167,6 +167,7 @@ class Yarns_Microsub_Channels {
 					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
 						update_option( 'yarns_channels', wp_json_encode( $channels ) );
+
 						return $channels[ $key ];
 					}
 				}
@@ -248,7 +249,6 @@ class Yarns_Microsub_Channels {
 		}
 
 
-
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
@@ -268,8 +268,8 @@ class Yarns_Microsub_Channels {
 
 
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
-			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$options =  $_POST['options'];
+			$uid            = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
+			$options        = $_POST['options'];
 			$all_post_types = static::all_post_types();
 
 			// validate submitted options.
@@ -343,13 +343,14 @@ class Yarns_Microsub_Channels {
 	}
 
 
-	public static function get_unread_count($channel){
-		$query = static::get_timeline_query($channel, False, False, -1, True );
+	public static function get_unread_count( $channel ) {
+		$query = static::get_timeline_query( $channel, false, false, - 1, true );
+
 		return $query->post_count;
 	}
 
 
-	private static function get_timeline_query( $channel, $after = False, $before = False, $num_posts = 20, $unread_only = False ) {
+	private static function get_timeline_query( $channel, $after = false, $before = false, $num_posts = 20, $unread_only = false ) {
 		$valid_types = static::get_post_types( $channel );
 
 		$args = array(
@@ -375,10 +376,10 @@ class Yarns_Microsub_Channels {
 		);
 
 
-		if ( $unread_only === True ) {
+		if ( $unread_only === true ) {
 			$args['post_status'] = 'yarns_unread';
 		} else {
-			$args['post_status'] = array('yarns_unread', 'yarns_read');
+			$args['post_status'] = array( 'yarns_unread', 'yarns_read' );
 		}
 
 
@@ -408,8 +409,10 @@ class Yarns_Microsub_Channels {
 		$ids            = []; // store a list of post ids returned by the query.
 		$timeline_items = [];
 		$query          = new WP_Query( $args );
+
 		return $query;
 	}
+
 	/**
 	 * Retrieve Entries in a Channel (Timeline endpoint action)
 	 *
@@ -426,7 +429,7 @@ class Yarns_Microsub_Channels {
 
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
-			'post_status'    => array('yarns_unread', 'yarns_read'),
+			'post_status'    => array( 'yarns_unread', 'yarns_read' ),
 			'posts_per_page' => $num_posts,
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
@@ -508,8 +511,8 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Check if the channel has any posts older than $id
 	 *
-	 * @param int $id The ID of the post to compare with.
-	 * @param string $channel The channel to check.
+	 * @param int    $id        The ID of the post to compare with.
+	 * @param string $channel   The channel to check.
 	 *
 	 * @return bool
 	 */

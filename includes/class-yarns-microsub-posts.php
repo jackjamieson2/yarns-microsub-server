@@ -169,16 +169,11 @@ class Yarns_Microsub_Posts {
 					update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
 
 					$read_status_string = ($read_status) ? 'yarns_read' : 'yarns_unread';
-
 					$update_post_args = array(
 						'ID'          => $entry_id,
 						'post_status' => $read_status_string,
 					);
 					wp_update_post($update_post_args);
-
-					/*$read_status_string = ($read_status) ? 'true' : 'false';
-					update_post_meta( $entry_id, 'yarns_microsub_post_read', $read_status_string ); // Update meta used for unread count.
-					*/
 				}
 			}
 			$response = array(
