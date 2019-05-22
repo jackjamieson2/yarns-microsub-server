@@ -154,29 +154,18 @@
      *
      */
     $( "body" ).on( "click", ".yarns-channel-filters-save", function() {
-        console.log('Clicked refresh button');
+        console.log('Saving channel filters');
 
         button = $(this);
         start_loading(button);
 
-        var parent = $(this).parent($('.yarns-channel'));
-
-
-        //console.log(parent);
-        //console.log(parent.data('test'));
-        var uid =  $(this).data('uid');
-
-        //var old_channel = $('#yarns-option-heading').text();
-        var channel = $('#yarns-channel-update-name').val().trim();
-
-
-        console.log(uid);
-
-        var options = [];
+        let parent = $(this).parent($('.yarns-channel'));
+        let uid =  $(this).data('uid');
+        let channel = $('#yarns-channel-update-name').val().trim();
+        let options = [];
 
         parent.find('label').each(function(index){
             if ($(this).find('input').prop("checked")==true){
-                //console.log($(this).text());
                 options.push( $(this).text());
             }
 
@@ -193,12 +182,11 @@
 
             },
             success : function( response ) {
-                var channel_feeds_url = $('#yarns-breadcrumb-channel').attr('href');
-                console.log(channel_feeds_url);
+                let channel_feeds_url = $('#yarns-breadcrumb-channel').attr('href');
                 done_loading(button);
+                console.log(response);
                 console.log("success");
                 window.location = channel_feeds_url;
-
             }
         });
     });

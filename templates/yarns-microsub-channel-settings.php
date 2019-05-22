@@ -30,9 +30,9 @@ foreach ( $all_types as $type ) {
 	} else {
 		$checked = '';
 	}
-	echo sprintf('<label><input type="checkbox" %s > %s</input></label>',$checked,$type);
+	echo sprintf('<label><input type="checkbox" %s >%s</input></label>',$checked,$type);
 }
 ?>
 </div>
-<a class="button-primary yarns-channel-filters-save" data-uid="' . $channel['uid'] . '">Save</a>
+<a class="button-primary yarns-channel-filters-save" data-uid="<?php echo $uid; ?>">Save</a>
 <a class="button" href="<?php echo $channel_feeds_link; ?>">Cancel</a>

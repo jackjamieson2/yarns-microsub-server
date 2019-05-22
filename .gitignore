@@ -1,6 +1,5 @@
 .DS_Store
 composer.phar
-composer.lock
 vendor/*
 !/vendor/mf2
 /vendor/mf2/mf2/*

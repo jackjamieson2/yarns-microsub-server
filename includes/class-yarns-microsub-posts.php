@@ -57,6 +57,26 @@ class Yarns_Microsub_Posts {
 				),
 			)
 		);
+
+		// register post statuses for 'read' and 'unread'
+		register_post_status( 'yarns_unread', array(
+			'label'                     => _x( 'Unread', 'post' ),
+			'public'                    => false,
+			'exclude_from_search'       => true,
+			'show_in_admin_all_list'    => false,
+			'show_in_admin_status_list' => false,
+			'label_count'               => _n_noop( 'Unread (%s)', 'Unread (%s)' ),
+		) );
+
+		register_post_status( 'yarns_read', array(
+			'label'                     => _x( 'Read', 'post' ),
+			'public'                    => false,
+			'exclude_from_search'       => true,
+			'show_in_admin_all_list'    => false,
+			'show_in_admin_status_list' => false,
+			'label_count'               => _n_noop( 'Read (%s)', 'Read (%s)' ),
+		) );
+
 	}
 
 	/**
@@ -76,7 +96,7 @@ class Yarns_Microsub_Posts {
 		$my_post = array(
 			'post_type'   => 'yarns_microsub_post',
 			'post_title'  => $channel . '|' . $permalink,
-			'post_status' => 'publish',
+			'post_status' => 'yarns_unread',
 
 		);
 
@@ -113,6 +133,8 @@ class Yarns_Microsub_Posts {
 			wp_set_post_terms( $post_id, 'article', 'yarns_microsub_post_type' );
 		}
 
+		update_post_meta( $post_id, 'yarns_microsub_post_read', 'false' );
+
 		// Save the post JSON as a custom meta field.
 		update_post_meta( $post_id, 'yarns_microsub_json', $post );
 	}
@@ -135,15 +157,27 @@ class Yarns_Microsub_Posts {
 			}
 		} else {
 			$post = self::get_single_post( $entry_id );
-			// Set '_is_read' to true if (a) the post exists, and (b) is unread.
+			// Set '_is_read' to the new status if (a) the post exists, and (b) $read_status has changed
 			if ( $post ) {
 				if ( $post['_is_read'] !== $read_status ) {
 					$post['_is_read'] = $read_status;
-					update_post_meta( $entry_id, 'yarns_microsub_json', $post );
+					update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
+
+					$read_status_string = ($read_status) ? 'yarns_read' : 'yarns_unread';
+
+					$update_post_args = array(
+						'ID'          => $entry_id,
+						'post_status' => $read_status_string,
+					);
+					wp_update_post($update_post_args);
+
+					/*$read_status_string = ($read_status) ? 'true' : 'false';
+					update_post_meta( $entry_id, 'yarns_microsub_post_read', $read_status_string ); // Update meta used for unread count.
+					*/
 				}
 			}
 			$response = array(
-				'result'  => 'OK',
+				'result'  => 'ok',
 				'updated' => $post,
 			);
 
@@ -185,7 +219,6 @@ class Yarns_Microsub_Posts {
 		}
 		$args = array(
 			'post_type'                   => 'yarns_microsub_post',
-			'post_status'                 => 'publish',
 			'posts_per_page'              => - 1,
 		);
 
@@ -207,7 +240,6 @@ class Yarns_Microsub_Posts {
 		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
-			'post_status'    => 'publish',
 			'posts_per_page' => - 1,
 			'date_query'     => array(
 				'before' => $date_before,
@@ -244,6 +276,7 @@ class Yarns_Microsub_Posts {
 			}
 		}
 		$post = get_post_meta( $id, 'yarns_microsub_json', true );
+		$post['_yarns_microsub_post_read'] = get_post_meta($id, 'yarns_microsub_post_read', true);
 		if ( ! is_array( $post ) ) {
 			$post = stripcslashes( $post );
 		}
