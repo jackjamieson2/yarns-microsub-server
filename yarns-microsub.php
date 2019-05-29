@@ -69,8 +69,10 @@ class Yarns_MicroSub_Plugin {
 		if ( wp_next_scheduled( 'yarns_microsub_server_cron' ) ) {
 			wp_clear_scheduled_hook( 'yarns_microsub_server_cron' );
 		}
-	}
 
+		// Remove all stored posts.
+		Yarns_Microsub_Posts::delete_all_posts();
+	}
 
 	/**
 	 * To be run on activation
