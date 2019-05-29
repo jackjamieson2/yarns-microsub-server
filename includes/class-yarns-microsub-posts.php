@@ -117,8 +117,6 @@ class Yarns_Microsub_Posts {
 		// Mark the post as 'unread'.
 		$post['_is_read'] = false;
 
-		// Add a permalink field for debugging.
-		$post['_permalink'] = $permalink;
 
 		$post = encode_array( $post );
 
