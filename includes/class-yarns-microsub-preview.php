@@ -27,9 +27,8 @@ class Yarns_Microsub_Preview {
 		return $this->html;
 	}
 
-	public function debug(){
-		return $this->html;
-	}
+
+
 
 	private function generate_html() {
 		if ( ! $this->data ) {
@@ -107,9 +106,7 @@ class Yarns_Microsub_Preview {
 	}
 
 	private function content( $item ) {
-		if ( ! isset ( $item['content'] ) ) {
-			return;
-		} else {
+		if ( isset ( $item['content'] ) ) {
 			$html = '<div class=yarns-preview-content>';
 			if ( ! is_array( $item['content'] ) ) {
 				$html .= $item['content'];
@@ -119,8 +116,15 @@ class Yarns_Microsub_Preview {
 				$html .= $item['content']['text'];
 			}
 			$html .= '</div><!--.yarns-preview-content-->';
-
 			return $html;
+		} elseif ( isset ( $item['summary'] ) ) {
+			// Fall back to ['summary'].
+			$html  = '<div class=yarns-preview-content>';
+			$html .= $item['summary'];
+			$html .= '</div><!--.yarns-preview-content-->';
+			return $html;
+		} else {
+			return;
 		}
 	}
 
