@@ -7,6 +7,8 @@
  */
 class Yarns_Microsub_Admin {
 
+
+
 	/**
 	 * Stores the page query var for Yarns' options page.
 	 *
@@ -52,7 +54,7 @@ class Yarns_Microsub_Admin {
 	 */
 	public static function init() {
 		add_action( 'wp_ajax_save_filters', array( 'Yarns_Microsub_Channels', 'save_filters' ) );
-		add_action( 'wp_ajax_get_options', array( 'Yarns_Microsub_Admin', 'yarns_channel_options' ) );
+		add_action( 'wp_ajax_save_options', array( 'Yarns_Microsub_Admin', 'save_options' ) );
 		add_action( 'wp_ajax_find_feeds', array( 'Yarns_Microsub_Admin', 'find_feeds' ) );
 		add_action( 'wp_ajax_preview_feed', array( 'Yarns_Microsub_Admin', 'preview_feed' ) );
 		add_action( 'wp_ajax_follow_feed', array( 'Yarns_Microsub_Admin', 'follow_feed' ) );
@@ -64,7 +66,6 @@ class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_force_poll', array( 'Yarns_Microsub_Aggregator', 'force_poll' ) );
 
 		add_filter( 'query_vars', array( 'Yarns_Microsub_Admin', 'add_query_vars_filter' ) );
-
 	}
 
 	public static function add_query_vars_filter( $vars ) {
@@ -133,10 +134,49 @@ class Yarns_Microsub_Admin {
 			return;
 		}
 
-		include plugin_dir_path( __DIR__ ) . 'templates/yarns-microsub-settings.php';
+		include plugin_dir_path( __DIR__ ) . 'templates/yarns-microsub-admin-template.php';
 
 	}
 
+
+	/**
+	 * Return array of accepted options
+	 */
+	private static function valid_options() {
+		return array(
+			'storage_period',
+		);
+	}
+
+	/**
+	 * Save general options
+	 */
+	public static function save_options() {
+		if ( ! isset( $_POST['options'] ) ) {
+			echo 'No options submitted';
+			wp_die();
+		} else {
+			$options = $_POST['options'];
+
+			// validate submitted options.
+			if ( is_array( $options ) ) {
+				foreach ( $options as $key => $option ) {
+					if ( ! in_array( $option, static::valid_options(), true ) ) {
+						unset( $options[ $key ] );
+					}
+				}
+			}
+
+			// Save options.
+			if ( isset( $options['storage_period'] ) ) {
+				if ( (int) $options >= 1 ) { // Validate that the value is an integer > 0.
+					update_option( 'yarns_storage_period', (int) $options );
+				}
+			}
+		}
+		echo 'Saved options';
+		wp_die();
+	}
 
 
 
@@ -349,6 +389,7 @@ class Yarns_Microsub_Admin {
 
 		wp_die();
 	}
+
 
 
 }

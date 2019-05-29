@@ -1,16 +1,16 @@
 #yarns-admin-area #yarns-logo {
-    height:3rem;
-    position:relative;
+    height: 3rem;
+    position: relative;
     margin-bottom: 2rem;
 }
 
-#yarns-admin-area #yarns-logo img{
-    height:100%;
+#yarns-admin-area #yarns-logo img {
+    height: 100%;
     transform: translateY(28%);
 }
 
 #yarns-admin-area #yarns-logo #yarns-subheading {
-    font-size:1rem;
+    font-size: 1rem;
 }
 
 #yarns-admin-area h2 {
@@ -19,36 +19,18 @@
 
 /* Links in list tables */
 .wp-list-table .row-actions a {
-    cursor:pointer;
+    cursor: pointer;
 }
-
-/*
-#yarns-sidebar {
-    float:left;
-    max-width:200px;
-    min-width:200px;
-    width:20%;
-    overflow:hidden;
-}
-
-#yarns-channels {
-    list-style:none;
-}
-
-#yarns-new-channel-name {
-    display:none;
-}
-*/
-
-
 
 #yarns-channel-options {
-    max-width:800px;
+    max-width: 800px;
 }
 
-
-#yarns-option-heading {
-
+.yarns-error {
+    color: #e63013;
+    border: 1px dotted #e63013;
+    width: auto;
+    padding: 5px;
 }
 
 #yarns-channel-update-options {
@@ -59,22 +41,23 @@
 #yarns-channel-delete {
     /* "delete channel" button */
     /*cursor:pointer;*/
-    float:right;
+    float: right;
     /*color:darkred;*/
 }
 
 .yarns-channel {
-    cursor:pointer;
+    cursor: pointer;
     border: 1px solid #0000004d;
     box-shadow: 1px 1px 0px #0006;
     padding: 1em;
     margin: -1px 0 0 0;
-    position:relative;
+    position: relative;
 }
 
 .yarns-channel:hover {
     background: #ddd;
 }
+
 .yarns-channel.selected {
     background: #de6a28;
     color: white;
@@ -83,25 +66,25 @@
 
 
 .yarns-channel span {
-    font-size:1rem;
+    font-size: 1rem;
 }
 
 
 .yarns-channel .yarns-channel-filters {
-    display:none;
+    display: none;
 
 }
 
 
-#yarns-sidebar button, #yarns-channel-options  button{
+#yarns-sidebar button, #yarns-channel-options button {
     background: #6c6868;
     padding: .2rem 1.3rem;
     font-size: medium;
     border: 1px solid #00004d;
     /*box-shadow: 1px 1px 0 #000006;*/
     color: #eee;
-    cursor:pointer;
-    position:relative;
+    cursor: pointer;
+    position: relative;
     border-radius: 2px;
 }
 
@@ -109,15 +92,15 @@
     cursor: pointer;
     padding: 0 1rem 1rem 0;
     display: inline-block;
-    width:150px;
+    width: 150px;
 }
 
 #yarns-options-uid {
-    display:none;
+    display: none;
 }
 
 #yarns-feed-picker-list label {
-    display:block;
+    display: block;
 }
 
 
@@ -127,39 +110,38 @@
 
 }
 
-#yarns-following-list li button.yarns-unfollow{
-    margin-left:0.5rem;
+#yarns-following-list li button.yarns-unfollow {
+    margin-left: 0.5rem;
     background: #439b50;
     padding: .2rem;
-    min-width:90px;
+    min-width: 90px;
     font-size: small;
 }
 
-#yarns-following-list li:hover button.yarns-unfollow{
+#yarns-following-list li:hover button.yarns-unfollow {
     background: #d14933;
     font-size: small;
 }
 
-#yarns-following-list li button.yarns-unfollow::after{
+#yarns-following-list li button.yarns-unfollow::after {
     content: "Following";
 }
 
-#yarns-following-list li:hover button.yarns-unfollow::after{
+#yarns-following-list li:hover button.yarns-unfollow::after {
     content: "Unfollow";
 }
 
 
-
 /* Debug log area */
 #yarns-debug-log-area {
-    clear:both;
+    clear: both;
     padding-top: 2rem;
 }
 
 #yarns-debug-log {
-    width:100%;
+    width: 100%;
     height: 20rem;
-    overflow:scroll;
+    overflow: scroll;
     border: 1px inset grey;
 }
 
@@ -167,20 +149,21 @@
 
 
 .yarns-loading {
-    padding-right:1.5rem!important;
-    position:relative;
+    padding-right: 1.5rem !important;
+    position: relative;
 }
+
 .yarns-loading:after {
     background: url(../images/Wedges.svg) no-repeat top right;
     background-size: 100% auto;
-    height:100%;
+    height: 100%;
     content: ' ';
     height: 1.2rem;
     width: 1.2rem;
 
-    position:absolute;
-    top:.2rem;
-    right:.2rem;
+    position: absolute;
+    top: .2rem;
+    right: .2rem;
 
     /*content: url('../images/Wedges.svg');*/
 
@@ -192,17 +175,16 @@
 */
 
 
-
 /* Modal for previews */
 /* The Modal (background) */
 
 #yarns-preview-outer-container {
-    display:none;
-    position:fixed;
-    top:0;
-    right:0;
-    bottom:0;
-    left:0;
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 9991;
     background: #000000b3;
 }
@@ -210,53 +192,54 @@
 #yarns-preview-inner-container {
 
     margin: 50px auto;
-    width:90vw;
-    height:90vh;
+    width: 90vw;
+    height: 90vh;
     max-width: 500px;
-    position:static;
-    background-color:#32373c;
+    position: static;
+    background-color: #32373c;
     overflow: hidden;
     border: 1px solid #c9c9c9;
 }
 
 #yarns-preview-header {
-    font-weight:bold;
-    position:relative;
-    color:rgba(240, 245, 250, 0.7);
-    height:32px;
-    padding:4px;
+    font-weight: bold;
+    position: relative;
+    color: rgba(240, 245, 250, 0.7);
+    height: 32px;
+    padding: 4px;
 }
 
 #yarns-preview-url {
-    font-weight:normal;
+    font-weight: normal;
 }
 
 #yarns-preview-close {
-   float:right;
+    float: right;
 }
 
 #yarns-preview-container {
     position: relative;
     overflow: scroll;
     background: white;
-    color:#72777c;
-    height:100%;
-    width:100%;
+    color: #72777c;
+    height: 100%;
+    width: 100%;
 }
 
-.yarns-preview-item>div, .yarns-preview-item>h2 {
-    padding-left:2rem;
-    padding-right:2rem;
+.yarns-preview-item > div, .yarns-preview-item > h2 {
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
 
 #yarns-preview-container img {
-    max-width:100%;
+    max-width: 100%;
 }
 
 .yarns-preview-item {
     margin: 1rem 0;
     border-bottom: 1px solid #c9c9c9;
 }
+
 .yarns-preview-author img {
     max-height: 50px;
     max-width: 50px;
@@ -272,12 +255,12 @@
 }
 
 .yarns-preview-author span {
-    vertical-align:top;
-    font-weight:bold;
-    margin-left:1rem;
+    vertical-align: top;
+    font-weight: bold;
+    margin-left: 1rem;
 }
 
 
 .noscroll {
-    overflow:hidden;
+    overflow: hidden;
 }
