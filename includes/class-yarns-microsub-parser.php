@@ -46,68 +46,106 @@ class Yarns_Microsub_Parser {
 
 
 	/**
-	 * Final clean up on post content before saving.
+	 * Final clean up on post content before saving or previewing.
 	 *
-	 * @param array $data The post data to be cleaned.
+	 * @param array $item The post data to be cleaned.
+	 * @param array $feed The feed data.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
-	public static function clean_post( $data ) {
+	public static function clean_post( $item, $feed ) {
+
+		$item['author'] = static::clean_author($item, $feed);
+
+
 		// dedupe name with summary.
-		if ( isset( $data['name'] ) ) {
-			if ( isset( $data['summary'] ) ) {
-				if ( false !== stripos( $data['summary'], $data['name'] ) ) {
-					unset( $data['name'] );
+		if ( isset( $item['name'] ) ) {
+			if ( isset( $item['summary'] ) ) {
+				if ( false !== stripos( $item['summary'], $item['name'] ) ) {
+					unset( $item['name'] );
 				}
 			}
 		}
 
 		// dedupe name with content['text'].
-		if ( isset( $data['name'] ) ) {
-			if ( isset( $data['content']['text'] ) ) {
-				if ( false !== stripos( $data['content']['text'], $data['name'] ) ) {
-					unset( $data['name'] );
+		if ( isset( $item['name'] ) ) {
+			if ( isset( $item['content']['text'] ) ) {
+				if ( false !== stripos( $item['content']['text'], $item['name'] ) ) {
+					unset( $item['name'] );
 				}
 			}
 		}
 
 		// Attempt to set a featured image.
-		if ( ! isset( $data['featured'] ) ) {
-			if ( isset( $data['photo'] ) && is_array( $data['photo'] ) && 1 === count( $data['photo'] ) ) {
-				$data['featured'] = $data['photo'];
-				unset( $data['photo'] );
+		if ( ! isset( $item['featured'] ) ) {
+			if ( isset( $item['photo'] ) && is_array( $item['photo'] ) && 1 === count( $item['photo'] ) ) {
+				$item['featured'] = $item['photo'];
+				unset( $item['photo'] );
 			}
 		}
 
-		// Some feeds return multiple author photos, but only one can be shown.
-		if ( isset( $data['author']['photo'] ) ) {
-			if ( is_array( $data['author']['photo'] ) ) {
-				$data['author']['photo'] = $data['author']['photo'][0];
-			}
-		}
+
+
 
 		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to', 'listen-of' ];
 		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
 		// so reduce them to the url.
 		foreach ( $ref_types as $ref_type ) {
-			if ( isset( $data[ $ref_type ] ) ) {
-				if ( is_array( $data[ $ref_type ] ) ) {
-					if ( isset( $data[ $ref_type ]['url'] ) ) {
-						$data[ $ref_type ] = $data[ $ref_type ]['url'];
+			if ( isset( $item[ $ref_type ] ) ) {
+				if ( is_array( $item[ $ref_type ] ) ) {
+					if ( isset( $item[ $ref_type ]['url'] ) ) {
+						$item[ $ref_type ] = $item[ $ref_type ]['url'];
 					} else {
-						$data [ $ref_type ] = wp_json_encode( $data[ $ref_type ] );
+						$item [ $ref_type ] = wp_json_encode( $item[ $ref_type ] );
 					}
 				}
 			}
 		}
-		if ( is_array( $data ) ) {
-			//$data = encode_array( array_filter( $data ) );
-			$data = array_filter( $data );
+
+		//
+
+		if ( is_array( $item ) ) {
+			$item = array_filter( $item );
 		}
-		return $data;
+		return $item;
 
 	}
 
+	/**
+	 * @param array $item_author
+	 * @param array $feed_author
+	 */
+	public static function clean_author( $item, $feed ) {
+		if ( isset ( $feed['author'] ) && isset ( $item['author'] ) ) {
+			$item['author'] = array_merge( $feed['author'], $item['author'] );
+		}
+
+		// Some feeds return multiple author photos, but only one can be shown.
+		if ( isset( $item['author']['photo'] ) ) {
+			if ( is_array( $item['author']['photo'] ) ) {
+				$item['author']['photo'] = $item['author']['photo'][0];
+			}
+		}
+
+		// if author['email'] is set, but author['name'] is not, then copy email to name
+		if ( isset( $item['author']['email'] ) & ! isset($item['author']['name']) ) {
+			$item['author']['name'] = $item['author']['email'];
+		}
+
+
+		// If author is just a string, replace it with an array
+		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/75
+		if (! is_array($item['author'])) {
+			$item['author'] = array(
+				'type' => 'card',
+				'name' => $item['author'],
+			);
+		}
+
+		return $item['author'];
+
+
+	}
 
 	/**
 	 * Searches a URL for feeds
@@ -162,7 +200,6 @@ class Yarns_Microsub_Parser {
 			return;
 		}
 
-
 		$args = array(
 			'alternate'  => false,
 			'return'     => 'feed',
@@ -178,19 +215,15 @@ class Yarns_Microsub_Parser {
 			$args['follow'] = false;
 		}
 
-
 		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$parse = new Parse_This( $url );
 		$parse->fetch();
 		$parse->parse( $args );
 		$feed = $parse->get();
 
-
-
-
 		if ( isset( $feed['items'] ) ) {
 			foreach ( $feed['items'] as $key => $feeditem ) {
-				$feed['items'][ $key ] = static::clean_post( $feeditem );
+				$feed['items'][ $key ] = static::clean_post( $feeditem, $feed );
 			}
 		}
 
@@ -198,7 +231,6 @@ class Yarns_Microsub_Parser {
 		$parse_duration      = $parse_end_time - $parse_start_time;
 		$feed['_parse_time'] = $parse_duration;
 		$feed['_post_limit'] = $count;
-
 
 		return $feed;
 	}
