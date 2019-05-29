@@ -1,5 +1,10 @@
 
-<?php $storage_period = get_site_option('yarns_storage_period'); ?>
+<?php
+$storage_period = get_site_option('yarns_storage_period');
+$yarns_show_debug = get_site_option('yarns_show_debug');
+$debug_checked = $show_debug ? 'checked' : '';
+?>
+
 
 <h2> Channels </h2>
 <ul id='yarns-channels'>
@@ -12,7 +17,11 @@
 
 
 <h2> Yarns options </h2>
-<label for="yarns-storage-period">Number of days to store feed items before deleting <input type="number" min="1" id="yarns-storage-period" name="yarns-storage-period" value="<?php echo $storage_period; ?>" size="3" ></input></label>
+<label for="yarns-storage-period">Number of days to store feed items before deleting: <input type="number" min="1" id="yarns-storage-period" name="yarns-storage-period" value="<?php echo $storage_period; ?>" size="3" ></input></label>
+<br><br>
+<label for="yarns-toggle-debug">Show debug options: <input id="yarns-toggle-debug" type="checkbox" <?php echo $debug_checked; ?> ></input></label>
+
+
 
 <br><br><a class="button" id="yarns-save-options">Save options</a>
 

@@ -1,3 +1,7 @@
+<?php
+$show_debug = get_site_option( 'yarns_show_debug' );
+?>
+
 <div class='wrap'>
 	<div id='yarns-admin-area'>
 
@@ -15,11 +19,8 @@
 				if ( 'unfollow' === $_GET['action'] ) {
 					$response = Yarns_Microsub_Channels::follow( $_GET['channel'], $_GET['feed_url'], $unfollow = true );
 					echo $response;
-				} else if ( 'preview' === $_GET['action'] ) {
-					// display a preview
 				}
 			}
-
 			include 'yarns-microsub-channel-template.php';
 
 		} else {
@@ -31,10 +32,21 @@
 
 
 	</div><!--#yarns-admin-area-->
-	<div id='yarns-debug-log-area'>
-		<?php echo static::debug_log(); ?>
-	</div>
-	<div id='yarns-debug-commands'>
-		<?php echo static::debug_commands(); ?>
-	</div>
+
+
+	<?php
+	// Only show debug options if option yarns_show_debug == true
+	if ( $show_debug ) {
+		$debug_html = '<div id="yarns-debug-log-area">';
+		$debug_html .= static::debug_log();
+		$debug_html .= '</div>';
+
+		$debug_html .= '<div id="yarns-debug-commands">';
+		$debug_html .= $show_debug;
+		$debug_html .= static::debug_commands();
+		$debug_html .= '</div>';
+		echo $debug_html;
+	}
+	?>
+
 </div>

@@ -145,6 +145,7 @@ class Yarns_Microsub_Admin {
 	private static function valid_options() {
 		return array(
 			'storage_period',
+			'show_debug',
 		);
 	}
 
@@ -158,24 +159,33 @@ class Yarns_Microsub_Admin {
 		} else {
 			$options = $_POST['options'];
 
-			// validate submitted options.
+			// Remove any unsupported option arguments.
 			if ( is_array( $options ) ) {
 				foreach ( $options as $key => $option ) {
-					if ( ! in_array( $option, static::valid_options(), true ) ) {
+					if ( ! in_array( $key, static::valid_options(), true ) ) {
 						unset( $options[ $key ] );
 					}
 				}
 			}
 
-			// Save options.
+
+			// Validate individual options, and save them if valid.
 			if ( isset( $options['storage_period'] ) ) {
-				if ( (int) $options >= 1 ) { // Validate that the value is an integer > 0.
-					update_option( 'yarns_storage_period', (int) $options );
+				if ( (int) $options['storage_period'] >= 1 ) { // Validate that the value is an integer > 0.
+					update_option( 'yarns_storage_period', (int) $options['storage_period'] );
+					$results .= 'updated storage period.  ';
 				}
 			}
+
+			if ( isset( $options['show_debug'] ) ) {
+				$show_debug = $options['show_debug'] === 'true'? true: false;
+				update_option( 'yarns_show_debug', $show_debug );
+				$results .= 'updated show_debug.  ';
+			}
+			echo $results;
+			wp_die();
 		}
-		echo 'Saved options';
-		wp_die();
+
 	}
 
 
@@ -255,9 +265,8 @@ class Yarns_Microsub_Admin {
 	 */
 	private static function debug_commands() {
 		$html = '<h2> Debug commands </h2>';
-		$html .= '<button id="yarns_delete_posts">Delete all posts</button>';
-		$html .= '<button id="yarns_force_poll">Force poll</button>';
-
+		$html .= '<a class="button" id="yarns_force_poll">Force poll</a><br><br>';
+		$html .= '<a class="button" id="yarns_delete_posts">Delete all posts</a>';
 		return $html;
 	}
 

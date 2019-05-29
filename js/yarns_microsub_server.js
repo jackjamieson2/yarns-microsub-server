@@ -67,8 +67,9 @@
 			clear_errors() // Clear any errors that are showing from a previous function.
 			let errors = false
 
-			let options = []
+			let options = {}
 			options['storage_period'] = $( '#yarns-storage-period' ).val()
+			options['show_debug'] = $('#yarns-toggle-debug' ).prop('checked')==true ? true : false
 
 			// Validate options.
 			if ( !options['storage_period'] > 0 ) {
@@ -87,10 +88,12 @@
 						data: {
 							action: 'save_options',
 							options: options,
+							test: 'test',
 						},
 						success: function ( response ) {
 							done_loading( button )
 							console.log( response )
+							window.location.reload();
 						}
 					}
 				)
