@@ -81,9 +81,22 @@ class Yarns_MicroSub_Plugin {
 			wp_schedule_event( time(), '15mins', 'yarns_microsub_server_cron' );
 		}
 
+		// Set defaults for general options.
+		static::set_yarns_defaults();
+	}
+
+	/**
+	 * Saves default options if they havent' been set previously.
+	 */
+	private static function set_yarns_defaults(){
 		// Set default period for storing aggregated posts.
 		if ( ! get_site_option( 'yarns_storage_period' ) ) {
 			update_option( 'yarns_storage_period', 14 );  // in days.
+		}
+
+		// Set debug to false.
+		if ( ! get_site_option( 'yarns_show_debug' ) ) {
+			update_option( 'yarns_show_debug', false );  // in days.
 		}
 	}
 
