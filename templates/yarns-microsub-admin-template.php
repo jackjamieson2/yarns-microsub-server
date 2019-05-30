@@ -34,19 +34,5 @@ $show_debug = get_site_option( 'yarns_show_debug' );
 	</div><!--#yarns-admin-area-->
 
 
-	<?php
-	// Only show debug options if option yarns_show_debug == true
-	if ( $show_debug ) {
-		$debug_html = '<div id="yarns-debug-log-area">';
-		$debug_html .= static::debug_log();
-		$debug_html .= '</div>';
-
-		$debug_html .= '<div id="yarns-debug-commands">';
-		$debug_html .= $show_debug;
-		$debug_html .= static::debug_commands();
-		$debug_html .= '</div>';
-		echo $debug_html;
-	}
-	?>
 
 </div>
