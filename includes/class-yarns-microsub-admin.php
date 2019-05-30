@@ -8,7 +8,6 @@
 class Yarns_Microsub_Admin {
 
 
-
 	/**
 	 * Stores the page query var for Yarns' options page.
 	 *
@@ -27,13 +26,14 @@ class Yarns_Microsub_Admin {
 		//return add_query_arg( array( 'page' => static::$options_page_name ), admin_url() . 'admin.php' );
 	}
 
-	public static function admin_channel_settings_link($uid, $args = []) {
+	public static function admin_channel_settings_link( $uid, $args = [] ) {
 		$default_args = array(
 			'mode'    => 'channel-settings',
 			'channel' => $uid,
 		);
 		// merge additional args if defined.
 		$args = array_merge( $default_args, $args );
+
 		return static::admin_page_link( $args );
 	}
 
@@ -44,9 +44,9 @@ class Yarns_Microsub_Admin {
 		);
 		// merge additional args if defined.
 		$args = array_merge( $default_args, $args );
+
 		return static::admin_page_link( $args );
 	}
-
 
 
 	/**
@@ -178,7 +178,7 @@ class Yarns_Microsub_Admin {
 			}
 
 			if ( isset( $options['show_debug'] ) ) {
-				$show_debug = $options['show_debug'] === 'true'? true: false;
+				$show_debug = $options['show_debug'] === 'true' ? true : false;
 				update_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
@@ -187,7 +187,6 @@ class Yarns_Microsub_Admin {
 		}
 
 	}
-
 
 
 	/**
@@ -235,9 +234,6 @@ class Yarns_Microsub_Admin {
 	}
 
 
-
-
-
 	/**
 	 * Echoes HTML for the debug log
 	 */
@@ -267,6 +263,7 @@ class Yarns_Microsub_Admin {
 		$html = '<h2> Debug commands </h2>';
 		$html .= '<a class="button" id="yarns_force_poll">Force poll</a><br><br>';
 		$html .= '<a class="button" id="yarns_delete_posts">Delete all posts</a>';
+
 		return $html;
 	}
 
@@ -277,23 +274,57 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['query'] ) ) {
 			$query = sanitize_text_field( wp_unslash( $_POST['query'] ) );
 
-			$results = Yarns_Microsub_Parser::search( $query )['results'];
+			$response = Yarns_Microsub_Parser::search( $query );
+			$response = static::validate_results( $response, 'search' );
 
-			if ( empty( $results ) ) {
-				echo 'No feeds found';
+			if ( $response['error'] ) {
+				echo wp_json_encode( $response );
+				wp_die();
+			} else {
+				$html = '<h3>Select a feed to follow:</h3>';
+				foreach ( $response['content']['results'] as $result ) {
+					$html .= '<label><input type="radio" name="yarns-feed-picker" value="' . $result['url'] . '">' . $result['url'] . '</label>';
+				}
+				$html .= '<a class="button" id ="yarns-channel-preview-feed">Preview</a>';
+				$html .= '<a class="button" id ="yarns-channel-add-feed">Subscribe</a>';
+
+				echo wp_json_encode(
+					array(
+						'error'    => false,
+						'content' => $html,
+					)
+				);
 				wp_die();
 			}
-
-			$html = '<h3>Select a feed to follow:</h3>';
-			foreach ( $results as $result ) {
-				$html .= '<label><input type="radio" name="yarns-feed-picker" value="' . $result['url'] . '">' . $result['url'] . '</label>';
-
-			}
-			$html .= '<a class="button" id ="yarns-channel-preview-feed">Preview</a>';
-			$html .= '<a class="button" id ="yarns-channel-add-feed">Subscribe</a>';
-			echo $html;
 		}
-		wp_die();
+	}
+
+	private static function validate_results( $response, $action ) {
+		// General error reporting.
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'error'   => true,
+				'content' => $response->get_error_message(),
+			);
+		}
+
+		// Additional errors for specific actions.
+		switch ( $action ) {
+			case 'search':
+				// Check if the results are empty.
+				if ( empty( $response['results'] ) ) {
+					return array(
+						'error'    => true,
+						'content' => 'No feeds were found.',
+					);
+				}
+		}
+
+		// If there were no errors, return the validated results.
+		return array (
+			'error'    => false,
+			'content' => $response,
+		);
 	}
 
 	/**
@@ -309,7 +340,7 @@ class Yarns_Microsub_Admin {
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link($uid);
+			echo static::admin_channel_feeds_link( $uid );
 			//echo static::yarns_list_feeds( $channel );
 		}
 
@@ -327,7 +358,7 @@ class Yarns_Microsub_Admin {
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url, $unfollow = true );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link($uid);
+			echo static::admin_channel_feeds_link( $uid );
 
 			//echo static::yarns_list_feeds( $channel );
 		}
@@ -380,24 +411,25 @@ class Yarns_Microsub_Admin {
 	/**
 	 * Echoes a preview of a feed.
 	 */
-	public static function preview_feed($url = null) {
-		if ( ! $url) {
+	public static function preview_feed( $url = null ) {
+		if ( ! $url ) {
 			if ( isset( $_POST['url'] ) ) {
 				$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			}
 		}
 
 
-		$preview_data = Yarns_Microsub_Parser::preview($url);
+		$preview_data = Yarns_Microsub_Parser::preview( $url );
 		//echo wp_json_encode($preview_data);
 		//wp_die();
 
-		$preview = new Yarns_Microsub_Preview($preview_data);
+		$preview      = new Yarns_Microsub_Preview( $preview_data );
 		$preview_html = $preview->html();
 		echo $preview_html;
 
 		wp_die();
 	}
+
 
 
 

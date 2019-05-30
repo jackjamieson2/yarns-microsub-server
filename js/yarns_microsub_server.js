@@ -237,34 +237,56 @@
 	 * Manage subscriptions
 	 */
 
+
 	/**
 	 * Search for feeds
-	 *
 	 */
-	$( 'body' ).on( 'click', '#yarns-channel-find-feeds', function () {
-		query = $( '#yarns-URL-input' ).val()
-		console.log( 'Searching for ' + query )
-		button = $( this )
-		start_loading( button )
+	$( 'body' ).on(
+		'click',
+		'#yarns-channel-find-feeds',
+		function () {
+			clear_errors() // Clear any errors that are showing from a previous function.
+			let errors = false
+			button = $( this )
+			query  = $( '#yarns-URL-input' ).val()
 
-		$.ajax( {
-			url: yarns_microsub_server_ajax.ajax_url,
-			type: 'post',
-			data: {
-				action: 'find_feeds',
-				query: query,
-			},
-			success: function ( response ) {
-				done_loading( button )
-				console.log( 'success' )
-				$( '#yarns-feed-picker-list' ).html( response )
-
-				$( '#yarns-feed-picker-list input' ).first().trigger( 'click' )
-
+			// Validate query.
+			if ( query.length < 1 ) {
+				display_error( button, 'Please enter a query before searching.' )
+				errors = true
 			}
-		} )
 
-	} )
+			// If there were no errors, perform the search.
+			if ( errors == false ) {
+				console.log( 'Searching for ' + query )
+
+				start_loading( button )
+				$.ajax(
+					{
+						url: yarns_microsub_server_ajax.ajax_url,
+						type: 'post',
+						data: {
+							action: 'find_feeds',
+							query: query,
+						},
+						success: function ( response ) {
+							response = JSON.parse( response )
+							done_loading( button )
+							console.log( response )
+							if (response['error']) {
+								display_error( button, response['content'] )
+							} else {
+								$( '#yarns-feed-picker-list' ).html( response['content'] )
+
+								$( '#yarns-feed-picker-list input' ).first().trigger( 'click' )
+							}
+
+						}
+					}
+				)
+			}
+		}
+	)
 
 	/**
 	 * Display a preview
