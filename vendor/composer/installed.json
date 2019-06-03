@@ -198,12 +198,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "bb04392a86e83c952cdeb5b01eb0f3136968fb8d"
+            "reference": "9e9686f4e925248c2677f263e8bd7b835c4a714f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/bb04392a86e83c952cdeb5b01eb0f3136968fb8d",
-            "reference": "bb04392a86e83c952cdeb5b01eb0f3136968fb8d",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/9e9686f4e925248c2677f263e8bd7b835c4a714f",
+            "reference": "9e9686f4e925248c2677f263e8bd7b835c4a714f",
             "shasum": ""
         },
         "require": {
@@ -220,7 +220,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2019-03-10T06:24:17+00:00",
+        "time": "2019-05-31T03:09:41+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
@@ -245,12 +245,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/microformats/php-mf2.git",
-            "reference": "14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c"
+            "reference": "c503c4744e09efba083f0d652963ffde4ed013ae"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c",
-            "reference": "14e8c5e9c0f2725a99528eb0f20bfc418c2c1a2c",
+            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/c503c4744e09efba083f0d652963ffde4ed013ae",
+            "reference": "c503c4744e09efba083f0d652963ffde4ed013ae",
             "shasum": ""
         },
         "require": {
@@ -265,7 +265,7 @@
             "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
             "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
         },
-        "time": "2018-12-25T14:09:27+00:00",
+        "time": "2019-05-22T07:44:18+00:00",
         "bin": [
             "bin/fetch-mf2",
             "bin/parse-mf2"
@@ -358,17 +358,17 @@
     },
     {
         "name": "squizlabs/php_codesniffer",
-        "version": "3.4.0",
-        "version_normalized": "3.4.0.0",
+        "version": "3.4.2",
+        "version_normalized": "3.4.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-            "reference": "379deb987e26c7cd103a7b387aea178baec96e48"
+            "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/379deb987e26c7cd103a7b387aea178baec96e48",
-            "reference": "379deb987e26c7cd103a7b387aea178baec96e48",
+            "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
+            "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
             "shasum": ""
         },
         "require": {
@@ -380,7 +380,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
         },
-        "time": "2018-12-19T23:57:18+00:00",
+        "time": "2019-04-10T23:49:02+00:00",
         "bin": [
             "bin/phpcs",
             "bin/phpcbf"
@@ -403,7 +403,7 @@
             }
         ],
         "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-        "homepage": "http://www.squizlabs.com/php-codesniffer",
+        "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
         "keywords": [
             "phpcs",
             "standards"
