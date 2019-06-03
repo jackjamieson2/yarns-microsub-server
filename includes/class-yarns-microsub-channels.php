@@ -343,20 +343,40 @@ class Yarns_Microsub_Channels {
 	}
 
 
+	/**
+	 * Returns count of unread posts per channel
+	 *
+	 * @param string $channel The channel to check.
+	 *
+	 * @return integer
+	 */
 	public static function get_unread_count( $channel ) {
-		$query = static::get_timeline_query( $channel, false, false, - 1, true );
+		$args  = array(
+			'channel'   => $channel,
+			'is_read'   => 'false',
+			'num_posts' => - 1,
+		);
+		$query = static::get_timeline_query( $args );
 
 		return $query->post_count;
 	}
 
 
-	private static function get_timeline_query( $channel, $after = false, $before = false, $num_posts = 20, $unread_only = false ) {
-		$valid_types = static::get_post_types( $channel );
+	/**
+	 * Returns a WP_Query object, given arguments.
+	 *
+	 * @param array $args   Array of arguments to define the query.
+	 *
+	 * @return WP_Query
+	 */
+	private static function get_timeline_query( $args ) {
+		$valid_types = static::get_post_types( $args['channel'] );
 
-		$args = array(
+
+		$query_args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'post_status'    => 'yarns_unread',
-			'posts_per_page' => $num_posts,
+			'posts_per_page' => $args['num_posts'],
 			'orderby'        => 'post_date',
 			'order'          => 'DESC',
 			'tax_query'      => array(
@@ -364,7 +384,7 @@ class Yarns_Microsub_Channels {
 				array(
 					'taxonomy' => 'yarns_microsub_post_channel',
 					'field'    => 'name',
-					'terms'    => $channel,
+					'terms'    => $args['channel'],
 				),
 				array(
 					'taxonomy' => 'yarns_microsub_post_type',
@@ -376,39 +396,39 @@ class Yarns_Microsub_Channels {
 		);
 
 
-		if ( $unread_only === true ) {
-			$args['post_status'] = 'yarns_unread';
+		if ( isset( $args['is_read'] ) && 'false' === $args['is_read'] ) {
+			$query_args['post_status'] = 'yarns_unread';
 		} else {
-			$args['post_status'] = array( 'yarns_unread', 'yarns_read' );
+			$query_args['post_status'] = array( 'yarns_unread', 'yarns_read' );
 		}
 
 
-		$id_list = [];
+		// If we are fetching a limited number of posts, then handle pagination.
+		if ( -1 !== $args['num_posts']  ) {
+			$id_list = [];
 
-		// Pagination.
-		if ( $after ) {
-			// Fetch additional posts older (lower id) than $after.
-			$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
-		}
-		if ( $before ) {
-			// Check for additional posts newer (higher id) than $before.
-			$new_posts = static::find_newer_posts( $before, $args );
-			if ( $new_posts ) {
-				$id_list = array_merge( $id_list, $new_posts );
+			if ( $args['after'] ) {
+				// Fetch additional posts older (lower id) than $after.
+				$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
+			}
+			if ( $args['before'] ) {
+				// Check for additional posts newer (higher id) than $before.
+				$new_posts = static::find_newer_posts( $before, $args );
+				if ( $new_posts ) {
+					$id_list = array_merge( $id_list, $new_posts );
+				}
+			}
+			// use rsort to sort the list of ids in descending order.
+			if ( $id_list ) {
+				if ( is_array( $id_list ) ) {
+					rsort( $id_list );
+				}
+				$query_args['post__in'] = $id_list;
 			}
 		}
-		// use rsort to sort the list of ids in descending order.
-		if ( $id_list ) {
-			if ( is_array( $id_list ) ) {
-				rsort( $id_list );
-			}
-			$args['post__in'] = $id_list;
-		}
-
 		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
-		$ids            = []; // store a list of post ids returned by the query.
-		$timeline_items = [];
-		$query          = new WP_Query( $args );
+		$query = new WP_Query( $query_args );
+
 
 		return $query;
 	}
@@ -416,65 +436,25 @@ class Yarns_Microsub_Channels {
 	/**
 	 * Retrieve Entries in a Channel (Timeline endpoint action)
 	 *
-	 * @param string $channel The channel ID.
-	 * @param string $after For pagination.
-	 * @param string $before For pagination.
-	 * @param int $num_posts The number of posts to return.
+	 * @param string  $channel      The channel ID.
+	 * @param string  $after        For pagination.
+	 * @param string  $before       For pagination.
+	 * @param boolean $is_read      Will omit posts marked as read if set to false.
+	 * @param int     $num_posts    The number of posts to return.
 	 *
 	 * @return string
 	 */
-	public static function timeline( $channel, $after, $before, $num_posts = 20 ) {
-
-		$valid_types = static::get_post_types( $channel );
-
+	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 20 ) {
 		$args = array(
-			'post_type'      => 'yarns_microsub_post',
-			'post_status'    => array( 'yarns_unread', 'yarns_read' ),
-			'posts_per_page' => $num_posts,
-			'orderby'        => 'post_date',
-			'order'          => 'DESC',
-			'tax_query'      => array(
-				'relation' => 'AND',
-				array(
-					'taxonomy' => 'yarns_microsub_post_channel',
-					'field'    => 'name',
-					'terms'    => $channel,
-				),
-				array(
-					'taxonomy' => 'yarns_microsub_post_type',
-					'field'    => 'name',
-					'terms'    => $valid_types,
-				),
-			),
-
+			'channel'   => $channel,
+			'after'     => $after,
+			'before'    => $before,
+			'is_read'   => $is_read,
+			'num_posts' => $num_posts,
 		);
 
-		$id_list = [];
+		$query = static::get_timeline_query( $args );
 
-		// Pagination.
-		if ( $after ) {
-			// Fetch additional posts older (lower id) than $after.
-			$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
-		}
-		if ( $before ) {
-			// Check for additional posts newer (higher id) than $before.
-			$new_posts = static::find_newer_posts( $before, $args );
-			if ( $new_posts ) {
-				$id_list = array_merge( $id_list, $new_posts );
-			}
-		}
-		// use rsort to sort the list of ids in descending order.
-		if ( $id_list ) {
-			if ( is_array( $id_list ) ) {
-				rsort( $id_list );
-			}
-			$args['post__in'] = $id_list;
-		}
-
-		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
-		$ids            = []; // store a list of post ids returned by the query.
-		$timeline_items = [];
-		$query          = new WP_Query( $args );
 
 		while ( $query->have_posts() ) {
 			$query->the_post();

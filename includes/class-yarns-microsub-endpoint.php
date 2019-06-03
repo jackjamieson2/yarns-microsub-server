@@ -233,8 +233,9 @@ class Yarns_Microsub_Endpoint {
 				// Optional parameters.
 				$after  = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
 				$before = ( isset( static::$input['before'] ) ) ? static::$input['before'] : null;
+				$is_read = ( isset( static::$input['is_read'] ) ) ? static::$input['is_read'] : null;
 
-				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], $after, $before ) );
+				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], $after, $before, $is_read ) );
 				break;
 			case 'follow': // return a list of feeds being followed in the given channel.
 				// Required parameters.
