@@ -211,14 +211,11 @@ class Yarns_Microsub_Posts {
 	 *
 	 */
 	public static function delete_all_posts( ) {
-		// This function is only available in local auth mode.
-		if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-			return 'not authorized';
-		}
+
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,
-			'post_status'    => array( 'yarns_read', 'yarns_unread' ),
+			'post_status'    => array( 'yarns_read', 'yarns_unread', 'publish' ), // 'publish' is no longer used, but this will ensure posts are removed from previous versions of yarns.
 		);
 
 
@@ -276,7 +273,6 @@ class Yarns_Microsub_Posts {
 			}
 		}
 		$post = get_post_meta( $id, 'yarns_microsub_json', true );
-		$post['_yarns_microsub_post_read'] = get_post_meta($id, 'yarns_microsub_post_read', true);
 		if ( ! is_array( $post ) ) {
 			$post = stripcslashes( $post );
 		}
