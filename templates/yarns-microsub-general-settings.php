@@ -35,7 +35,6 @@ if ( $show_debug ) {
 	$debug_html .= '</div>';
 
 	$debug_html .= '<div id="yarns-debug-commands">';
-	$debug_html .= $show_debug;
 	$debug_html .= static::debug_commands();
 	$debug_html .= '</div>';
 	echo $debug_html;
