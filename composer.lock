@@ -132,12 +132,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "9e9686f4e925248c2677f263e8bd7b835c4a714f"
+                "reference": "848220f10528b924f5ae5199584b43f2685ca9c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/9e9686f4e925248c2677f263e8bd7b835c4a714f",
-                "reference": "9e9686f4e925248c2677f263e8bd7b835c4a714f",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/848220f10528b924f5ae5199584b43f2685ca9c4",
+                "reference": "848220f10528b924f5ae5199584b43f2685ca9c4",
                 "shasum": ""
             },
             "require": {
@@ -169,7 +169,7 @@
                 }
             ],
             "description": "Parse This Library for WordPress",
-            "time": "2019-05-31T03:09:41+00:00"
+            "time": "2019-06-05T17:28:47+00:00"
         },
         {
             "name": "mf2/mf2",
