@@ -42,7 +42,7 @@ class Yarns_Microsub_Preview {
 				$html .= '<div class="yarns-preview-item">';
 
 				$html .= $this::author( $item );
-				$html .= $this::title($item);
+				$html .= $this::name($item);
 				$html .= $this::published($item);
 				$html .= $this::content($item);
 				$html .= '</div><!--.yarns-preview-item-->';
@@ -81,12 +81,12 @@ class Yarns_Microsub_Preview {
 		return $html;
 	}
 
-	private function title( $item ) {
-		if ( ! isset ( $item['title'] ) ) {
+	private function name( $item ) {
+		if ( ! isset ( $item['name'] ) ) {
 			return;
 		} else {
 			$html  = '<h2 class=yarns-preview-title>';
-			$html .= $item['title'];
+			$html .= $item['name'];
 			$html .= '</h2><!--.yarns-preview-title-->';
 			return $html;
 		}
