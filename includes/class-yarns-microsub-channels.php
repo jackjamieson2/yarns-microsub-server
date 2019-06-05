@@ -40,19 +40,11 @@ class Yarns_Microsub_Channels {
 
 
 		foreach ( $channels as $key => $channel ) {
-			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
 			if ( false === $details ) {
-				if ( array_key_exists( 'items', $channel ) ) {
-					unset( $channels[ $key ]['items'] );
-				}
-				if ( array_key_exists( 'post-types', $channel ) ) {
-					unset( $channels[ $key ]['post-types'] );
-				}
+				// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
+				$channels[ $key ] = static::strip_channel_details( $channel );
 			}
-		}
 
-		// Add 'unread' field to each channel. Indicates number of unread posts.
-		foreach ( $channels as $key => $channel ) {
 			$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
 		}
 
@@ -62,6 +54,25 @@ class Yarns_Microsub_Channels {
 		];
 
 		return $results;
+	}
+
+	/**
+	 * Given a channel object, returns the object without details (such as a list of items, valid post-types), etc.
+	 * (These details are used in Yarns backend, but should not be sent to clients.
+	 *
+	 * @param array $channel The channel from which to strip details.
+	 *
+	 * @return array
+	 */
+	private static function strip_channel_details( $channel ) {
+		if ( array_key_exists( 'items', $channel ) ) {
+			unset( $channel['items'] );
+		}
+		if ( array_key_exists( 'post-types', $channel ) ) {
+			unset( $channel['post-types'] );
+		}
+
+		return $channel;
 	}
 
 	/**
@@ -570,6 +581,7 @@ class Yarns_Microsub_Channels {
 									unset( $channels[ $key ]['items'][ $channel_key ] );
 									update_option( 'yarns_channels', wp_json_encode( $channels ) );
 
+
 									return;
 								} else {
 									// if $unfollow == false then exit early because the subscription already exists.
@@ -593,7 +605,8 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-		return; // channel does not exist, so return nothing.
+		return new WP_Microsub_Error( 'invalid_request', 'tried to add feed to a channel that does not exist', 400 );
+
 	}
 
 	/**
