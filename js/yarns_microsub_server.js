@@ -470,17 +470,43 @@
 		//target.find($('.yarns-loading')).remove();
 	}
 
+
+	/**
+	 *  Clears errors and notices from the page
+	 */
+	function clear_notices () {
+		$( '.yarns-error' ).remove()
+		$( '.yarns-notice' ).remove()
+	}
+
+	/**
+	 * Displays an error message after a target element
+	 * @param target  The element after which to display the message.
+	 * @param message The message to be displayed
+	 */
 	function display_error ( target, message ) {
-		target.after( $( '<span/>', {
-				'class': 'yarns-error',
-				text: message
-			}
+		target.after(
+			$( '<span/>', {
+					'class': 'yarns-error',
+					text: message
+				}
 			)
 		)
 	}
 
-	function clear_errors(){
-		$('.yarns-error').hide()
+	/**
+	 * Displays a notice after a target element
+	 * @param target  The element after which to display the message.
+	 * @param message The message to be displayed
+	 */
+	function display_notice ( target, message ) {
+		target.after(
+			$( '<span/>', {
+					'class': 'yarns-notice',
+					text: message
+				}
+			)
+		)
 	}
 
 	/**

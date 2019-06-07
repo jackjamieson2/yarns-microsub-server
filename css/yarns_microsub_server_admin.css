@@ -26,11 +26,23 @@
     max-width: 800px;
 }
 
+.yarns-error, .yarns-notice {
+    width: auto;
+    padding: 5px;
+}
 .yarns-error {
     color: #e63013;
     border: 1px dotted #e63013;
     width: auto;
     padding: 5px;
+}
+
+.yarns-notice {
+    color: #000;
+    background-color: #feeb95;
+    border: 1px dotted #e6c737;
+    border-radius:5px;
+
 }
 
 #yarns-channel-update-options {
