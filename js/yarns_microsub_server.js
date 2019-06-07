@@ -377,11 +377,15 @@
 	/**
 	 * Close the preview
 	 */
-	$( 'body' ).on( 'click', '#yarns-preview-close', function () {
-		$( '#yarns-preview-outer-container' ).hide()
-		$( 'body' ).removeClass( 'noscroll' )
+	$( 'body' ).on( 'click',
+		'#yarns-preview-close',
+		function () {
+			$( '#yarns-preview-container' ).html( '' )
+			$( '#yarns-preview-outer-container' ).hide()
+			$( 'body' ).removeClass( 'noscroll' )
 
-	} )
+		}
+	)
 
 	/**
 	 * Follow a feed
