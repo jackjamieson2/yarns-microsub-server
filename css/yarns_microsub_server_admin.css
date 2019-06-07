@@ -50,6 +50,44 @@
 }
 
 
+/* Channel list table - css for sortable  table*/
+
+#yarns-channels td.order:hover {
+    cursor:move;
+}
+
+/*
+ * Display move icon in the 'order' channels column
+ *
+ * Font Awesome Free 5.8.1 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ */
+#yarns-channels td.order .order_handle {
+    width:10px;
+    height:auto;
+    display:inline-block;
+    opacity:0.6;
+    padding-top: 2px;
+    vertical-align: top;
+}
+
+#yarns-channels td.order .order_handle:before {
+    content: url('../images/arrows-alt-v-solid.svg');
+}
+
+
+#yarns-channels .ui-sortable-helper {
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+#yarns-channels .ui-sortable-helper .n_feeds, #yarns-channels .ui-sortable-helper .order {
+    display:none;
+}
+/***/
+
+
+
 #yarns-channel-delete {
     /* "delete channel" button */
     /*cursor:pointer;*/

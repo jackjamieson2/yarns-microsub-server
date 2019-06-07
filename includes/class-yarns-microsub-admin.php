@@ -62,6 +62,7 @@ class Yarns_Microsub_Admin {
 		add_action( 'wp_ajax_add_channel', array( 'Yarns_Microsub_Admin', 'add_channel' ) );
 		add_action( 'wp_ajax_update_channel', array( 'Yarns_Microsub_Admin', 'update_channel' ) );
 		add_action( 'wp_ajax_delete_channel', array( 'Yarns_Microsub_Admin', 'delete_channel' ) );
+		add_action( 'wp_ajax_order_channels', array( 'Yarns_Microsub_Admin', 'order_channels' ) );
 		add_action( 'wp_ajax_delete_posts', array( 'Yarns_Microsub_Posts', 'delete_all_posts' ) );
 		add_action( 'wp_ajax_force_poll', array( 'Yarns_Microsub_Aggregator', 'force_poll' ) );
 
@@ -89,6 +90,9 @@ class Yarns_Microsub_Admin {
 		// also enqueue the css for the yarns_reader_admin page in the dashboard.
 		wp_enqueue_style( 'yarns_microsub_server_admin_css', plugin_dir_url( __FILE__ ) . '../css/yarns_microsub_server_admin.css' );
 		wp_localize_script( 'yarns_microsub_server_js', 'yarns_microsub_server_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+
+		// Add required jquery-ui scripts
+		wp_enqueue_script( 'jquery-ui-sortable' );
 	}
 
 
@@ -430,6 +434,22 @@ class Yarns_Microsub_Admin {
 		wp_die();
 	}
 
+
+	/**
+	 * Reorder channels
+	 */
+
+	public static function order_channels () {
+		if ( isset( $_POST['channel_order'] ) ) {
+			//$channel_order = wp_json_encode($_POST['channel_order'] );
+			$channel_order =  wp_unslash( $_POST['channel_order'] );
+			$response = Yarns_Microsub_Channels::order( $channel_order );
+			if ($response){
+				echo 'Updated channel order.';
+			}
+		}
+		wp_die();
+	}
 
 
 

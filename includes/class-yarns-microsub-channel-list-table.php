@@ -9,7 +9,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		return array(
 			'channel_name' => __( 'Channel Name', 'yarns_microsub' ),
 			'n_feeds'      => __( 'Number of feeds', 'yarns_microsub' ),
-			/*'order' => __( 'Order', 'yarns_microsub' ),*/
+			'order' => __( 'Order', 'yarns_microsub' ),
 			// Removed for now, add back once I figure out the best method .
 		);
 	}
@@ -54,6 +54,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 			} else {
 				$value['order'] = null;
 			}
+			$value['order'] = '<div class="order_handle">️️️️</div>';
 
 			// Get the number of feeds in this channel.
 			if ( isset( $channel['items'] ) && is_array( $channel['items'] ) ) {
@@ -81,7 +82,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 			), Yarns_Microsub_Admin::admin_page_link() )
 		);
 
-		$html = '<strong><a href ="' . $link . '">' . $item['channel_name'] . '</a></strong>';
+		$html = '<strong><a data-uid="'.$uid.'" href ="' . $link . '">' . $item['channel_name'] . '</a></strong>';
 
 		//return $item['channel_name'];
 		return $html;
@@ -93,27 +94,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 	}
 
 	public function column_order( $item ) {
-
-		$link_order_up = esc_url( add_query_arg( array(
-				'page'          => Yarns_Microsub_Admin::$options_page_name,
-				'action'        => 'order_up',
-				'order_channel' => $item['channel_uid'],
-			), Yarns_Microsub_Admin::admin_page_link() )
-		);
-
-		$link_order_down = esc_url( add_query_arg( array(
-				'page'          => Yarns_Microsub_Admin::$options_page_name,
-				'action'        => 'order_down',
-				'order_channel' => $item['channel_uid'],
-			), Yarns_Microsub_Admin::admin_page_link() )
-		);
-		$actions         = array(
-			'order_up'   => '<a href="' . $link_order_up . '">Move up</a>',
-			'order_down' => '<a href="' . $link_order_down . '">Move down</a>',
-		);
-
-
-		return $item['order'] . $this->row_actions( $actions );
+		return $item['order'];
 	}
 
 

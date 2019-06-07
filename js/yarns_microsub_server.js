@@ -7,6 +7,42 @@
 		function () {
 			$( '.yarns-feed-unfollow' ).removeAttr( 'href' )
 			$( '.yarns-feed-preview' ).removeAttr( 'href' )
+
+			// Make channel rows in channel list table sortable
+			$( '#yarns-channels #the-list' ).sortable(
+				{
+					handle: '.order',
+					update: function ( event, ui ) {
+						clear_notices() // Clear any errors that are showing from a previous function.
+
+						let channel_order = []
+						$( '#yarns-channels #the-list tr .channel_name' ).each(
+							function ( index ) {
+								channel_order.push( $( this ).find( 'a' ).attr( 'data-uid' ) )
+							}
+						)
+
+						console.log(channel_order)
+						if ( Array.isArray( channel_order ) ) {
+							$.ajax(
+								{
+									url: yarns_microsub_server_ajax.ajax_url,
+									type: 'post',
+									data: {
+										action: 'order_channels',
+										channel_order: channel_order,
+									},
+									success: function ( response ) {
+										console.log(  response )
+									}
+								}
+							)
+						}
+					}
+				}
+			)
+
+			$( '.sortable' ).sortable( { handle: '.handle' } )
 		}
 	)
 
