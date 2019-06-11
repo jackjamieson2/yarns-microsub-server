@@ -402,7 +402,6 @@ class Yarns_Microsub_Channels {
 					'field'    => 'name',
 					'terms'    => $valid_types,
 				),
-
 			),
 		);
 
@@ -419,12 +418,12 @@ class Yarns_Microsub_Channels {
 			$id_list = [];
 
 			if ( $args['after'] ) {
-				// Fetch additional posts older (lower id) than $after.
-				$id_list = array_merge( $id_list, range( 1, (int) $after - 1 ) );
+				// Fetch additional posts older (lower id) than $args['after'].
+				$id_list = array_merge( $id_list, range( 1, (int) $args['after'] - 1 ) );
 			}
 			if ( $args['before'] ) {
-				// Check for additional posts newer (higher id) than $before.
-				$new_posts = static::find_newer_posts( $before, $args );
+				// Check for additional posts newer (higher id) than $args['before'].
+				$new_posts = static::find_newer_posts( $args['before'], $args );
 				if ( $new_posts ) {
 					$id_list = array_merge( $id_list, $new_posts );
 				}
@@ -467,6 +466,7 @@ class Yarns_Microsub_Channels {
 		$query = static::get_timeline_query( $args );
 
 
+		$timeline_items = array();
 		while ( $query->have_posts() ) {
 			$query->the_post();
 			$id                = get_the_ID();
@@ -477,8 +477,7 @@ class Yarns_Microsub_Channels {
 
 		wp_reset_postdata();
 
-
-		// Filter out posts that should be omitted.
+		// Filter out posts that should be omitted. Add paging variable.
 		if ( $timeline_items ) {
 			if ( is_array( $timeline_items ) ) {
 				$timeline['items']            = array_filter( $timeline_items );
