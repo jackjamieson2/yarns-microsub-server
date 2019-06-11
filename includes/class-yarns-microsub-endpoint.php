@@ -302,26 +302,30 @@ class Yarns_Microsub_Endpoint {
 				}
 				break;
 			case 'timeline':
-					// If method is 'mark_read' then mark post(s) as READ.
+				// If method is 'mark_read' then mark post(s) as READ.
 				if ( 'mark_read' === static::$input['method'] ) {
 					// mark one or more individual entries as read.
-					if ( isset ( static::$input['entry'] ) ) {
+					if ( isset( static::$input['entry'] ) ) {
 						$response->set_data( Yarns_Microsub_Posts::toggle_read( static::$input['entry'], true ) );
+						break;
 					}
 					// mark an entry read as well as everything before it in the timeline.
-					if (isset ( static::$input['last_read_entry'] ) ){
+					if ( isset( static::$input['last_read_entry'] ) && isset( static::$input['channel'] ) ) {
 						$response->set_data( Yarns_Microsub_Posts::toggle_last_read( static::$input['last_read_entry'], static::$input['channel'], true ) );
+						break;
 					}
 				}
-					// If method is 'mark_unread then mark post(s) as UNREAD.
+				// If method is 'mark_unread then mark post(s) as UNREAD.
 				if ( 'mark_unread' === static::$input['method'] ) {
 					// mark one or more individual entries as read.
-					if ( isset (static::$input['entry'] ) ) {
+					if ( isset( static::$input['entry'] ) ) {
 						$response->set_data( Yarns_Microsub_Posts::toggle_read( static::$input['entry'], false ) );
+						break;
 					}
 					// mark an entry read as well as everything before it in the timeline.
-					if ( isset( static::$input['last_read_entry'] ) ){
+					if ( isset( static::$input['last_read_entry'] ) && isset( static::$input['channel'] ) ) {
 						$response->set_data( Yarns_Microsub_Posts::toggle_last_read( static::$input['last_read_entry'], static::$input['channel'], false ) );
+						break;
 					}
 				}
 				break;
@@ -358,7 +362,7 @@ class Yarns_Microsub_Endpoint {
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
-		
+
 		static::log_response($response);
 		return $response;
 
