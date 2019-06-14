@@ -86,21 +86,23 @@ class Yarns_Microsub_Parser {
 
 
 
-
+		/*
 		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to', 'listen-of' ];
 		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
 		// so reduce them to the url.
+
 		foreach ( $ref_types as $ref_type ) {
 			if ( isset( $item[ $ref_type ] ) ) {
 				if ( is_array( $item[ $ref_type ] ) ) {
 					if ( isset( $item[ $ref_type ]['url'] ) ) {
 						$item[ $ref_type ] = $item[ $ref_type ]['url'];
 					} else {
-						$item [ $ref_type ] = wp_json_encode( $item[ $ref_type ] );
+						$item [ $ref_type ] = ( $item[ $ref_type ] );
 					}
 				}
 			}
 		}
+		*/
 
 		//
 
