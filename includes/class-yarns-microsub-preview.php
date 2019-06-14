@@ -60,24 +60,25 @@ class Yarns_Microsub_Preview {
 		if ( ! isset( $item['author'] ) ) {
 			$html .= '(no author information)';
 		} else {
-			if ( $item['author']['photo'] ) {
+			if ( isset( $item['author']['photo'] ) ) {
 				$html .= '<img src="' . $item['author']['photo'] . '">';
 			}
 			$html .= '<span>';
-			if ( $item['author']['url'] ) {
+			if ( isset( $item['author']['url'] ) ) {
 				$html .= '<a href="' . $item['author']['url'] . '">';
 			}
-			if ( $item['author']['name'] ) {
+			if ( isset( $item['author']['name'] ) ) {
 				$html .= $item['author']['name'];
 			} else {
 				$html .= 'unknown';
 			}
-			if ( $item['author']['url'] ) {
+			if ( isset( $item['author']['url'] ) ) {
 				$html .= '</a>';
 			}
 			$html .= '</span>';
 		}
 		$html .= '</div><!--.yarns-preview-author-->';
+
 		return $html;
 	}
 
