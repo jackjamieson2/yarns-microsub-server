@@ -122,6 +122,10 @@ class Yarns_Microsub_Parser {
 			$item['author'] = array_merge( $feed['author'], $item['author'] );
 		}
 
+		if ( ! isset($item['author'] ) ){
+			return;
+		}
+
 		// Some feeds return multiple author photos, but only one can be shown.
 		if ( isset( $item['author']['photo'] ) ) {
 			if ( is_array( $item['author']['photo'] ) ) {
