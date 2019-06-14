@@ -216,6 +216,13 @@ class Yarns_Microsub_Endpoint {
 		$response = new WP_REST_Response();
 		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
 
+
+		/* Validate that the query includes required arguments given its action*/
+		$missing_args = static::check_required_args( 'GET' );
+		if ( is_microsub_error( $missing_args ) ) {
+			return $missing_args;
+		}
+
 		/*
 		* Once authorization is complete, respond to the query:
 		*
@@ -226,28 +233,18 @@ class Yarns_Microsub_Endpoint {
 				$response->set_data( Yarns_Microsub_Channels::get() );
 				break;
 			case 'timeline': // Return a timeline of the channel.
-				// Required parameters.
-				if ( empty( static::$input['channel'] ) ) {
-					return new WP_Microsub_Error( 'invalid_request', 'missing parameter: channel', 400 );
-				}
 				// Optional parameters.
-				$after  = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
+				$after = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
 				$before = ( isset( static::$input['before'] ) ) ? static::$input['before'] : null;
 				$is_read = ( isset( static::$input['is_read'] ) ) ? static::$input['is_read'] : null;
-
 				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], $after, $before, $is_read ) );
 				break;
 			case 'follow': // return a list of feeds being followed in the given channel.
-				// Required parameters.
-				if ( empty( static::$input['channel'] ) ) {
-					return new WP_Microsub_Error( 'invalid_request', 'missing parameter: channel', 400 );
-				}
 				$response->set_data( Yarns_Microsub_Channels::list_follows( static::$input['channel'] ) );
 				break;
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
-
 		static::log_response($response);
 		return $response;
 
@@ -271,6 +268,11 @@ class Yarns_Microsub_Endpoint {
 		$response = new WP_REST_Response();
 		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
 
+		/* Validate that the query includes required arguments given its action*/
+		$missing_args = static::check_required_args( 'POST' );
+		if ( is_microsub_error( $missing_args ) ) {
+			return $missing_args;
+		}
 
 		/*
 		* Once authorization is complete, respond to the query:
@@ -284,13 +286,8 @@ class Yarns_Microsub_Endpoint {
 					Yarns_Microsub_Channels::delete( static::$input['channel'] );
 					break;
 				} elseif ( 'order' === static::$input['method'] ) {
-					Yarns_MicroSub_Plugin::debug_log( 'method == order' );
-					if ( static::$input['channels'] ) {
-						Yarns_MicroSub_Plugin::debug_log( 'valid order action' );
-						$response->set_data( Yarns_Microsub_Channels::order( static::$input['channels'] ) );
-					} else {
-						$response = false;
-					}
+					$response->set_data( Yarns_Microsub_Channels::order( static::$input['channels'] ) );
+					break;
 				} elseif ( static::$input['name'] ) {
 					if ( static::$input['channel'] ) {
 						// update the channel.
@@ -309,6 +306,7 @@ class Yarns_Microsub_Endpoint {
 						$response->set_data( Yarns_Microsub_Posts::toggle_read( static::$input['entry'], true ) );
 						break;
 					}
+
 					// mark an entry read as well as everything before it in the timeline.
 					if ( isset( static::$input['last_read_entry'] ) && isset( static::$input['channel'] ) ) {
 						$response->set_data( Yarns_Microsub_Posts::toggle_last_read( static::$input['last_read_entry'], static::$input['channel'], true ) );
@@ -342,31 +340,129 @@ class Yarns_Microsub_Endpoint {
 			case 'unfollow':
 				$response->set_data( Yarns_Microsub_Channels::follow( static::$input['channel'], $static::input['url'], true ) );
 				break;
-			case 'poll-test':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
-
-				$response->set_data( Yarns_Microsub_Aggregator::test_aggregator( $request->get_param( 'url' ) ) );
-				break;
-
-			case 'delete_all':
-				// REQUIRED SCOPE: local auth.
-				if ( ! MICROSUB_LOCAL_AUTH === 1 ) {
-					static::error( 403, sprintf( 'scope insufficient for local admin actions' ) );
-				}
-
-				$response->set_data( Yarns_Microsub_Posts::delete_all_posts( static::$input['channel'] ) );
-				break;
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
 
-		static::log_response($response);
+		static::log_response( $response );
+
 		return $response;
 
 	}
+
+
+	/**
+	 * Returns an error if any required arguments are missing, given the method and action.
+	 *
+	 * @param string $method    "POST" or "GET".
+	 *
+	 * @return WP_Microsub_Error
+	 */
+	private static function check_required_args( $method ) {
+		if ( 'POST' === $method ) {
+			switch ( static::$input['action'] ) {
+				case 'channels':
+					if ( 'delete' === static::$input['method'] ) {
+						$required = 'channel';
+						break;
+					} elseif ( 'order' === static::$input['method'] ) {
+						$required = 'channels';
+						break;
+					}
+					break;
+				case 'timeline':
+					// If method is 'mark_read' then mark post(s) as READ.
+					if ( 'mark_read' === static::$input['method'] || 'mark_unread' === static::$input['method'] ) {
+						if ( isset( static::$input['last_read_entry'] ) ) {
+							$required = 'channel';
+						} else {
+							$required_any = array( 'entry', 'last_read_entry' );
+						}
+					}
+					break;
+				case 'search':
+					$required = 'query';
+					break;
+				case 'preview':
+					$required = 'url';
+					break;
+				case 'follow':
+					$required = array( 'url', 'channel' );
+					break;
+				case 'unfollow':
+					$required = array( 'url', 'channel' );
+					break;
+			}
+		} elseif ( 'GET' === $method ) {
+			switch ( static::$input['action'] ) {
+				case 'timeline': // Return a timeline of the channel.
+					$required = 'channel';
+					break;
+				case 'follow': // return a list of feeds being followed in the given channel.
+					$required = 'channel';
+					break;
+			}
+		}
+
+		if ( isset( $required_any ) ) {
+			$result_any = static::any_arg_exists( $required_any );
+			if ( is_microsub_error( $result_any ) ) {
+				return $result_any;
+			}
+		}
+
+		if ( isset( $required ) ) {
+			$result_all = static::all_args_exist( $required );
+			if ( is_microsub_error( $result_all ) ) {
+				return $result_all;
+			}
+		}
+	}
+
+	/**
+	 * Returns an error if the input was missing ALL of the arguments in $args;
+	 *
+	 * @param array $args Array of arguments to check.
+	 *
+	 * @return WP_Microsub_Error
+	 */
+	private static function any_arg_exists( $args ) {
+		if ( is_array( $args ) ) {
+			$found = false;
+			foreach ( $args as $item ) {
+				if ( isset( static::$input[ $item ] ) ) {
+					$found = true;
+				}
+			}
+			if ( ! $found ) {
+				return new WP_Microsub_Error( 'invalid_request', sprintf( '%1$s action requires one of the following properties: `%2$s` property', static::$input['action'], wp_json_encode( $required_any ) ), 400 );
+			}
+		}
+	}
+
+	/**
+	 * Returns an error if the input was missing ANY of the arguments in $args;
+	 *
+	 * @param string|array $args String or array of strings to check.
+	 *
+	 * @return WP_Microsub_Error
+	 */
+	private static function all_args_exist( $args ) {
+		if ( is_array( $args ) ) {
+			foreach ( $args as $arg ) {
+				$response = static::all_args_exist( $arg );
+				if ( is_microsub_error( $response ) ) {
+					return $response;
+				}
+			}
+		} else {
+			if ( ! isset( static::$input[ $args ] ) ) {
+				return new WP_Microsub_Error( 'invalid_request', sprintf( '%1$s action missing required argument: `%2$s` ', static::$input['action'], $args ), 400 );
+			}
+		}
+	}
+
+
 
 	/**
 	 * The Microsub autodiscovery meta-tags
