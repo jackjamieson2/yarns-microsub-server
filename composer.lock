@@ -132,12 +132,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "848220f10528b924f5ae5199584b43f2685ca9c4"
+                "reference": "5e7d6af2eaf07f10e494a64a9cfc95df754d1621"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/848220f10528b924f5ae5199584b43f2685ca9c4",
-                "reference": "848220f10528b924f5ae5199584b43f2685ca9c4",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/5e7d6af2eaf07f10e494a64a9cfc95df754d1621",
+                "reference": "5e7d6af2eaf07f10e494a64a9cfc95df754d1621",
                 "shasum": ""
             },
             "require": {
@@ -147,6 +147,7 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "masterminds/html5": "^2.6",
                 "phpcompatibility/php-compatibility": "*",
                 "phpcompatibility/phpcompatibility-wp": "^1.0",
                 "simplepie/simplepie": "*",
@@ -169,7 +170,7 @@
                 }
             ],
             "description": "Parse This Library for WordPress",
-            "time": "2019-06-05T17:28:47+00:00"
+            "time": "2019-06-14T05:30:37+00:00"
         },
         {
             "name": "mf2/mf2",

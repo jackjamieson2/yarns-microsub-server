@@ -56,18 +56,17 @@ class Parse_This_RSS {
 		}
 		$return = array();
 		foreach ( $author as $a ) {
-			$r   = array(
+			$r     = array(
 				'type'  => 'card',
 				'name'  => htmlspecialchars_decode( $a->get_name() ),
 				'url'   => $a->get_link(),
 				'email' => $a->get_email(),
 			);
-			$dom = new DOMDocument();
-			$dom->loadHTML( $r['name'] );
+			$dom   = pt_load_domdocument( $r['name'] );
 			$links = $dom->getElementsByTagName( 'a' );
 			$names = array();
 			foreach ( $links as $link ) {
-					$names[ wp_strip_all_tags( $link->nodeValue ) ] = $link->getAttribute( 'href' );
+					$names[ wp_strip_all_tags( $link->nodeValue ) ] = $link->getAttribute( 'href' ); // phpcs:ignore
 			}
 			if ( ! empty( $names ) ) {
 				if ( 1 === count( $names ) ) {
@@ -93,6 +92,56 @@ class Parse_This_RSS {
 		return $return;
 	}
 
+	public static function credit_to_card( $credit ) {
+		if ( ! $credit instanceof SimplePie_Credit ) {
+			return null;
+		}
+		return array(
+			'type' => 'card',
+			'role' => $credit->get_role(),
+			'name' => $credit->get_name(),
+		);
+	}
+
+	public static function source_to_cite( $source ) {
+		if ( ! $source instanceof SimplePie_Source ) {
+			return null;
+		}
+		return array_filter(
+			array(
+				'type'    => 'cite',
+				'name'    => $source->get_title(),
+				'summary' => $source->get_description(),
+				'url'     => $source->get_permalink(),
+			)
+		);
+	}
+
+
+	public function get_source( $item ) {
+		$return = $item->get_item_tags( SIMPLEPIE_NAMESPACE_RSS_20, 'source' );
+		if ( $return ) {
+			return array(
+				'url'  => $return[0]['attribs']['']['url'],
+				'name' => $return[0]['data'],
+			);
+		}
+		return self::source_to_cite( $item->get_source() );
+	}
+
+	public function get_thumbnail( $item ) {
+		if ( method_exists( $item, 'get_thumbnail' ) ) {
+			$return = $item->get_thumbnail();
+			if ( is_string( $return ) ) {
+				return $return;
+			}
+			if ( is_array( $return ) && isset( $return['url'] ) ) {
+				return $return['url'];
+			}
+		}
+		return null;
+	}
+
 	/*
 	 * Takes a SimplePie_Item object and Turns it into a JF2 entry
 	 * @param SimplePie_Item $item
@@ -100,25 +149,26 @@ class Parse_This_RSS {
 	 */
 	public static function get_item( $item, $title = '' ) {
 		$return = array(
-			'type'        => 'entry',
-			'name'        => $item->get_title(),
-			'author'      => self::get_authors( $item->get_authors() ),
+			'type'         => 'entry',
+			'name'         => $item->get_title(),
+			'author'       => self::get_authors( $item->get_authors() ),
 			'contributors' => self::get_authors( $item->get_contributors() ),
-			'publication' => $title,
-			'summary'     => wp_strip_all_tags( $item->get_description( true ) ),
-			'content'     => array_filter(
+			'publication'  => $title,
+			'summary'      => wp_strip_all_tags( $item->get_description( true ) ),
+			'content'      => array_filter(
 				array(
 					'html' => parse_this_clean_content( $item->get_content( true ) ),
 					'text' => wp_strip_all_tags( htmlspecialchars_decode( $item->get_content( true ) ) ),
 				)
 			),
-			'published'   => $item->get_date( DATE_W3C ),
-			'updated'     => $item->get_updated_date( DATE_W3C ),
-			'url'         => $item->get_permalink(),
-			'uid'         => $item->get_id(),
-			'location'    => self::get_location( $item ),
-			'category'    => self::get_categories( $item->get_categories() ),
-			'featured'    => $item->get_thumbnail(),
+			'_source'      => self::get_source( $item ),
+			'published'    => $item->get_date( DATE_W3C ),
+			'updated'      => $item->get_updated_date( DATE_W3C ),
+			'url'          => $item->get_permalink(),
+			'uid'          => $item->get_id(),
+			'location'     => self::get_location( $item ),
+			'category'     => self::get_categories( $item->get_categories() ),
+			'featured'     => self::get_thumbnail( $item ),
 		);
 
 		if ( ! is_array( $return['category'] ) ) {
@@ -159,7 +209,17 @@ class Parse_This_RSS {
 				$return['category'] = $enclosure->get_keywords();
 			}
 			if ( ! isset( $return['duration'] ) ) {
-				$return['duration'] = seconds_to_iso8601( $enclosure->get_duration() );
+				$duration = $enclosure->get_duration();
+				if ( 0 < $duration ) {
+					$return['duration'] = seconds_to_iso8601( $duration );
+				}
+			}
+			$credits = $enclosure->get_credits();
+			foreach ( $credits as $credit ) {
+				if ( ! isset( $return['credits'] ) ) {
+					$return['credits'] = array();
+				}
+				$return['credits'][] = self::credit_to_card( $credit );
 			}
 		}
 		// If there is just one photo it is probably the featured image

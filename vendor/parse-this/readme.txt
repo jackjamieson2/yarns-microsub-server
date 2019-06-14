@@ -4,7 +4,7 @@ Tags: indieweb
 Stable tag: trunk
 Requires at least: 4.9
 Requires PHP: 5.4
-Tested up to: 5.1
+Tested up to: 5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,5 +23,5 @@ from an arbitrary URL or a WordPress Post. It is also bundled in the Post Kinds 
 
 == Changelog ==
 
-= 1.0.0 ( 2018-xx-xx ) =
+= 1.0.0 ( 2019-xx-xx ) =
 * Initial Release

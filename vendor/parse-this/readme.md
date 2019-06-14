@@ -17,6 +17,6 @@ from an arbitrary URL or a WordPress Post. It is also bundled in the Post Kinds 
 ## Changelog 
 
 
-### 1.0.0 ( 2018-xx-xx ) 
+### 1.0.0 ( 2019-xx-xx ) 
 * Initial Release
 

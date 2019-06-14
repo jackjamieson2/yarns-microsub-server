@@ -52,15 +52,7 @@ class Parse_This {
 		if ( $jf2 ) {
 			$this->jf2 = $source_content;
 		} elseif ( is_string( $this->content ) ) {
-			if ( class_exists( 'Masterminds\\HTML5' ) ) {
-				$this->doc = new \Masterminds\HTML5( array( 'disable_html_ns' => true ) );
-				$this->doc = $this->doc->loadHTML( $this->content );
-			} else {
-				$this->doc = new DOMDocument();
-				libxml_use_internal_errors( true );
-				$this->doc->loadHTML( mb_convert_encoding( $this->content, 'HTML-ENTITIES', mb_detect_encoding( $this->content ) ) );
-				libxml_use_internal_errors( false );
-			}
+			$this->doc = pt_load_domdocument( $this->content );
 		}
 	}
 
@@ -88,32 +80,12 @@ class Parse_This {
 	*/
 	public static function fetch_feed( $url ) {
 		if ( ! class_exists( 'SimplePie', false ) ) {
-			$path  = plugin_dir_path( __DIR__ ) . 'includes/simplepie/';
-			$files = array(
-				'SimplePie/Credit.php',
-				'SimplePie/Restriction.php',
-				'SimplePie/Enclosure.php',
-				'SimplePie/Category.php',
-				'SimplePie/Misc.php',
-				'SimplePie/Cache.php',
-				'SimplePie/File.php',
-				'SimplePie/Sanitize.php',
-				'SimplePie/Rating.php',
-				'SimplePie/Registry.php',
-				'SimplePie/IRI.php',
-				'SimplePie/Locator.php',
-				'SimplePie/Content/Type/Sniffer.php',
-				'SimplePie/XML/Declaration/Parser.php',
-				'SimplePie/Parser.php',
-				'SimplePie/Item.php',
-				'SimplePie/Parse/Date.php',
-				'SimplePie/Author.php',
-				'SimplePie.php',
-			);
-			foreach ( $files as $file ) {
-				if ( file_exists( $path . $file ) ) {
-					require_once $path . $file;
-				}
+			// Try to use bundled SimplePie if not WordPress older SimplePie
+			$file = plugin_dir_path( __DIR__ ) . 'lib/simplepie/autoloader.php';
+			if ( file_exists( $file ) ) {
+				require_once $file;
+			} else {
+				require_once ABSPATH . WPINC . '/class-simplepie.php';
 			}
 		}
 		require_once ABSPATH . WPINC . '/class-wp-feed-cache.php';
