@@ -42,6 +42,12 @@ class Parse_This_RSS {
 		}
 	}
 
+	public static function validate_email( $email ) {
+		$regexp = '/([a-z0-9_\.\-])+(\@|\[at\])+(([a-z0-9\-])+\.)+([a-z0-9]{2,4})+/i';
+		preg_match( $regexp, $email, $match );
+		return is_array( $match ) ? $match[0] : '';
+	}
+
 	/*
 	 * Takes a SimplePie_Author object and Turns it into a JF2 Author property
 	 * @param SimplePie_Author $author
@@ -60,7 +66,7 @@ class Parse_This_RSS {
 				'type'  => 'card',
 				'name'  => htmlspecialchars_decode( $a->get_name() ),
 				'url'   => $a->get_link(),
-				'email' => $a->get_email(),
+				'email' => self::validate_email( $a->get_email() ),
 			);
 			$dom   = pt_load_domdocument( $r['name'] );
 			$links = $dom->getElementsByTagName( 'a' );
@@ -113,6 +119,8 @@ class Parse_This_RSS {
 				'name'    => $source->get_title(),
 				'summary' => $source->get_description(),
 				'url'     => $source->get_permalink(),
+				'author'  => self::get_authors( $source->get_authors() ),
+				'photo'   => $sourece->get_image_url(),
 			)
 		);
 	}

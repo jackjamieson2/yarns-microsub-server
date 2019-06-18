@@ -1,8 +1,8 @@
 # Yarns Microsub Server #
 **Contributors:** jackjamieson2, dshanske  
 **Tags:** microsub, indieweb, feed, reader  
-**Requires at least:** 4.7  
-**Tested up to:** 4.9.6  
+**Requires at least:** 4.6  
+**Tested up to:** 5.2.1
 **Stable tag:** trunk  
 **License:** MIT  
 **License URI:** http://opensource.org/licenses/MIT
@@ -25,7 +25,7 @@ Accompanied by other plugins that support [IndieWeb](https://indieweb.org) stand
 ## Installation
 Since Yarns is still in development, it is not yet available on the WordPress plugin repository. This means you'll have to install it from GitHub directly.
 
-You can do this by downloading the [latest release](https://github.com/jackjamieson2/yarns-microsub-server/releases) as a .zip. 
+You can do this by downloading the [latest release](https://github.com/jackjamieson2/yarns-microsub-server/releases) as a .zip.
 
 Then install in WordPress by going to Plugins->Add New->Upload Plugin, and selecting the .zip you just downloaded.
 
@@ -43,11 +43,30 @@ The easiest way to get started is to install the [IndieWeb plugin](https://wordp
 ## Using Yarns
 Yarns is a Microsub server. This means it lets you subscribe to many kinds of websites, including most blogs and news sites. There are two parts to using Yarns
 
+### Viewing your feeds
+To view your feeds, you must use a [Microsub Client](https://indieweb.org/Microsub#Clients).
+
+
+
 ### Subscribing to feeds
 You can subscribe to feeds using Yarns' settings page in the WordPress dashboard, or using a Microsub client that supports modifying your feeds (e.g. [Together](http://alltogethernow.io)).
 
-### Viewing your feeds
-To view your feeds, you must use a [Microsub Client](https://indieweb.org/Microsub#Clients).
+#### Adding feeds using Yarns' UI in the WordPress dashboard
+##### Accessing Yarns' Settings:
+- (Recommended) If you have the [IndieWeb plugin](https://wordpress.org/plugins/indieweb/) installed, then go to your WordPress dashboard, and choose 'Yarns Microsub Server' from the IndieWeb menu.
+- Otherwise, [@@@ Review where this menu option is]
+
+##### Adding channels
+First, you need to add at least one channel to organize your feeds. For example, you could create separate channels for 'News', 'Sports', 'Family' etc.
+
+##### Subscribing to feeds
+Once you've created a channel, click on it to add some feeds.
+
+Type the URL for a site you want to follow in the 'add feeds' box, then click search. Yarns' will try to find feeds on that site, and will then list them.
+
+Once Yarns' displays a list of feeds, you can 
+
+
 
 
 ## Acknowledgements

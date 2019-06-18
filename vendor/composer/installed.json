@@ -198,22 +198,22 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dshanske/parse-this.git",
-            "reference": "5e7d6af2eaf07f10e494a64a9cfc95df754d1621"
+            "reference": "e4a4af206fbbe5526e144f4649f7932ac4203b5e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/5e7d6af2eaf07f10e494a64a9cfc95df754d1621",
-            "reference": "5e7d6af2eaf07f10e494a64a9cfc95df754d1621",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/e4a4af206fbbe5526e144f4649f7932ac4203b5e",
+            "reference": "e4a4af206fbbe5526e144f4649f7932ac4203b5e",
             "shasum": ""
         },
         "require": {
             "composer/installers": "~1.0",
-            "mf2/mf2": "dev-master",
-            "php": ">=5.3.0"
+            "php": ">=5.4.0"
         },
         "require-dev": {
             "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
             "masterminds/html5": "^2.6",
+            "mf2/mf2": "dev-master",
             "phpcompatibility/php-compatibility": "*",
             "phpcompatibility/phpcompatibility-wp": "^1.0",
             "simplepie/simplepie": "*",
@@ -221,7 +221,7 @@
             "wp-coding-standards/wpcs": "*",
             "wpreadme2markdown/wp2md": "^3.0"
         },
-        "time": "2019-06-14T05:30:37+00:00",
+        "time": "2019-06-15T05:40:35+00:00",
         "type": "wordpress-plugin",
         "extra": {
             "installer-name": "parse-this"
