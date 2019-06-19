@@ -120,7 +120,10 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid, $storage_period ) {
+	public static function poll_site( $url, $channel_uid, $storage_period=null) {
+		if (null === $storage_period){
+			$storage_period  = get_site_option( 'yarns_storage_period' );
+		}
 		$site_results             = [];
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
