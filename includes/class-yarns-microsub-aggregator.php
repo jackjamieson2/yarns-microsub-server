@@ -225,9 +225,18 @@ class Yarns_Microsub_Aggregator {
 
 		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = date( 'Y-m-d H:i:s' );
 
-		$empty_poll_count = $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'];
-		$poll_frequency   = $channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency'];
+		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ) ) {
+			$empty_poll_count = $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'];
+		} else {
+			$empty_poll_count = 0;
+		}
+
 		$poll_frequencies = array( 1, 2, 4, 8, 12, 24 );
+		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency'] ) ) {
+			$poll_frequency = $channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency'];
+		} else {
+			$poll_frequency = $poll_frequencies[0];  // First array item is the default option.
+		}
 
 		$key = array_search( $poll_frequency, $poll_frequencies, true );
 		if ( false !== $key ) {
