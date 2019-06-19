@@ -118,6 +118,23 @@ class Yarns_Microsub_Parser {
 	 * @param array $feed_author
 	 */
 	public static function clean_author( $item, $feed ) {
+		// If author is just a string, replace it with an array
+		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/75
+		if (! is_array($item['author'])) {
+			$item['author'] = array(
+				'type' => 'card',
+				'name' => $item['author'],
+			);
+		}
+
+		if (! is_array($feed['author'])) {
+			$feed['author'] = array(
+				'type' => 'card',
+				'name' => $feed['author'],
+			);
+		}
+
+
 		if ( isset ( $feed['author'] ) && isset ( $item['author'] ) ) {
 			$item['author'] = array_merge( $feed['author'], $item['author'] );
 		}
@@ -139,14 +156,7 @@ class Yarns_Microsub_Parser {
 		}
 
 
-		// If author is just a string, replace it with an array
-		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/75
-		if (! is_array($item['author'])) {
-			$item['author'] = array(
-				'type' => 'card',
-				'name' => $item['author'],
-			);
-		}
+
 
 		return $item['author'];
 
