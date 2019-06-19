@@ -1,17 +1,22 @@
 ( function ( $ ) {
 
 		/**
-		 * Remove links from items that will use javascript instead.
+		 * Functions to run on document.ready
 		 */
 		$( document ).ready(
 			function () {
+				/**
+				 * Remove links from items that will use javascript instead.
+				 */
 				$( '.yarns-feed-unfollow' ).removeAttr( 'href' )
 				$( '.yarns-feed-preview' ).removeAttr( 'href' )
 
-				// Make channel rows in channel list table sortable.
+				/**
+				 * Make channel rows in channel list table sortable.
+				 */
 				$( '#yarns-channels #the-list' ).sortable(
 					{
-						handle: '.order',
+						/*handle: 'tr',*/
 						update: function ( event, ui ) {
 							clear_notices() // Clear any errors that are showing from a previous function.
 
@@ -42,7 +47,7 @@
 					}
 				)
 
-				$( '.sortable' ).sortable( { handle: '.handle' } )
+				/*$( '.sortable' ).sortable( { handle: '.handle' } )*/
 			}
 		)
 

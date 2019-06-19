@@ -52,7 +52,7 @@
 
 /* Channel list table - css for sortable  table*/
 
-#yarns-channels td.order:hover {
+#yarns-channels #the-list tr:hover {
     cursor:move;
 }
 

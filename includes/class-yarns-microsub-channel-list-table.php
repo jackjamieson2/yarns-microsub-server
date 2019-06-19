@@ -9,8 +9,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		return array(
 			'channel_name' => __( 'Channel Name', 'yarns_microsub' ),
 			'n_feeds'      => __( 'Number of feeds', 'yarns_microsub' ),
-			'order' => __( 'Order', 'yarns_microsub' ),
-			// Removed for now, add back once I figure out the best method .
+
 		);
 	}
 
@@ -24,7 +23,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		$columns = $this->get_columns();
 		$hidden  = array();
-		//$this->process_action();
+
 		$this->_column_headers = array( $columns, $hidden, $this->get_sortable_columns() );
 		$this->items           = array();
 
@@ -48,13 +47,6 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 			} else {
 				$value['channel_name'] = '';
 			}
-
-			if ( isset( $channel['order'] ) ) {
-				$value['order'] = $channel['order'];
-			} else {
-				$value['order'] = null;
-			}
-			$value['order'] = '<div class="order_handle">️️️️</div>';
 
 			// Get the number of feeds in this channel.
 			if ( isset( $channel['items'] ) && is_array( $channel['items'] ) ) {
@@ -93,9 +85,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		return $item['n_feeds'];
 	}
 
-	public function column_order( $item ) {
-		return $item['order'];
-	}
+
 
 
 }

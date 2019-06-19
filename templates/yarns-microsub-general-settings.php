@@ -7,9 +7,12 @@ $debug_checked = $show_debug ? 'checked' : '';
 
 
 <h2> Channels </h2>
-<ul id='yarns-channels'>
+<div id='yarns-channels'>
+
+	Drag each item into the order you prefer. Click the channel name to manage feeds and access other options.
+
 	<?php echo static::list_channels(); ?>
-</ul>
+</div>
 
 <h3>Add a new channel</h3>
 <input id="yarns-new-channel-name" type="text" placeholder="New channel name">
