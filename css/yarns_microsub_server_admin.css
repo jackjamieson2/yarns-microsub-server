@@ -283,6 +283,7 @@
 
 #yarns-preview-container img {
     max-width: 100%;
+    height:auto;
 }
 
 .yarns-preview-item {
