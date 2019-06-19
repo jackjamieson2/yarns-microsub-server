@@ -84,6 +84,12 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
+		// Add type='entry' for jsonfeeds which might be missing it
+		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/80
+		if ('jsonfeed' === $feed['type'] && !isset($item['type'])){
+			$item['type'] = 'entry';
+		}
+
 
 
 		/*
