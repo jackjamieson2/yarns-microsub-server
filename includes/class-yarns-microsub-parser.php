@@ -118,6 +118,28 @@ class Yarns_Microsub_Parser {
 	 * @param array $feed_author
 	 */
 	public static function clean_author( $item, $feed ) {
+
+		// Convert jsonfeed authors to an h-card.
+		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/80
+		if ('jsonfeed' === $feed['type'] && !isset($feed['author'])){
+			if (isset($feed['name'])){
+				$feed['author']['name'] = $feed['name'];
+			}
+
+			if (isset($feed['url'])){
+				$feed['author']['url'] = $feed['url'];
+			}
+
+			if (isset($feed['photo'])){
+				$feed['author']['photo'] = $feed['photo'];
+			}
+
+			// Finally, if we were able to add any properties, make $feed['author'] an h-card
+			if (isset($feed['author'])){
+				$feed['author']['type'] = 'card';
+			}
+		}
+
 		// If author is just a string, replace it with an array
 		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/75
 		if (isset($item['author'])){
@@ -138,10 +160,10 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
-
-
 		if ( isset ( $feed['author'] ) && isset ( $item['author'] ) ) {
 			$item['author'] = array_merge( $feed['author'], $item['author'] );
+		} elseif ( isset( $feed['author']) && ! isset( $item['author'] ) ) {
+			$item['author'] = $feed['author'];
 		}
 
 		if ( ! isset($item['author'] ) ){
