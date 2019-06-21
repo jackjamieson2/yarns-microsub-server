@@ -295,9 +295,6 @@ class MF2_Post implements ArrayAccess {
 	 * @return boolean|string|array The result or false if does not exist.
 	 */
 	public function get( $key = null, $single = true ) {
-		if ( 'mf2' === $key ) {
-			return $this->mf2;
-		}
 		if ( null === $key ) {
 			$vars = get_object_vars( $this );
 			unset( $vars['mf2'] );
@@ -368,6 +365,9 @@ class MF2_Post implements ArrayAccess {
 		if ( ! $key ) {
 			return;
 		}
+		if ( Parse_This_MF2::is_microformat( $key ) ) {
+			$key = $key['properties'];
+		}
 		if ( is_array( $key ) ) {
 			foreach ( $key as $k => $v ) {
 				self::set( $k, $v );
@@ -377,11 +377,43 @@ class MF2_Post implements ArrayAccess {
 			return false;
 		}
 		$properties = array_keys( get_object_vars( $this ) );
+		$properties = array_merge( $properties, array( 'audio', 'video', 'photo' ) );
 		unset( $properties['mf2'] );
 		if ( ! in_array( $key, $properties, true ) ) {
 			return update_post_meta( $this->uid, 'mf2_' . $key, $value );
 		} else {
 			switch ( $key ) {
+				case 'audio':
+				case 'video':
+				case 'photo':
+					if ( 'attachment' === $this->post_type ) {
+						break;
+					}
+					if ( Parse_This_MF2::is_microformat( $value ) ) {
+						$u          = Parse_This_MF2::get_plaintext( $value, 'url', null );
+						$attachment = new MF2_Post( attachment_url_to_postid( $u ) );
+						$attachment->set( $value );
+						return update_post_meta( $this->uid, 'mf2_' . $key, array( $u ) );
+					}
+					if ( wp_is_numeric_array( $value ) ) {
+						if ( is_string( $value[0] ) ) {
+							return update_post_meta( $this->uid, 'mf2_' . $key, $value );
+						} else {
+							$mprop = array();
+							foreach ( $value as $media ) {
+								if ( Parse_This_MF2::is_microformat( $media ) ) {
+									$u          = Parse_This_MF2::get_plaintext( $media, 'url', null );
+									$attachment = new MF2_Post( attachment_url_to_postid( $u ) );
+									$attachment->set( $media );
+									$mprop[] = $u;
+								}
+							}
+							if ( ! empty( $mprop ) ) {
+								return update_post_meta( $this->uid, 'mf2_' . $key, $mprop );
+							}
+						}
+					}
+					break;
 				case 'url':
 				case 'uid':
 					break;
@@ -396,8 +428,14 @@ class MF2_Post implements ArrayAccess {
 					}
 					break;
 				case 'author':
+					if ( 'attachment' === $this->post_type ) {
+						return update_post_meta( $this->uid, 'mf2_author', jf2_to_mf2( $value ) );
+					}
 					break;
 				case 'published':
+					if ( 'attachment' === $this->post_type ) {
+						return update_post_meta( $this->uid, 'mf2_' . $key, $value );
+					}
 					$date      = new DateTime( $value );
 					$tz_string = get_option( 'timezone_string' );
 					if ( empty( $tz_string ) ) {
@@ -416,6 +454,9 @@ class MF2_Post implements ArrayAccess {
 						)
 					);
 				case 'updated':
+					if ( 'attachment' === $this->post_type ) {
+						return update_post_meta( $this->uid, 'mf2_' . $key, $value );
+					}
 					$date      = new DateTime( $value );
 					$tz_string = get_option( 'timezone_string' );
 					if ( empty( $tz_string ) ) {
