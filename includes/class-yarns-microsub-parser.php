@@ -12,7 +12,7 @@ class Yarns_Microsub_Parser {
 
 		$response = [];
 
-		$path  = plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/';
+		$path = plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/';
 
 		// Load classes if they are not already loaded.
 		$files = array(
@@ -34,9 +34,9 @@ class Yarns_Microsub_Parser {
 		}
 
 		// Load functions.php.
-		if ( ! function_exists("post_type_discovery"))
-		require_once $path . 'functions.php';
-
+		if ( ! function_exists( 'post_type_discovery' ) ) {
+			require_once $path . 'functions.php';
+		}
 
 
 		return $response;
@@ -55,8 +55,8 @@ class Yarns_Microsub_Parser {
 	 */
 	public static function clean_post( $item, $feed ) {
 
-		$item['author'] = static::clean_author($item, $feed);
-
+		$item['author']  = static::clean_author( $item, $feed );
+		$item['_source'] = static::get_source( $item, $feed );
 
 		// dedupe name with summary.
 		if ( isset( $item['name'] ) ) {
@@ -84,37 +84,16 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
-		// Add type='entry' for jsonfeeds which might be missing it
+		// Add type='entry' for jsonfeeds which might be missing it. This seems to only happen from micro.blog
 		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/80
-		if ('jsonfeed' === $feed['type'] && !isset($item['type'])){
+		if ( 'jsonfeed' === $feed['type'] && ! isset( $item['type'] ) ) {
 			$item['type'] = 'entry';
 		}
-
-
-
-		/*
-		$ref_types = [ 'like-of', 'repost-of', 'bookmark-of', 'in-reply-to', 'listen-of' ];
-		// When these types contain an array (name, url, type) it causes together to crash - see https://github.com/cleverdevil/together/issues/80
-		// so reduce them to the url.
-
-		foreach ( $ref_types as $ref_type ) {
-			if ( isset( $item[ $ref_type ] ) ) {
-				if ( is_array( $item[ $ref_type ] ) ) {
-					if ( isset( $item[ $ref_type ]['url'] ) ) {
-						$item[ $ref_type ] = $item[ $ref_type ]['url'];
-					} else {
-						$item [ $ref_type ] = ( $item[ $ref_type ] );
-					}
-				}
-			}
-		}
-		*/
-
-		//
 
 		if ( is_array( $item ) ) {
 			$item = array_filter( $item );
 		}
+
 		return $item;
 
 	}
@@ -126,23 +105,24 @@ class Yarns_Microsub_Parser {
 	 *
 	 * @return array
 	 */
-	public static function get_source($item,$feed){
-		if ('jsonfeed' === $feed['type'] && !isset($feed['author'])){
-			if (isset($feed['name'])){
+	public static function get_source( $item, $feed ) {
+		if ( 'jsonfeed' === $feed['type'] && ! isset( $feed['author'] ) ) {
+			if ( isset( $feed['name'] ) ) {
 				$feed['_source']['name'] = $feed['name'];
 			}
 
-			if (isset($feed['url'])){
+			if ( isset( $feed['url'] ) ) {
 				$feed['_source']['url'] = $feed['url'];
 			}
 
-			if (isset($feed['photo'])){
+			if ( isset( $feed['photo'] ) ) {
 				$feed['_source']['photo'] = $feed['photo'];
 			}
 
 			// Finally, if we were able to add any properties, make $feed['author'] an h-card, then return _source
-			if (isset($feed['_source'])){
+			if ( isset( $feed['_source'] ) ) {
 				$feed['_source']['type'] = 'card';
+
 				return $feed['_source'];
 			}
 		}
@@ -155,8 +135,8 @@ class Yarns_Microsub_Parser {
 	public static function clean_author( $item, $feed ) {
 		// If author is just a string, replace it with an array
 		// see https://github.com/jackjamieson2/yarns-microsub-server/issues/75
-		if (isset($item['author'])){
-			if (! is_array($item['author'])) {
+		if ( isset( $item['author'] ) ) {
+			if ( ! is_array( $item['author'] ) ) {
 				$item['author'] = array(
 					'type' => 'card',
 					'name' => $item['author'],
@@ -164,8 +144,8 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
-		if (isset($feed['author'])){
-			if (! is_array($feed['author'])) {
+		if ( isset( $feed['author'] ) ) {
+			if ( ! is_array( $feed['author'] ) ) {
 				$feed['author'] = array(
 					'type' => 'card',
 					'name' => $feed['author'],
@@ -175,11 +155,11 @@ class Yarns_Microsub_Parser {
 
 		if ( isset ( $feed['author'] ) && isset ( $item['author'] ) ) {
 			$item['author'] = array_merge( $feed['author'], $item['author'] );
-		} elseif ( isset( $feed['author']) && ! isset( $item['author'] ) ) {
+		} elseif ( isset( $feed['author'] ) && ! isset( $item['author'] ) ) {
 			$item['author'] = $feed['author'];
 		}
 
-		if ( ! isset($item['author'] ) ){
+		if ( ! isset( $item['author'] ) ) {
 			return;
 		}
 
@@ -202,12 +182,7 @@ class Yarns_Microsub_Parser {
 		}
 
 
-
 		//$item['author']['url'] = "test";
-
-
-
-
 
 
 		return $item['author'];
@@ -232,9 +207,9 @@ class Yarns_Microsub_Parser {
 		$results = $search->fetch_feeds();
 
 		Yarns_MicroSub_Plugin::debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
+
 		return $results;
 	}
-
 
 
 	/**
@@ -248,6 +223,7 @@ class Yarns_Microsub_Parser {
 		$preview = static::parse_feed( $url, 5, true );
 
 		Yarns_MicroSub_Plugin::debug_log( 'Parsed ' . $url . ': ' . wp_json_encode( $preview ) );
+
 		return $preview;
 	}
 
@@ -255,8 +231,8 @@ class Yarns_Microsub_Parser {
 	 * Parses feed at $url.  Determines whether the feed is h-feed or rss and passes to appropriate
 	 * function.
 	 *
-	 * @param string  $url URL to be parsed.
-	 * @param int     $count Number of posts to be returned.
+	 * @param string $url URL to be parsed.
+	 * @param int $count Number of posts to be returned.
 	 * @param boolean $preview Whether or not this is just a preview.
 	 *
 	 * @todo: add parameter for date of last polled update.
