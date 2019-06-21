@@ -17,6 +17,7 @@
     margin: 2em 0 1em;
 }
 
+
 /* Links in list tables */
 .wp-list-table .row-actions a {
     cursor: pointer;
@@ -30,6 +31,7 @@
     width: auto;
     padding: 5px;
 }
+
 .yarns-error {
     color: #e63013;
     border: 1px dotted #e63013;
@@ -41,7 +43,7 @@
     color: #000;
     background-color: #feeb95;
     border: 1px dotted #e6c737;
-    border-radius:5px;
+    border-radius: 5px;
 
 }
 
@@ -51,41 +53,58 @@
 
 
 /* Channel list table - css for sortable  table*/
-
-#yarns-channels #the-list tr:hover {
-    cursor:move;
+/* Wordpress list tables */
+#yarns-channels table.wp-list-table {
+    max-width: 600px;
 }
 
-/*
- * Display move icon in the 'order' channels column
- *
- * Font Awesome Free 5.8.1 by @fontawesome - https://fontawesome.com
- * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+#yarns-channels table.wp-list-table tr td {
+    box-sizing: border-box;
+}
+
+#yarns-channels table.wp-list-table tr.ui-sortable-helper td {
+
+}
+
+#yarns-channels table.wp-list-table tr:hover td {
+    border-top: 1px solid grey;
+    border-bottom: 1px solid grey;
+}
+
+#yarns-channels table.wp-list-table tr:hover td:first-of-type {
+    border-left: 1px solid grey;
+}
+
+#yarns-channels table.wp-list-table tr:hover td:last-of-type {
+    border-right: 1px solid grey;
+}
+
+
+#yarns-channels table.wp-list-table tr:hover {
+    cursor: move;
+}
+
+/** .ui-sortable-helped is added to sortable items as they are being dragged.
+ *  This section overwrites some of the styling used for that helper element.
  */
-#yarns-channels td.order .order_handle {
-    width:10px;
-    height:auto;
-    display:inline-block;
-    opacity:0.6;
-    padding-top: 2px;
-    vertical-align: top;
-}
-
-#yarns-channels td.order .order_handle:before {
-    content: url('../images/arrows-alt-v-solid.svg');
-}
-
 
 #yarns-channels .ui-sortable-helper {
-    border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    border: 1px solid grey;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+
+}
+
+#yarns-channels tr.ui-sortable-helper  td {
+    border: none!important;
+
 }
 
 #yarns-channels .ui-sortable-helper .n_feeds, #yarns-channels .ui-sortable-helper .order {
-    display:none;
+    display: none;
 }
-/***/
 
+
+/***/
 
 
 #yarns-channel-delete {
@@ -283,7 +302,7 @@
 
 #yarns-preview-container img {
     max-width: 100%;
-    height:auto;
+    height: auto;
 }
 
 .yarns-preview-item {
