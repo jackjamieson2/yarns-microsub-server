@@ -202,6 +202,7 @@ class Yarns_Microsub_Posts {
 				static::toggle_read( $item['_id'], $read_status );
 			}
 		}
+		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = $entry_id + 1, $after = null, $num_posts = - 1 );
 		return $timeline;
 	}
 
