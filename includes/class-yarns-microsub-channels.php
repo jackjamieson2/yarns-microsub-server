@@ -477,15 +477,15 @@ class Yarns_Microsub_Channels {
 
 		wp_reset_postdata();
 
-		// Filter out posts that should be omitted. Add paging variable.
 		if ( $timeline_items ) {
 			if ( is_array( $timeline_items ) ) {
-				$timeline['items']            = array_filter( $timeline_items );
+				$timeline['items']            = array_filter( $timeline_items ); // remove null items if any exist.
 				$timeline['paging']['before'] = (string) max( $ids );
 				// Only add 'after' if there are older posts.
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
+				rsort($timeline['items']); // put into descending order.
 
 				return $timeline;
 			}
@@ -496,6 +496,7 @@ class Yarns_Microsub_Channels {
 		}
 
 	}
+
 
 
 	/**
