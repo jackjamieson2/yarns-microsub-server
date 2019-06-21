@@ -162,17 +162,20 @@ class Yarns_Microsub_Posts {
 			$post = self::get_single_post( $entry_id );
 			// Set '_is_read' to the new status if (a) the post exists, and (b) $read_status has changed
 			if ( $post ) {
-				if ( $post['_is_read'] !== $read_status ) {
-					$post['_is_read'] = $read_status;
-					update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
+				if ( isset($post['_is_read'])) {
+					if ( $post['_is_read'] !== $read_status ) {
+						$post['_is_read'] = $read_status;
+						update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
 
-					$read_status_string = ($read_status) ? 'yarns_read' : 'yarns_unread';
-					$update_post_args = array(
-						'ID'          => $entry_id,
-						'post_status' => $read_status_string,
-					);
-					wp_update_post($update_post_args);
+						$read_status_string = ($read_status) ? 'yarns_read' : 'yarns_unread';
+						$update_post_args = array(
+							'ID'          => $entry_id,
+							'post_status' => $read_status_string,
+						);
+						wp_update_post($update_post_args);
+					}
 				}
+
 			}
 			$response = array(
 				'result'  => 'ok',
