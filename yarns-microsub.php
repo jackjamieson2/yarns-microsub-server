@@ -6,8 +6,8 @@
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
  * Version: 0.1.6 (beta)
- * License: MIT
- * License URI: http://opensource.org/licenses/MIT
+ * License: GPLv2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: yarns_microsub
  * Domain Path: /languages
  *
