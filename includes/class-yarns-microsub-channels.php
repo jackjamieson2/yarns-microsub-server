@@ -479,13 +479,24 @@ class Yarns_Microsub_Channels {
 
 		if ( $timeline_items ) {
 			if ( is_array( $timeline_items ) ) {
-				$timeline['items']            = array_filter( $timeline_items ); // remove null items if any exist.
+				$timeline['items'] = array_filter( $timeline_items ); // remove null items if any exist.
+
+				// Sort by published date in descending order.
+				usort(
+					$timeline['items'],
+					function ( $a, $b ) {
+						return strtotime( $b['published'] ) - strtotime( $a['published'] );
+					}
+				);
+
+				// Add 'before' variable.
 				$timeline['paging']['before'] = (string) max( $ids );
 				// Only add 'after' if there are older posts.
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
-				rsort($timeline['items']); // put into descending order.
+
+
 
 				return $timeline;
 			}
