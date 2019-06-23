@@ -24,6 +24,7 @@
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "^1.0",
     "phpcompatibility/php-compatibility": "9.1.0",
+    "wpreadme2markdown/wp2md": "^3.0",
     "dshanske/parse-this": "dev-master"
   },
   "scripts": {
@@ -36,9 +37,13 @@
  	"cp -u -r vendor/parse-this/readme.* lib/parse-this",
 	"cp -u -r vendor/parse-this/includes/*.php lib/parse-this/includes",
 	"cp -u -r vendor/parse-this/lib lib/parse-this"
+    ],
+    "update-readme": [
+        "wp2md -i readme.txt | tail -n +11 > readme.md"
     ]
    },
    "post-update-cmd": [
-     	"@copy-files"
+     	"@copy-files",
+        "@update-readme"
    ]
 }
