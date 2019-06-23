@@ -106,9 +106,9 @@ class Yarns_Microsub_Endpoint {
 		}
 	}
 
-	public static function log_response ($response ) {
+	public static function log_response( $response ) {
 		$message  = 'Response:';
-		$message .= wp_json_encode($response);
+		$message .= wp_json_encode( $response );
 		Yarns_MicroSub_Plugin::debug_log( $message );
 	}
 
@@ -216,7 +216,6 @@ class Yarns_Microsub_Endpoint {
 		$response = new WP_REST_Response();
 		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
 
-
 		/* Validate that the query includes required arguments given its action*/
 		$missing_args = static::check_required_args( 'GET' );
 		if ( is_microsub_error( $missing_args ) ) {
@@ -234,8 +233,8 @@ class Yarns_Microsub_Endpoint {
 				break;
 			case 'timeline': // Return a timeline of the channel.
 				// Optional parameters.
-				$after = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
-				$before = ( isset( static::$input['before'] ) ) ? static::$input['before'] : null;
+				$after   = ( isset( static::$input['after'] ) ) ? static::$input['after'] : null;
+				$before  = ( isset( static::$input['before'] ) ) ? static::$input['before'] : null;
 				$is_read = ( isset( static::$input['is_read'] ) ) ? static::$input['is_read'] : null;
 				$response->set_data( Yarns_Microsub_Channels::timeline( static::$input['channel'], $after, $before, $is_read ) );
 				break;
@@ -245,7 +244,7 @@ class Yarns_Microsub_Endpoint {
 			default:
 				return new WP_Microsub_Error( 'invalid_request', sprintf( 'unknown action %1$s', $action ), 400 );
 		}
-		static::log_response($response);
+		static::log_response( $response );
 		return $response;
 
 	}

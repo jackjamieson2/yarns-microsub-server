@@ -33,7 +33,7 @@ class Yarns_Microsub_Aggregator {
 	 * @return array|mixed
 	 */
 	public static function test_aggregator() {
-		return self::poll(true);
+		return self::poll( true );
 	}
 
 	/**
@@ -120,14 +120,13 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array
 	 */
-	public static function poll_site( $url, $channel_uid, $storage_period=null) {
-		if (null === $storage_period){
-			$storage_period  = get_site_option( 'yarns_storage_period' );
+	public static function poll_site( $url, $channel_uid, $storage_period = null ) {
+		if ( null === $storage_period ) {
+			$storage_period = get_site_option( 'yarns_storage_period' );
 		}
 		$site_results             = [];
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
-
 
 		// If this is a preview return the feed as is.
 		if ( '_preview' === $channel_uid ) {
@@ -144,9 +143,9 @@ class Yarns_Microsub_Aggregator {
 					if ( 'entry' === $post['type'] ) {
 						// Only poll if the post is within the storage period.
 						// Set $post['date'] to updated if it exists, otherwise use 'published'.
-						if (isset($post['updated'])) {
+						if ( isset( $post['updated'] ) ) {
 							$post['date'] = $post['updated'];
-						} elseif (isset($post['published'])) {
+						} elseif ( isset( $post['published'] ) ) {
 							$post['date'] = $post['published'];
 						}
 
@@ -160,7 +159,6 @@ class Yarns_Microsub_Aggregator {
 							//debugging
 							$site_results['post too old'] = $post['url'];
 						}
-
 					}
 				}
 			}
@@ -208,9 +206,9 @@ class Yarns_Microsub_Aggregator {
 	 * @param string $url               URL of the site.
 	 * @param int    $n_posts_added     Count of posts that were added in the last poll.
 	 */
-	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time  ) {
+	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time ) {
 		//@@todo: Change this to update_feed_meta.  This should (1) update polling frequencies and (2) update the feed name, summary, and _feed_type
-		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		$channels    = json_decode( get_site_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
 
@@ -270,9 +268,8 @@ class Yarns_Microsub_Aggregator {
 		$this_poll['_poll_frequency']   = $poll_frequency;
 		$this_poll['_n_posts_added']    = $n_posts_added;
 		$this_poll['_parse_time']       = $parse_time;
-		$poll_log[]                    = $this_poll;
+		$poll_log[]                     = $this_poll;
 		update_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
-
 
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 	}

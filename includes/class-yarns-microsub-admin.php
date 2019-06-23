@@ -85,10 +85,10 @@ class Yarns_Microsub_Admin {
 		if ( 'settings_page_yarns_microsub_options' !== $hook && 'indieweb_page_yarns_microsub_options' !== $hook ) {
 			return;
 		}
-		wp_enqueue_script( 'yarns_microsub_server_js', plugin_dir_url( __FILE__ ) . '../js/yarns_microsub_server.js', array( 'jquery' ), null, true );
+		wp_enqueue_script( 'yarns_microsub_server_js', plugin_dir_url( __FILE__ ) . '../js/yarns_microsub_server.js', array( 'jquery' ), Yarns_MicroSub_Plugin::$version, true );
 
 		// also enqueue the css for the yarns_reader_admin page in the dashboard.
-		wp_enqueue_style( 'yarns_microsub_server_admin_css', plugin_dir_url( __FILE__ ) . '../css/yarns_microsub_server_admin.css' );
+		wp_enqueue_style( 'yarns_microsub_server_admin_css', plugin_dir_url( __FILE__ ) . '../css/yarns_microsub_server_admin.css', array(), Yarns_MicroSub_Plugin::$version );
 		wp_localize_script( 'yarns_microsub_server_js', 'yarns_microsub_server_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 
 		// Add required jquery-ui scripts
@@ -172,7 +172,6 @@ class Yarns_Microsub_Admin {
 				}
 			}
 
-
 			// Validate individual options, and save them if valid.
 			if ( isset( $options['storage_period'] ) ) {
 				if ( (int) $options['storage_period'] >= 1 ) { // Validate that the value is an integer > 0.
@@ -182,7 +181,7 @@ class Yarns_Microsub_Admin {
 			}
 
 			if ( isset( $options['show_debug'] ) ) {
-				$show_debug = $options['show_debug'] === 'true' ? true : false;
+				$show_debug = 'true' === $options['show_debug'] ? true : false;
 				update_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
@@ -205,8 +204,8 @@ class Yarns_Microsub_Admin {
 		$html = '';
 
 		foreach ( $channels as $channel ) {
-			$name = $channel['name'];
-			$uid  = $channel['uid'];
+			$name  = $channel['name'];
+			$uid   = $channel['uid'];
 			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
 			$html .= '</li>';
 		}
@@ -242,7 +241,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for the debug log
 	 */
 	private static function debug_log() {
-		$html = '<h2> Debug log </h2>';
+		$html  = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
 		$log = json_decode( get_site_option( 'debug_log' ), true );
@@ -264,7 +263,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for debug commands.
 	 */
 	private static function debug_commands() {
-		$html = '<h2> Debug commands </h2>';
+		$html  = '<h2> Debug commands </h2>';
 		$html .= '<a class="button" id="yarns_force_poll">Force poll</a><br><br>';
 		$html .= '<a class="button" id="yarns_delete_posts">Delete all posts</a>';
 
@@ -294,7 +293,7 @@ class Yarns_Microsub_Admin {
 
 				echo wp_json_encode(
 					array(
-						'error'    => false,
+						'error'   => false,
 						'content' => $html,
 					)
 				);
@@ -318,15 +317,15 @@ class Yarns_Microsub_Admin {
 				// Check if the results are empty.
 				if ( empty( $response['results'] ) ) {
 					return array(
-						'error'    => true,
+						'error'   => true,
 						'content' => 'No feeds were found.',
 					);
 				}
 		}
 
 		// If there were no errors, return the validated results.
-		return array (
-			'error'    => false,
+		return array(
+			'error'   => false,
 			'content' => $response,
 		);
 	}
@@ -347,7 +346,6 @@ class Yarns_Microsub_Admin {
 			echo static::admin_channel_feeds_link( $uid );
 			//echo static::yarns_list_feeds( $channel );
 		}
-
 
 		wp_die();
 	}
@@ -422,7 +420,6 @@ class Yarns_Microsub_Admin {
 			}
 		}
 
-
 		$preview_data = Yarns_Microsub_Parser::preview( $url );
 		//echo wp_json_encode($preview_data);
 		//wp_die();
@@ -439,12 +436,12 @@ class Yarns_Microsub_Admin {
 	 * Reorder channels
 	 */
 
-	public static function order_channels () {
+	public static function order_channels() {
 		if ( isset( $_POST['channel_order'] ) ) {
 			//$channel_order = wp_json_encode($_POST['channel_order'] );
-			$channel_order =  wp_unslash( $_POST['channel_order'] );
-			$response = Yarns_Microsub_Channels::order( $channel_order );
-			if ($response){
+			$channel_order = wp_unslash( $_POST['channel_order'] );
+			$response      = Yarns_Microsub_Channels::order( $channel_order );
+			if ( $response ) {
 				echo 'Updated channel order.';
 			}
 		}

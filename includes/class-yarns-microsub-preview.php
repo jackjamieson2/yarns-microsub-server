@@ -17,7 +17,7 @@ class Yarns_Microsub_Preview {
 	 * @access public
 	 */
 	public function __construct( $data = null ) {
-		if ( is_array( $data ) && isset ($data['items']) ) {
+		if ( is_array( $data ) && isset( $data['items'] ) ) {
 			$this->data = $data['items'];
 		}
 		$this->html = $this::generate_html();
@@ -38,17 +38,15 @@ class Yarns_Microsub_Preview {
 		$html = '';
 		foreach ( $this->data as $item ) {
 
-			if ( isset( $item['type']) && $item['type'] === 'entry'  ) {
+			if ( isset( $item['type'] ) && 'entry' === $item['type'] ) {
 				$html .= '<div class="yarns-preview-item">';
 
 				$html .= $this::author( $item );
-				$html .= $this::name($item);
-				$html .= $this::published($item);
-				$html .= $this::content($item);
+				$html .= $this::name( $item );
+				$html .= $this::published( $item );
+				$html .= $this::content( $item );
 				$html .= '</div><!--.yarns-preview-item-->';
 			}
-
-
 		}
 
 		return $html;
@@ -83,7 +81,7 @@ class Yarns_Microsub_Preview {
 	}
 
 	private function name( $item ) {
-		if ( ! isset ( $item['name'] ) ) {
+		if ( ! isset( $item['name'] ) ) {
 			return;
 		} else {
 			$html  = '<h2 class=yarns-preview-title>';
@@ -94,7 +92,7 @@ class Yarns_Microsub_Preview {
 	}
 
 	private function published( $item ) {
-		if ( ! isset ( $item['published'] ) ) {
+		if ( ! isset( $item['published'] ) ) {
 			return;
 		} else {
 			$html  = '<div class=yarns-preview-published>';
@@ -107,7 +105,7 @@ class Yarns_Microsub_Preview {
 	}
 
 	private function content( $item ) {
-		if ( isset ( $item['content'] ) ) {
+		if ( isset( $item['content'] ) ) {
 			$html = '<div class=yarns-preview-content>';
 			if ( ! is_array( $item['content'] ) ) {
 				$html .= $item['content'];
@@ -118,7 +116,7 @@ class Yarns_Microsub_Preview {
 			}
 			$html .= '</div><!--.yarns-preview-content-->';
 			return $html;
-		} elseif ( isset ( $item['summary'] ) ) {
+		} elseif ( isset( $item['summary'] ) ) {
 			// Fall back to ['summary'].
 			$html  = '<div class=yarns-preview-content>';
 			$html .= $item['summary'];

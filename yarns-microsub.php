@@ -8,8 +8,7 @@
  * Version: 0.1.6 (beta)
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: yarns_microsub
- * Domain Path: /languages
+ * Text Domain: yarns-microsub-server
  *
  * @package Yarns_Microsub_Server
  */
@@ -49,8 +48,7 @@ add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'p
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
-
-
+	static $version = '0.1.6';
 
 	/**
 	 * Run when plugins are loaded.
@@ -165,19 +163,11 @@ class Yarns_MicroSub_Plugin {
 
 		$schedules['15mins'] = array(
 			'interval' => 900,
-			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
+			'display'  => __( 'Once Every 15 Minutes', 'yarns-microsub-server' ),
 		);
 
 		return $schedules;
 	}
-
-	/**
-	 * Load language files
-	 */
-	public static function plugin_textdomain() {
-		load_plugin_textdomain( 'yarns_microsub', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
-
 
 	/**
 	 * Save debug logs

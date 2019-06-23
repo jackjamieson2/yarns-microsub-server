@@ -38,7 +38,6 @@ class Yarns_Microsub_Channels {
 			$channels = '';
 		}
 
-
 		foreach ( $channels as $key => $channel ) {
 			if ( false === $details ) {
 				// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
@@ -47,7 +46,6 @@ class Yarns_Microsub_Channels {
 
 			$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
 		}
-
 
 		$results = [
 			'channels' => $channels,
@@ -259,10 +257,8 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
-
 
 		update_option( 'yarns_channels', wp_json_encode( $current_channels ) );
 
@@ -276,7 +272,6 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function save_filters() {
 		$response = '';
-
 
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid            = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
@@ -294,7 +289,6 @@ class Yarns_Microsub_Channels {
 				// If options is not an array, something went wrong. In this case, reset to all post types.
 				$options = $all_post_types;
 			}
-
 
 			// Update the channel name.
 			if ( isset( $_POST['channel'] ) ) {
@@ -317,8 +311,6 @@ class Yarns_Microsub_Channels {
 					}
 				}
 			}
-
-
 		}
 		echo $response;
 		wp_die();
@@ -383,7 +375,6 @@ class Yarns_Microsub_Channels {
 	private static function get_timeline_query( $args ) {
 		$valid_types = static::get_post_types( $args['channel'] );
 
-
 		$query_args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'post_status'    => 'yarns_unread',
@@ -405,16 +396,14 @@ class Yarns_Microsub_Channels {
 			),
 		);
 
-
 		if ( isset( $args['is_read'] ) && 'false' === $args['is_read'] ) {
 			$query_args['post_status'] = 'yarns_unread';
 		} else {
 			$query_args['post_status'] = array( 'yarns_unread', 'yarns_read' );
 		}
 
-
 		// If we are fetching a limited number of posts, then handle pagination.
-		if ( -1 !== $args['num_posts']  ) {
+		if ( -1 !== $args['num_posts'] ) {
 			$id_list = [];
 
 			if ( $args['after'] ) {
@@ -438,7 +427,6 @@ class Yarns_Microsub_Channels {
 		}
 		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
 		$query = new WP_Query( $query_args );
-
 
 		return $query;
 	}
@@ -464,7 +452,6 @@ class Yarns_Microsub_Channels {
 		);
 
 		$query = static::get_timeline_query( $args );
-
 
 		$timeline_items = array();
 		while ( $query->have_posts() ) {
@@ -495,8 +482,6 @@ class Yarns_Microsub_Channels {
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
 					$timeline['paging']['after'] = (string) min( $ids );
 				}
-
-
 
 				return $timeline;
 			}
@@ -591,7 +576,6 @@ class Yarns_Microsub_Channels {
 									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
 									update_option( 'yarns_channels', wp_json_encode( $channels ) );
-
 
 									return;
 								} else {
