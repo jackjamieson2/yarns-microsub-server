@@ -59,6 +59,9 @@ class Yarns_MicroSub_Plugin {
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
 		}
+		if ( class_exists( 'Parse_This' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/autoload.php';
+		}
 	}
 
 	/**
@@ -90,7 +93,7 @@ class Yarns_MicroSub_Plugin {
 	/**
 	 * Saves default options if they havent' been set previously.
 	 */
-	private static function set_yarns_defaults(){
+	private static function set_yarns_defaults() {
 		// Set default period for storing aggregated posts.
 		if ( ! get_site_option( 'yarns_storage_period' ) ) {
 			update_option( 'yarns_storage_period', 14 );  // in days.

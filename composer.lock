@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d63733ff66dc18ae03a41847aed8f907",
+    "content-hash": "e4f72252eaaa0f7807241e309cf905b6",
     "packages": [
         {
             "name": "composer/installers",
@@ -125,108 +125,6 @@
                 "zikula"
             ],
             "time": "2018-08-27T06:10:37+00:00"
-        },
-        {
-            "name": "dshanske/parse-this",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "c28beb85b8a39f480f1fb9516c2dd28b36211a46"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/c28beb85b8a39f480f1fb9516c2dd28b36211a46",
-                "reference": "c28beb85b8a39f480f1fb9516c2dd28b36211a46",
-                "shasum": ""
-            },
-            "require": {
-                "composer/installers": "~1.0",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
-                "masterminds/html5": "^2.6",
-                "mf2/mf2": "dev-master",
-                "phpcompatibility/php-compatibility": "*",
-                "phpcompatibility/phpcompatibility-wp": "^1.0",
-                "simplepie/simplepie": "*",
-                "squizlabs/php_codesniffer": "*",
-                "wp-coding-standards/wpcs": "*",
-                "wpreadme2markdown/wp2md": "^3.0"
-            },
-            "type": "wordpress-plugin",
-            "extra": {
-                "installer-name": "parse-this"
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Shanske",
-                    "email": "david@shanske.com"
-                }
-            ],
-            "description": "Parse This Library for WordPress",
-            "time": "2019-06-21T02:52:42+00:00"
-        },
-        {
-            "name": "mf2/mf2",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/microformats/php-mf2.git",
-                "reference": "c503c4744e09efba083f0d652963ffde4ed013ae"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/microformats/php-mf2/zipball/c503c4744e09efba083f0d652963ffde4ed013ae",
-                "reference": "c503c4744e09efba083f0d652963ffde4ed013ae",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "mf2/tests": "@dev",
-                "phpdocumentor/phpdocumentor": "v2.8.4",
-                "phpunit/phpunit": "4.8.*"
-            },
-            "suggest": {
-                "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
-                "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
-            },
-            "bin": [
-                "bin/fetch-mf2",
-                "bin/parse-mf2"
-            ],
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "Mf2/Parser.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "CC0-1.0"
-            ],
-            "authors": [
-                {
-                    "name": "Barnaby Walters",
-                    "homepage": "http://waterpigs.co.uk"
-                }
-            ],
-            "description": "A pure, generic microformats2 parser — makes HTML as easy to consume as a JSON API",
-            "keywords": [
-                "html",
-                "microformats",
-                "microformats 2",
-                "parser",
-                "semantic"
-            ],
-            "time": "2019-05-22T07:44:18+00:00"
         }
     ],
     "packages-dev": [
@@ -297,6 +195,52 @@
                 "tests"
             ],
             "time": "2017-12-06T16:27:17+00:00"
+        },
+        {
+            "name": "dshanske/parse-this",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dshanske/parse-this.git",
+                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/8672c0e7012c737a516249f905ecd4c3794f9e71",
+                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71",
+                "shasum": ""
+            },
+            "require": {
+                "composer/installers": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "masterminds/html5": "^2.6",
+                "mf2/mf2": "dev-master",
+                "phpcompatibility/php-compatibility": "*",
+                "phpcompatibility/phpcompatibility-wp": "^1.0",
+                "simplepie/simplepie": "*",
+                "squizlabs/php_codesniffer": "*",
+                "wp-coding-standards/wpcs": "*",
+                "wpreadme2markdown/wp2md": "^3.0"
+            },
+            "type": "wordpress-plugin",
+            "extra": {
+                "installer-name": "parse-this"
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Shanske",
+                    "email": "david@shanske.com"
+                }
+            ],
+            "description": "Parse This Library for WordPress",
+            "time": "2019-06-23T02:23:37+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -454,7 +398,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "mf2/mf2": 20,
         "dshanske/parse-this": 20
     },
     "prefer-stable": false,
