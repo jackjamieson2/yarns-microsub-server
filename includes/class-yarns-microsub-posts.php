@@ -110,10 +110,12 @@ class Yarns_Microsub_Posts {
 
 		if ( isset( $post['published'] ) ) {
 			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
+		} else {
+			// If there is no published date, then fall back to the current time.
+			$post['published'] = date( 'Y-m-d\TH:i:sP' );
 		}
 		if ( isset( $post['updated'] ) ) {
 			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
-
 		}
 
 		// Create the post.
