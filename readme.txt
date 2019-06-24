@@ -1,5 +1,5 @@
 === Yarns Microsub Server ===
-Contributors: jackjamieson2
+Contributors: jackjamieson2, dshanske
 Tags: microsub, indieweb, reader
 Requires at least: 4.7  
 Tested up to: 5.2.2  
