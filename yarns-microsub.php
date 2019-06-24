@@ -145,9 +145,6 @@ class Yarns_MicroSub_Plugin {
 
 		// Parse This
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/autoload.php';
-		if ( ! class_exists( 'REST_Parse_This' ) ) {
-			require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/class-rest-parse-this.php';
-		}
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/functions.php';
 
 		// Set timezone for plugin date functions.
