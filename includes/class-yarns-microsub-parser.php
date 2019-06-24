@@ -5,22 +5,6 @@
  */
 class Yarns_Microsub_Parser {
 
-	/**
-	 * Loads Parse-This if it hasn't already been loaded.
-	 */
-	public static function load_parse_this() {
-
-		$response = [];
-
-		$path = plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/';
-
-		// Load functions.php.
-		if ( ! function_exists( 'post_type_discovery' ) ) {
-			require_once $path . 'functions.php';
-		}
-
-		return $response;
-	}
 
 
 	/**
@@ -177,7 +161,6 @@ class Yarns_Microsub_Parser {
 		// Check if $query is a valid URL, if not try to generate one
 		$url = static::validate_url( $query );
 		// Search using Parse-This.
-		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$search  = new Parse_This( $url );
 		$results = $search->fetch_feeds();
 
@@ -235,7 +218,6 @@ class Yarns_Microsub_Parser {
 			$args['follow'] = false;
 		}
 
-		static::load_parse_this(); // Load Parse-This if it hasn't already been loaded.
 		$parse = new Parse_This( $url );
 		$parse->fetch();
 		$parse->parse( $args );
@@ -301,5 +283,5 @@ class Yarns_Microsub_Parser {
 
 }
 
-Yarns_Microsub_Parser::load_parse_this();
+
 
