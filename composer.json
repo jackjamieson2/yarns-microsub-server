@@ -13,11 +13,19 @@
     "installer-name": "yarns-microsub-server",
     "installer-paths":{
       "vendor/parse-this" : ["dshanske/parse-this"]
+    },
+    "copy-file" : {
+      "vendor/parse-this/parse-this.php": "lib/parse-this/",
+      "vendor/parse-this/readme.txt": "lib/parse-this/",
+      "vendor/parse-this/readme.md": "lib/parse-this/",
+      "vendor/parse-this/includes/": "lib/parse-this/includes/",
+      "vendor/parse-this/lib/": "lib/parse-this/lib/"
     }
   },
   "require": {
     "php": ">=5.6.0",
-    "composer/installers": "~1.0"
+    "composer/installers": "~1.0",
+    "slowprog/composer-copy-file": "~0.3"
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
@@ -32,18 +40,16 @@
     "install-codestandards": [
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
-    "copy-files": [
-	"cp -u -r vendor/parse-this/*.php lib/parse-this",
- 	"cp -u -r vendor/parse-this/readme.* lib/parse-this",
-	"cp -u -r vendor/parse-this/includes/*.php lib/parse-this/includes",
-	"cp -u -r vendor/parse-this/lib lib/parse-this"
+    "post-install-cmd": [
+      "SlowProg\\CopyFile\\ScriptHandler::copy",
+      "@update-readme"
+    ],
+    "post-update-cmd": [
+      "SlowProg\\CopyFile\\ScriptHandler::copy",
+      "@update-readme"
     ],
     "update-readme": [
         "wp2md -i readme.txt | tail -n +11 > readme.md"
     ]
-   },
-   "post-update-cmd": [
-     	"@copy-files",
-        "@update-readme"
-   ]
+  }
 }
