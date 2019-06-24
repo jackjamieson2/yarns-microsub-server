@@ -8,8 +8,7 @@
  * Version: 0.1.6 (beta)
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: yarns_microsub
- * Domain Path: /languages
+ * Text Domain: yarns-microsub-server
  *
  * @package Yarns_Microsub_Server
  */
@@ -49,8 +48,7 @@ add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'p
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
-
-
+	static $version = '0.1.6';
 
 	/**
 	 * Run when plugins are loaded.
@@ -58,6 +56,9 @@ class Yarns_MicroSub_Plugin {
 	public static function plugins_loaded() {
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
+		}
+		if ( class_exists( 'Parse_This' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/autoload.php';
 		}
 	}
 
@@ -90,7 +91,7 @@ class Yarns_MicroSub_Plugin {
 	/**
 	 * Saves default options if they havent' been set previously.
 	 */
-	private static function set_yarns_defaults(){
+	private static function set_yarns_defaults() {
 		// Set default period for storing aggregated posts.
 		if ( ! get_site_option( 'yarns_storage_period' ) ) {
 			update_option( 'yarns_storage_period', 14 );  // in days.
@@ -162,19 +163,11 @@ class Yarns_MicroSub_Plugin {
 
 		$schedules['15mins'] = array(
 			'interval' => 900,
-			'display'  => __( 'Once Every 15 Minutes', 'yarns_microsub' ),
+			'display'  => __( 'Once Every 15 Minutes', 'yarns-microsub-server' ),
 		);
 
 		return $schedules;
 	}
-
-	/**
-	 * Load language files
-	 */
-	public static function plugin_textdomain() {
-		load_plugin_textdomain( 'yarns_microsub', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
-
 
 	/**
 	 * Save debug logs

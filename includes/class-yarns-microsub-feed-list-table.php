@@ -7,10 +7,10 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
-			'url'          => __( 'Feed URL', 'yarns_microsub' ),
+			'url'          => __( 'Feed URL', 'yarns-microsub-server' ),
 			/*'_name'        => __( 'Name', 'yarns_microsub' ),*/
 			/*'_type'        => __( 'Type', 'yarns_microsub' ),*/
-			'_last_polled' => __( 'Last Polled', 'yarns_microsub' ),
+			'_last_polled' => __( 'Last Polled', 'yarns-microsub-server' ),
 		);
 	}
 
@@ -36,7 +36,7 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 		$this->items           = array();
 
 		/*echo wp_json_encode( $this->channel );*/
-		if (!is_array($feeds)) {
+		if ( ! is_array( $feeds ) ) {
 			return;
 		}
 
@@ -46,7 +46,6 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 			} else {
 				$value['url'] = '';
 			}
-
 
 			if ( isset( $feed['_name'] ) ) {
 				$value['_name'] = $feed['_name'];
@@ -79,16 +78,16 @@ class Yarns_Microsub_Feed_List_Table extends WP_List_Table {
 	public function column_url( $item ) {
 
 		$link_unfollow_args = array(
-			'action' => 'unfollow',
+			'action'   => 'unfollow',
 			'feed_url' => $item['url'],
 		);
-		$link_unfollow =	Yarns_Microsub_Admin::admin_channel_feeds_link($this->channel, $link_unfollow_args);
+		$link_unfollow      = Yarns_Microsub_Admin::admin_channel_feeds_link( $this->channel, $link_unfollow_args );
 
 		$link_preview_args = array(
-			'action' => 'preview',
+			'action'   => 'preview',
 			'feed_url' => $item['url'],
 		);
-		$link_preview =	Yarns_Microsub_Admin::admin_channel_feeds_link($this->channel, $link_preview_args);
+		$link_preview      = Yarns_Microsub_Admin::admin_channel_feeds_link( $this->channel, $link_preview_args );
 
 		$actions = array(
 			'preview' => '<a class="yarns-feed-preview" data-url="' . $item['url'] . '" href="' . $link_preview . '">Preview</a>',

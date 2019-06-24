@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d63733ff66dc18ae03a41847aed8f907",
+    "content-hash": "04ca52162a236dcb77de8a843304c730",
     "packages": [
         {
             "name": "composer/installers",
@@ -125,108 +125,6 @@
                 "zikula"
             ],
             "time": "2018-08-27T06:10:37+00:00"
-        },
-        {
-            "name": "dshanske/parse-this",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "c28beb85b8a39f480f1fb9516c2dd28b36211a46"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/c28beb85b8a39f480f1fb9516c2dd28b36211a46",
-                "reference": "c28beb85b8a39f480f1fb9516c2dd28b36211a46",
-                "shasum": ""
-            },
-            "require": {
-                "composer/installers": "~1.0",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
-                "masterminds/html5": "^2.6",
-                "mf2/mf2": "dev-master",
-                "phpcompatibility/php-compatibility": "*",
-                "phpcompatibility/phpcompatibility-wp": "^1.0",
-                "simplepie/simplepie": "*",
-                "squizlabs/php_codesniffer": "*",
-                "wp-coding-standards/wpcs": "*",
-                "wpreadme2markdown/wp2md": "^3.0"
-            },
-            "type": "wordpress-plugin",
-            "extra": {
-                "installer-name": "parse-this"
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Shanske",
-                    "email": "david@shanske.com"
-                }
-            ],
-            "description": "Parse This Library for WordPress",
-            "time": "2019-06-21T02:52:42+00:00"
-        },
-        {
-            "name": "mf2/mf2",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/microformats/php-mf2.git",
-                "reference": "c503c4744e09efba083f0d652963ffde4ed013ae"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/microformats/php-mf2/zipball/c503c4744e09efba083f0d652963ffde4ed013ae",
-                "reference": "c503c4744e09efba083f0d652963ffde4ed013ae",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "mf2/tests": "@dev",
-                "phpdocumentor/phpdocumentor": "v2.8.4",
-                "phpunit/phpunit": "4.8.*"
-            },
-            "suggest": {
-                "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
-                "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
-            },
-            "bin": [
-                "bin/fetch-mf2",
-                "bin/parse-mf2"
-            ],
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "Mf2/Parser.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "CC0-1.0"
-            ],
-            "authors": [
-                {
-                    "name": "Barnaby Walters",
-                    "homepage": "http://waterpigs.co.uk"
-                }
-            ],
-            "description": "A pure, generic microformats2 parser — makes HTML as easy to consume as a JSON API",
-            "keywords": [
-                "html",
-                "microformats",
-                "microformats 2",
-                "parser",
-                "semantic"
-            ],
-            "time": "2019-05-22T07:44:18+00:00"
         }
     ],
     "packages-dev": [
@@ -299,6 +197,52 @@
             "time": "2017-12-06T16:27:17+00:00"
         },
         {
+            "name": "dshanske/parse-this",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dshanske/parse-this.git",
+                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/8672c0e7012c737a516249f905ecd4c3794f9e71",
+                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71",
+                "shasum": ""
+            },
+            "require": {
+                "composer/installers": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+                "masterminds/html5": "^2.6",
+                "mf2/mf2": "dev-master",
+                "phpcompatibility/php-compatibility": "*",
+                "phpcompatibility/phpcompatibility-wp": "^1.0",
+                "simplepie/simplepie": "*",
+                "squizlabs/php_codesniffer": "*",
+                "wp-coding-standards/wpcs": "*",
+                "wpreadme2markdown/wp2md": "^3.0"
+            },
+            "type": "wordpress-plugin",
+            "extra": {
+                "installer-name": "parse-this"
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Shanske",
+                    "email": "david@shanske.com"
+                }
+            ],
+            "description": "Parse This Library for WordPress",
+            "time": "2019-06-23T02:23:37+00:00"
+        },
+        {
             "name": "phpcompatibility/php-compatibility",
             "version": "9.1.0",
             "source": {
@@ -357,6 +301,55 @@
             "time": "2018-12-16T19:16:39+00:00"
         },
         {
+            "name": "psr/container",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common Container Interface (PHP FIG PSR-11)",
+            "homepage": "https://github.com/php-fig/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr"
+            ],
+            "time": "2017-02-14T16:28:37+00:00"
+        },
+        {
             "name": "squizlabs/php_codesniffer",
             "version": "3.4.2",
             "source": {
@@ -408,6 +401,256 @@
             "time": "2019-04-10T23:49:02+00:00"
         },
         {
+            "name": "symfony/console",
+            "version": "v4.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/console.git",
+                "reference": "d50bbeeb0e17e6dd4124ea391eff235e932cbf64"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/console/zipball/d50bbeeb0e17e6dd4124ea391eff235e932cbf64",
+                "reference": "d50bbeeb0e17e6dd4124ea391eff235e932cbf64",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/polyfill-mbstring": "~1.0",
+                "symfony/polyfill-php73": "^1.8",
+                "symfony/service-contracts": "^1.1"
+            },
+            "conflict": {
+                "symfony/dependency-injection": "<3.4",
+                "symfony/event-dispatcher": "<4.3",
+                "symfony/process": "<3.3"
+            },
+            "provide": {
+                "psr/log-implementation": "1.0"
+            },
+            "require-dev": {
+                "psr/log": "~1.0",
+                "symfony/config": "~3.4|~4.0",
+                "symfony/dependency-injection": "~3.4|~4.0",
+                "symfony/event-dispatcher": "^4.3",
+                "symfony/lock": "~3.4|~4.0",
+                "symfony/process": "~3.4|~4.0",
+                "symfony/var-dumper": "^4.3"
+            },
+            "suggest": {
+                "psr/log": "For using the console logger",
+                "symfony/event-dispatcher": "",
+                "symfony/lock": "",
+                "symfony/process": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Console\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Console Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-06-05T13:25:51+00:00"
+        },
+        {
+            "name": "symfony/polyfill-mbstring",
+            "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-mbstring.git",
+                "reference": "fe5e94c604826c35a32fa832f35bd036b6799609"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/fe5e94c604826c35a32fa832f35bd036b6799609",
+                "reference": "fe5e94c604826c35a32fa832f35bd036b6799609",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-mbstring": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.11-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for the Mbstring extension",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "mbstring",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2019-02-06T07:57:58+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php73",
+            "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php73.git",
+                "reference": "d1fb4abcc0c47be136208ad9d68bf59f1ee17abd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php73/zipball/d1fb4abcc0c47be136208ad9d68bf59f1ee17abd",
+                "reference": "d1fb4abcc0c47be136208ad9d68bf59f1ee17abd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.11-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php73\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2019-02-06T07:57:58+00:00"
+        },
+        {
+            "name": "symfony/service-contracts",
+            "version": "v1.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/service-contracts.git",
+                "reference": "f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d",
+                "reference": "f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "psr/container": "^1.0"
+            },
+            "suggest": {
+                "symfony/service-implementation": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Contracts\\Service\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Generic abstractions related to writing services",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "abstractions",
+                "contracts",
+                "decoupling",
+                "interfaces",
+                "interoperability",
+                "standards"
+            ],
+            "time": "2019-06-13T11:15:36+00:00"
+        },
+        {
             "name": "wp-coding-standards/wpcs",
             "version": "1.2.1",
             "source": {
@@ -449,12 +692,110 @@
                 "wordpress"
             ],
             "time": "2018-12-18T09:43:51+00:00"
+        },
+        {
+            "name": "wpreadme2markdown/wp2md",
+            "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wpreadme2markdown/wp2md.git",
+                "reference": "6fec3a213080e32a5d53a235f89c6cf4d910572a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wpreadme2markdown/wp2md/zipball/6fec3a213080e32a5d53a235f89c6cf4d910572a",
+                "reference": "6fec3a213080e32a5d53a235f89c6cf4d910572a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.5.9",
+                "symfony/console": "^3.2|^4.0",
+                "wpreadme2markdown/wpreadme2markdown": "^3.0.1"
+            },
+            "require-dev": {
+                "indeyets/pake": "~1.99",
+                "secondtruth/phar-compiler": "~1.1"
+            },
+            "bin": [
+                "bin/wp2md"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WPReadme2Markdown\\Cli\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin J. Balter"
+                },
+                {
+                    "name": "Christian Archer",
+                    "email": "sunchaser@sunchaser.info"
+                }
+            ],
+            "description": "CLI tool for converting WordPress Plugin readme.txt to Markdown",
+            "keywords": [
+                "converter",
+                "markdown",
+                "readme",
+                "wordpress"
+            ],
+            "time": "2017-11-24T21:19:21+00:00"
+        },
+        {
+            "name": "wpreadme2markdown/wpreadme2markdown",
+            "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wpreadme2markdown/wp-readme-to-markdown.git",
+                "reference": "8066915828bb05a12b44360cda986e1d9e60047e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wpreadme2markdown/wp-readme-to-markdown/zipball/8066915828bb05a12b44360cda986e1d9e60047e",
+                "reference": "8066915828bb05a12b44360cda986e1d9e60047e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WPReadme2Markdown\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin J. Balter"
+                },
+                {
+                    "name": "Christian Archer",
+                    "email": "sunchaser@sunchaser.info"
+                }
+            ],
+            "description": "Convert WordPress Plugin readme.txt to Markdown",
+            "keywords": [
+                "converter",
+                "markdown",
+                "readme",
+                "wordpress"
+            ],
+            "time": "2017-11-24T20:36:13+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "mf2/mf2": 20,
         "dshanske/parse-this": 20
     },
     "prefer-stable": false,

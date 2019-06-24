@@ -14,34 +14,12 @@ class Yarns_Microsub_Parser {
 
 		$path = plugin_dir_path( __DIR__ ) . 'vendor/parse-this/includes/';
 
-		// Load classes if they are not already loaded.
-		$files = array(
-			array( 'class-mf2-post.php', 'MF2_Post' ),
-			array( 'class-parse-this.php', 'Parse_This' ),
-			array( 'class-parse-this-api.php', 'Parse_This_API' ),
-			array( 'class-parse-this-html.php', 'Parse_This_HTML' ),
-			array( 'class-parse-this-jsonfeed.php', 'Parse_This_JSONFeed' ),
-			array( 'class-parse-this-mf2.php', 'Parse_This_MF2' ),
-			array( 'class-parse-this-rss.php', 'Parse_This_RSS' ),
-		);
-		foreach ( $files as $file ) {
-			if ( ! class_exists( $file[1] ) ) {
-				require_once $path . $file[0];
-				$response[] = $path . $file[0];
-			} else {
-				$response[] = 'already exists: ' . $file[1];
-			}
-		}
-
 		// Load functions.php.
 		if ( ! function_exists( 'post_type_discovery' ) ) {
 			require_once $path . 'functions.php';
 		}
 
-
 		return $response;
-
-
 	}
 
 
@@ -153,7 +131,7 @@ class Yarns_Microsub_Parser {
 			}
 		}
 
-		if ( isset ( $feed['author'] ) && isset ( $item['author'] ) ) {
+		if ( isset( $feed['author'] ) && isset( $item['author'] ) ) {
 			$item['author'] = array_merge( $feed['author'], $item['author'] );
 		} elseif ( isset( $feed['author'] ) && ! isset( $item['author'] ) ) {
 			$item['author'] = $feed['author'];
@@ -181,12 +159,9 @@ class Yarns_Microsub_Parser {
 			$item['author']['url'] = $item['author']['url'][0];
 		}
 
-
 		//$item['author']['url'] = "test";
 
-
 		return $item['author'];
-
 
 	}
 
