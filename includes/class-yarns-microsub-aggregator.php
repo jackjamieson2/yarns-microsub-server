@@ -221,7 +221,7 @@ class Yarns_Microsub_Aggregator {
 			$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ++;
 		}
 
-		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = date( 'Y-m-d H:i:s' );
+		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = date( 'Y-m-d H:i:s P' );
 
 		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ) ) {
 			$empty_poll_count = $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'];
@@ -261,7 +261,7 @@ class Yarns_Microsub_Aggregator {
 			$poll_log = json_decode( get_site_option( 'yarns_poll_log' ), true );
 		}
 		$this_poll                      = [];
-		$this_poll['date']              = date( 'Y-m-d H:i:s' );
+		$this_poll['date']              = date( 'Y-m-d H:i:s P' );
 		$this_poll['url']               = $url;
 		$this_poll['channel_uid']       = $channel_uid;
 		$this_poll['_empty_poll_count'] = $empty_poll_count;
@@ -285,7 +285,7 @@ class Yarns_Microsub_Aggregator {
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
 
-		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s' );
+		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s P' );
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours.
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = 0;
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );
