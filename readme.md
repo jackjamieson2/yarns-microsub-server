@@ -52,8 +52,8 @@ You can subscribe to feeds using Yarns' settings page in the WordPress dashboard
 
 ### Adding feeds using Yarns' UI in the WordPress dashboard 
 ===== Accessing Yarns' Settings: =====
-- (Recommended) If you have the [IndieWeb plugin](https://wordpress.org/plugins/indieweb/) installed, then go to your WordPress dashboard, and choose 'Yarns Microsub Server' from the IndieWeb menu.
-- Otherwise, this will be under Settings.
+* (Recommended) If you have the [IndieWeb plugin](https://wordpress.org/plugins/indieweb/) installed, then go to your WordPress dashboard, and choose 'Yarns Microsub Server' from the IndieWeb menu.
+* Otherwise, this will be under Settings.
 
 
 ### Adding channels 
