@@ -60,7 +60,7 @@ class Yarns_Microsub_Aggregator {
 	 *
 	 * @return array|mixed
 	 */
-	public static function poll( $force = false ) {
+	public static function poll( $force = false, $poll_channel = null ) {
 		Yarns_MicroSub_Plugin::debug_log( 'RUNNING POLL' );
 
 		$poll_start_time = time();
@@ -73,29 +73,32 @@ class Yarns_Microsub_Aggregator {
 		if ( $channels ) {
 			foreach ( $channels as $channel_key => $channel ) {
 				$channel_uid = $channel['uid'];
-				if ( isset( $channel['items'] ) ) {
-					foreach ( $channel['items'] as $feed_key => $feed ) {
-						// reload channels because it changes every iteration.
-						$channels = json_decode( get_site_option( 'yarns_channels' ), true );
-						if ( isset( $feed['url'] ) ) {
-							if ( ! array_key_exists( '_last_polled', $feed ) ) {
-								// New subscriptions do not have _last_polled (and other polling frequency variables),
-								// so initialize these variables if they do not exist.
-								static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
-							} else {
-								// Poll the site if _last_polled is longer ago than _polling_frequency.
-								if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
-									$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period );
+				// If poll_channel is set, only poll that one channel, otherwise poll all channels.
+				if ( null === $poll_channel || $channel['uid'] === $poll_channel ) {
+					if ( isset( $channel['items'] ) ) {
+						foreach ( $channel['items'] as $feed_key => $feed ) {
+							// reload channels because it changes every iteration.
+							$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+							if ( isset( $feed['url'] ) ) {
+								if ( ! array_key_exists( '_last_polled', $feed ) ) {
+									// New subscriptions do not have _last_polled (and other polling frequency variables),
+									// so initialize these variables if they do not exist.
+									static::init_polling_frequencies( $channels, $channel_uid, $feed['url'] );
+								} else {
+									// Poll the site if _last_polled is longer ago than _polling_frequency.
+									if ( true === $force || $feed['_poll_frequency'] * 3600 < time() - strtotime( $feed['_last_polled'] ) ) {
+										$results[] = static::poll_site( $feed['url'], $channel_uid, $storage_period );
+									}
 								}
-							}
-							// exit early if polling is taking a long time.
-							if ( time() - $poll_start_time > $poll_time_limit ) {
-								$results['polling start time']     = $poll_start_time;
-								$results['polling end time']       = time();
-								$results['polling execution time'] = time() - $poll_start_time;
-								$results['polling time limit']     = $poll_time_limit;
+								// exit early if polling is taking a long time.
+								if ( time() - $poll_start_time > $poll_time_limit ) {
+									$results['polling start time']     = $poll_start_time;
+									$results['polling end time']       = time();
+									$results['polling execution time'] = time() - $poll_start_time;
+									$results['polling time limit']     = $poll_time_limit;
 
-								return $results;
+									return $results;
+								}
 							}
 						}
 					}
