@@ -444,7 +444,8 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return string
 	 */
-	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 40 ) {
+	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 40, $before_date = null ) {
+
 		$args = array(
 			'channel'   => $channel,
 			'after'     => $after,
@@ -452,6 +453,10 @@ class Yarns_Microsub_Channels {
 			'is_read'   => $is_read,
 			'num_posts' => $num_posts,
 		);
+
+		if (isset($before_date)) {
+			$args['date_query'] = array( 'before' => $before_date );
+		}
 
 		$query = static::get_timeline_query( $args );
 

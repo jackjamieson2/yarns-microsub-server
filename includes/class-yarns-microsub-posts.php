@@ -196,7 +196,7 @@ class Yarns_Microsub_Posts {
 
 
 	/**
-	 * Toggle read status of a single post and everythign before it.
+	 * Toggle read status of a single post and everything before it.
 	 *
 	 * @param int    $entry_id      The ID of the post to toggle.
 	 * @param string $channel       The channel containing the post.
@@ -205,20 +205,17 @@ class Yarns_Microsub_Posts {
 	 * @return string
 	 */
 	public static function toggle_last_read( $entry_id, $channel, $read_status ) {
-		// Get the timeline.
-
-		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null, $num_posts = - 1 );
-		//return $timeline;
+		// Get the timeline of all feed items published before $entry_id.
 		$read_before_post = self::get_single_post( $entry_id );
 		if ( ! isset( $read_before_post['published'] ) ) {
 			return;
 		}
+		$before_date = $read_before_post['published'];
+		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
 
 		foreach ( $timeline['items'] as $item ) {
-			if ( strtotime( $read_before_post['published'] ) >= strtotime( $item['published'] ) ) {
-				if ( $item['_id'] ) {
-					static::toggle_read( $item['_id'], $read_status );
-				}
+			if ( $item['_id'] ) {
+				static::toggle_read( $item['_id'], $read_status );
 			}
 		}
 		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null );
