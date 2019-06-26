@@ -136,8 +136,8 @@ class Yarns_Microsub_Aggregator {
 			return $feed;
 		}
 
-		// debugging:
-		$site_results['raw_feed'] = $feed;
+
+
 
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
@@ -158,9 +158,6 @@ class Yarns_Microsub_Aggregator {
 							} else {
 								$site_results['already_exists'] = $post['url'];
 							}
-						} else {
-							//debugging
-							$site_results['post too old'] = $post['url'];
 						}
 					}
 				}
