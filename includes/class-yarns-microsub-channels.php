@@ -444,7 +444,7 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return string
 	 */
-	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 20 ) {
+	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 40 ) {
 		$args = array(
 			'channel'   => $channel,
 			'after'     => $after,
