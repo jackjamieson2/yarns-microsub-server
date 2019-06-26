@@ -312,6 +312,8 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
+		// Poll the channel.
+		Yarns_Microsub_Aggregator::poll( true, $uid );
 		echo $response;
 		wp_die();
 

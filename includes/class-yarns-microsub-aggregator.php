@@ -208,6 +208,14 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function poll_post( $permalink, $post, $channel_uid ) {
 		if ( ! static::exists( $permalink, $channel_uid ) ) {
+
+			$valid_types = Yarns_Microsub_Channels::get_post_types( $channel_uid );
+			if ( isset( $post['post-type'] ) ) {
+				if ( ! in_array( strtolower( $post['post-type'] ), $valid_types ) ) {
+					return false; // Do not save if it's a post type that is not excluded by the channel.
+				}
+			}
+
 			Yarns_Microsub_Posts::add_post( $permalink, $post, $channel_uid );
 			return true;
 		}
