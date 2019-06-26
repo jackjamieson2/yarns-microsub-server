@@ -206,8 +206,9 @@ class Yarns_Microsub_Posts {
 	 */
 	public static function toggle_last_read( $entry_id, $channel, $read_status ) {
 		// Get the timeline.
-		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $num_posts = - 1 );
 
+		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null, $num_posts = - 1 );
+		//return $timeline;
 		$read_before_post = self::get_single_post( $entry_id );
 		if ( ! isset( $read_before_post['published'] ) ) {
 			return;
@@ -220,7 +221,7 @@ class Yarns_Microsub_Posts {
 				}
 			}
 		}
-		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $num_posts = - 1 );
+		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null );
 
 		return $timeline;
 	}
