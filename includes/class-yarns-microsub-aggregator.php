@@ -141,6 +141,22 @@ class Yarns_Microsub_Aggregator {
 
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
+			// Sort $feed['items'] oldest to newest.
+			usort(
+				$feed['items'],
+				function ( $a, $b ) {
+					if ( ! isset( $a['published'] ) ) {
+						$a['published'] = date( 'Y-m-d\TH:i:sP' );
+					}
+					if ( ! isset( $b['published'] ) ) {
+						$b['published'] = date( 'Y-m-d\TH:i:sP' );
+					}
+
+					return strtotime( $a['published'] ) - strtotime( $b['published'] );
+				}
+			);
+
+
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
 					if ( 'entry' === $post['type'] ) {
