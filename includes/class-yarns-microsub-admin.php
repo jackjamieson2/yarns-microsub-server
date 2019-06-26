@@ -163,6 +163,7 @@ class Yarns_Microsub_Admin {
 		} else {
 			$options = $_POST['options'];
 
+			$results = '';
 			// Remove any unsupported option arguments.
 			if ( is_array( $options ) ) {
 				foreach ( $options as $key => $option ) {
