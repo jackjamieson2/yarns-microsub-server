@@ -228,18 +228,18 @@ class Yarns_Microsub_Posts {
 	 * Delete all posts -- for debugging only.
 	 */
 	public static function delete_all_posts() {
-		$yarns_feed_items = get_posts(
-			array(
-				'post_type'      => 'yarns_microsub_post',
-				'posts_per_page' => - 1,
-				'post_status'    => array( 'yarns_read', 'yarns_unread', 'publish' ), // 'publish' is no longer used, but this will ensure posts are removed from previous versions of yarns.
-			)
+		$args = array(
+			'post_type'      => 'yarns_microsub_post',
+			'posts_per_page' => - 1,
+			'post_status'    => array( 'yarns_read', 'yarns_unread', 'publish' ), // 'publish' is no longer used, but this will ensure posts are removed from previous versions of yarns.
 		);
 
-		foreach ( $yarns_feed_items as $yarns_feed_item ) {
-			wp_delete_post( $yarns_feed_item, true); // Set to False if you want to send them to Trash.
-		}
+		$query = new WP_Query( $args );
 
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			wp_delete_post( get_the_ID(), true );
+		}
 	}
 
 	/**
@@ -248,16 +248,14 @@ class Yarns_Microsub_Posts {
 	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
 	 */
 	public static function delete_old_posts( $storage_period ) {
-		$date_before      = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
-		$yarns_feed_items = get_posts(
-			array(
-				'post_type'      => 'yarns_microsub_post',
-				'posts_per_page' => - 1,
-				'post_status'    => array( 'yarns_read', 'yarns_unread', 'publish' ), // 'publish' is no longer used, but this will ensure posts are removed from previous versions of yarns.
-				'date_query'     => array(
-					'before' => $date_before,
-				),
-			)
+		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
+		$args        = array(
+			'post_type'      => 'yarns_microsub_post',
+			'posts_per_page' => - 1,
+			'post_status'    => array( 'yarns_read', 'yarns_unread' ),
+			'date_query'     => array(
+				'before' => $date_before,
+			),
 		);
 
 		$query = new WP_Query( $args );
