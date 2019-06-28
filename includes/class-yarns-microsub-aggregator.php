@@ -110,7 +110,7 @@ class Yarns_Microsub_Aggregator {
 		$results['polling start time']     = $poll_start_time;
 		$results['polling end time']       = time();
 		$results['polling execution time'] = time() - $poll_start_time;
-		
+
 
 		Yarns_Microsub_Posts::delete_old_posts( $storage_period ); // Clear old posts.
 

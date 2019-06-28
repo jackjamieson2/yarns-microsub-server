@@ -13,7 +13,7 @@ if ( ! $channel ) {
 	?>
 	<h2>Error finding channel</h2>
 	<p>Sorry, there is no channel with this uid.</p>
-	<p>Return to <a href="<?php echo $admin_page_link; ?>">Yarns Options</a></p>
+	<p>Return to <a href="<?php echo $admin_page_link; ?>">Yarns Microsub Server</a></p>
 	<?php
 } else {
 	?>
@@ -22,13 +22,13 @@ if ( ! $channel ) {
 		if ('channel-settings' === $mode) {
 
 			?>
-			<a id="yarns-breadcrumb-home"  href="<?php echo $admin_page_link; ?>">Yarns Options</a>
+			<a id="yarns-breadcrumb-home"  href="<?php echo $admin_page_link; ?>">Yarns Microsub Server</a>
 			/ <a id="yarns-breadcrumb-channel" href="<?php echo $channel_feeds_link ?>"><?php echo $channel['name']; ?></a> / Channel Settings
 			<?php
 		} else {
 			// breadcrumbs for general landing page
 			?>
-			<a id="yarns-breadcrumb-home" href="<?php echo $admin_page_link; ?>">Yarns Options</a>
+			<a id="yarns-breadcrumb-home" href="<?php echo $admin_page_link; ?>">Yarns Microsub Server</a>
 			/ <span><?php echo $channel['name']; ?></span>
 			<?php
 		}
