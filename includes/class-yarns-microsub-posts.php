@@ -211,14 +211,14 @@ class Yarns_Microsub_Posts {
 			return;
 		}
 		$before_date = $read_before_post['published'];
-		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
+		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
 
 		foreach ( $timeline['items'] as $item ) {
 			if ( $item['_id'] ) {
 				static::toggle_read( $item['_id'], $read_status );
 			}
 		}
-		$timeline = Yarns_Microsub_Channels::timeline( '5c363b47e9540', $before = null, $after = null, $is_read = null );
+		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null );
 
 		return $timeline;
 	}
