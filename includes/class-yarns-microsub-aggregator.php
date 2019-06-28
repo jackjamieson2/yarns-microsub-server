@@ -64,7 +64,7 @@ class Yarns_Microsub_Aggregator {
 		Yarns_MicroSub_Plugin::debug_log( 'RUNNING POLL' );
 
 		$poll_start_time = time();
-		$poll_time_limit = 600; // execution time limit in seconds.
+		/*$poll_time_limit = 600; // execution time limit in seconds.*/
 		$storage_period  = get_site_option( 'yarns_storage_period' );
 
 		$results = [];
@@ -91,6 +91,7 @@ class Yarns_Microsub_Aggregator {
 									}
 								}
 								// exit early if polling is taking a long time.
+								/*
 								if ( time() - $poll_start_time > $poll_time_limit ) {
 									$results['polling start time']     = $poll_start_time;
 									$results['polling end time']       = time();
@@ -99,6 +100,7 @@ class Yarns_Microsub_Aggregator {
 
 									return $results;
 								}
+								*/
 							}
 						}
 					}
