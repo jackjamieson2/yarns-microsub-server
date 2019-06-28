@@ -28,6 +28,7 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		$this->items           = array();
 
 		$channels = Yarns_Microsub_Channels::get( true )['channels'];
+		if (!$channels){return;}
 		foreach ( $channels as $channel ) {
 			if ( isset( $channel['name'] ) ) {
 				$value['channel_name'] = $channel['name'];

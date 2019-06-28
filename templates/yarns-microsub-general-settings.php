@@ -3,15 +3,23 @@
 $storage_period = get_site_option('yarns_storage_period');
 $yarns_show_debug = get_site_option('yarns_show_debug');
 $debug_checked = $show_debug ? 'checked' : '';
+$yarns_channels = json_decode( get_site_option( 'yarns_channels' ) );
 ?>
 
 
 <h2> Channels </h2>
 <div id='yarns-channels'>
+	<?php
+	if (!is_array($yarns_channels)){
+		echo 'Drag each item into the order you prefer. Click the channel name to manage feeds and access other options.';
+		echo static::list_channels();
+	} else {
+		echo 'No channels found. Create a channel, and then you can start following feeds!';
+	}
+	?>
 
-	Drag each item into the order you prefer. Click the channel name to manage feeds and access other options.
 
-	<?php echo static::list_channels(); ?>
+
 </div>
 
 <h3>Add a new channel</h3>

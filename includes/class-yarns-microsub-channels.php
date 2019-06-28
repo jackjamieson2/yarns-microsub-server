@@ -21,6 +21,9 @@ class Yarns_Microsub_Channels {
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		}
+
+
+
 		if ( ! empty( $channels ) ) {
 			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
 			if ( false === $details ) {
@@ -34,17 +37,17 @@ class Yarns_Microsub_Channels {
 					}
 				}
 			}
-		} else {
-			$channels = '';
-		}
 
-		foreach ( $channels as $key => $channel ) {
-			if ( false === $details ) {
-				// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
-				$channels[ $key ] = static::strip_channel_details( $channel );
+			foreach ( $channels as $key => $channel ) {
+				if ( false === $details ) {
+					// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
+					$channels[ $key ] = static::strip_channel_details( $channel );
+				}
+
+				$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
 			}
-
-			$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
+		} else {
+			return false;
 		}
 
 		$results = [
