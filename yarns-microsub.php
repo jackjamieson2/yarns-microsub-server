@@ -5,7 +5,7 @@
  * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogether.now.io or monocole.p3k.io).  Still in development.
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
- * Version: 0.1.6 (beta)
+ * Version: 0.2.0 (beta)
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: yarns-microsub-server
