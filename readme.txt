@@ -25,6 +25,8 @@ Accompanied by other plugins that support [IndieWeb](https://indieweb.org) stand
 ## Getting started
 Please see instructions for installing and using Yarns at [jackjamieson.net/yarns-microsub-server-getting-started-guide/](https://jackjamieson.net/yarns-microsub-server-getting-started-guide/)
 
+## Support
+For support, please file an issue at [github.com/jackjamieson2/yarns-microsub-server](https://github.com/jackjamieson2/yarns-microsub-server).
 
 ## Acknowledgements
 - Relies on David Shanske's [Parse-This](https://github.com/dshanske/parse-this) and Barnaby Walters' [PHP-MF2](https://github.com/microformats/php-mf2)
