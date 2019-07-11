@@ -18,7 +18,7 @@
     "reader"
   ],
   "author": "Jack Jamieson",
-  "license": "MIT",
+  "license": "GPLv2 or later",
   "bugs": {
     "url": "https://github.com/jackjamieson2/yarns-microsub-server/issues"
   },
