@@ -250,12 +250,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71"
+                "reference": "104350d72da53bdc6447ec1132242cae385b677a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/8672c0e7012c737a516249f905ecd4c3794f9e71",
-                "reference": "8672c0e7012c737a516249f905ecd4c3794f9e71",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/104350d72da53bdc6447ec1132242cae385b677a",
+                "reference": "104350d72da53bdc6447ec1132242cae385b677a",
                 "shasum": ""
             },
             "require": {
@@ -288,7 +288,7 @@
                 }
             ],
             "description": "Parse This Library for WordPress",
-            "time": "2019-06-23T02:23:37+00:00"
+            "time": "2019-06-30T22:21:19+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -450,16 +450,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v4.3.1",
+            "version": "v4.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "d50bbeeb0e17e6dd4124ea391eff235e932cbf64"
+                "reference": "b592b26a24265a35172d8a2094d8b10f22b7cc39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/d50bbeeb0e17e6dd4124ea391eff235e932cbf64",
-                "reference": "d50bbeeb0e17e6dd4124ea391eff235e932cbf64",
+                "url": "https://api.github.com/repos/symfony/console/zipball/b592b26a24265a35172d8a2094d8b10f22b7cc39",
+                "reference": "b592b26a24265a35172d8a2094d8b10f22b7cc39",
                 "shasum": ""
             },
             "require": {
@@ -521,7 +521,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2019-06-05T13:25:51+00:00"
+            "time": "2019-06-13T11:03:18+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -703,12 +703,12 @@
             "version": "1.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
+                "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
                 "reference": "f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c",
                 "reference": "f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c",
                 "shasum": ""
             },
