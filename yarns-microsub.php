@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yarns Microsub Server
  * Plugin URI: https://github.com/jackjamieson2/yarns-microsub-server
- * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogether.now.io or monocole.p3k.io).
+ * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogethernow.io or monocle.p3k.io).
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
  * Version: 1.0.1
