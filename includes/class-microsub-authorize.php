@@ -1,26 +1,27 @@
 <?php
 
-/* For debugging purposes this will bypass Micropub authentication
+/* For debugging purposes this will bypass Microsub authentication
  * in favor of WordPress authentication
  * Using this to test querying(q=) parameters quickly
  */
 // Allows for a custom Authentication and Token Endpoint
-if ( ! defined( 'MICROPUB_AUTHENTICATION_ENDPOINT' ) ) {
-	define( 'MICROPUB_AUTHENTICATION_ENDPOINT', 'https://indieauth.com/auth' );
+if ( ! defined( 'MICROSUB_AUTHENTICATION_ENDPOINT' ) ) {
+	define( 'MICROSUB_AUTHENTICATION_ENDPOINT', 'https://indieauth.com/auth' );
 }
-if ( ! defined( 'MICROPUB_TOKEN_ENDPOINT' ) ) {
-	define( 'MICROPUB_TOKEN_ENDPOINT', 'https://tokens.indieauth.com/token' );
+if ( ! defined( 'MICROSUB_TOKEN_ENDPOINT' ) ) {
+	define( 'MICROSUB_TOKEN_ENDPOINT', 'https://tokens.indieauth.com/token' );
 }
 
-add_action( 'plugins_loaded', array( 'Micropub_Authorize', 'init' ), 32 );
+
+add_action( 'plugins_loaded', array( 'Microsub_Authorize', 'init' ), 32 );
 
 /**
- * Micropub IndieAuth Authorization Class
+ * Microsub IndieAuth Authorization Class
  */
-class Micropub_Authorize {
+class Microsub_Authorize {
 
 	// associative array, populated by determine_current_user.
-	protected static $micropub_auth_response = array();
+	protected static $microsub_auth_response = array();
 
 	// Array of Scopes
 	protected static $scopes = array();
@@ -45,11 +46,11 @@ class Micropub_Authorize {
 		// The WordPress IndieAuth plugin uses priority 30
 		add_filter( 'determine_current_user', array( $cls, 'determine_current_user' ), 31 );
 		add_filter( 'rest_authentication_errors', array( $cls, 'rest_authentication_errors' ), 10 );
-		add_filter( 'rest_post_dispatch', array( $cls, 'return_micropub_error' ), 10, 3 );
+		add_filter( 'rest_post_dispatch', array( $cls, 'return_microsub_error' ), 10, 3 );
 
 				// Register Setting
 				register_setting(
-					'micropub',
+					'microsub',
 					'indieauth_authorization_endpoint', // Setting Name
 					array(
 						'type'              => 'string',
@@ -60,7 +61,7 @@ class Micropub_Authorize {
 				);
 				// Register Setting
 				register_setting(
-					'micropub',
+					'microsub',
 					'indieauth_token_endpoint', // Setting Name
 					array(
 						'type'              => 'string',
@@ -74,35 +75,35 @@ class Micropub_Authorize {
 
 	public static function admin_init() {
 		$cls  = get_called_class();
-		$page = 'micropub';
+		$page = 'microsub';
 				add_settings_section(
-					'micropub_authorize',
-					'Micropub Authorization Settings',
+					'Microsub_Authorize',
+					'Microsub Authorization Settings',
 					array( $cls, 'auth_settings' ),
 					$page
 				);
 				add_settings_field(
 					'indieauth_authorization_endpoint',
-					__( 'Authorization Endpoint', 'micropub' ),
+					__( 'Authorization Endpoint', 'microsub' ),
 					array( $cls, 'endpoint_field' ),
 					$page,
-					'micropub_authorize',
+					'Microsub_Authorize',
 					array(
 						'label_for' => 'indieauth_authorization_endpoint',
 						'class'     => 'widefat',
-						'default'   => MICROPUB_AUTHENTICATION_ENDPOINT,
+						'default'   => MICROSUB_AUTHENTICATION_ENDPOINT,
 					)
 				);
 				add_settings_field(
 					'indieauth_token_endpoint',
-					__( 'Token Endpoint', 'micropub' ),
+					__( 'Token Endpoint', 'microsub' ),
 					array( $cls, 'endpoint_field' ),
 					$page,
-					'micropub_authorize',
+					'Microsub_Authorize',
 					array(
 						'label_for' => 'indieauth_token_endpoint',
 						'class'     => 'widefat',
-						'default'   => MICROPUB_TOKEN_ENDPOINT,
+						'default'   => MICROSUB_TOKEN_ENDPOINT,
 					)
 				);
 	}
@@ -120,11 +121,11 @@ class Micropub_Authorize {
 		return static::$error;
 	}
 
-	public static function return_micropub_error( $result, $server, $request ) {
-		if ( '/micropub/1.0/endpoint' !== $request->get_route() ) {
+	public static function return_microsub_error( $result, $server, $request ) {
+		if ( '/yarns-microsub/1.0/endpoint' !== $request->get_route() ) {
 			return $result;
 		}
-		if ( is_micropub_error( static::$error ) ) {
+		if ( is_microsub_error( static::$error ) ) {
 			return static::$error;
 		}
 
@@ -135,8 +136,8 @@ class Micropub_Authorize {
 		$data                                = $response->get_data();
 		$data['authentication']['indieauth'] = array(
 			'endpoints' => array(
-				'authorization' => get_option( 'indieauth_authorization_endpoint', MICROPUB_AUTHENTICATION_ENDPOINT ),
-				'token'         => get_option( 'indieauth_token_endpoint', MICROPUB_TOKEN_ENDPOINT ),
+				'authorization' => get_option( 'indieauth_authorization_endpoint', MICROSUB_AUTHENTICATION_ENDPOINT ),
+				'token'         => get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ),
 			),
 		);
 		$response->set_data( $data );
@@ -150,7 +151,7 @@ class Micropub_Authorize {
 		if ( is_wp_error( static::$error ) ) {
 			return static::$error;
 		}
-		if ( is_micropub_error( static::$error ) ) {
+		if ( is_microsub_error( static::$error ) ) {
 			return static::$error->to_wp_error();
 		}
 		return null;
@@ -161,7 +162,7 @@ class Micropub_Authorize {
 		return static::$scopes;
 	}
 	public static function indieauth_response( $response ) {
-		return static::$micropub_auth_response;
+		return static::$microsub_auth_response;
 	}
 
 	public static function header( $header, $value ) {
@@ -169,22 +170,22 @@ class Micropub_Authorize {
 	}
 
 	public static function http_header() {
-			static::header( 'Link', '<' . get_option( 'indieauth_authorization_endpoint', MICROPUB_AUTHENTICATION_ENDPOINT ) . '>; rel="authorization_endpoint"' );
-			static::header( 'Link', '<' . get_option( 'indieauth_token_endpoint', MICROPUB_TOKEN_ENDPOINT ) . '>; rel="token_endpoint"' );
+			static::header( 'Link', '<' . get_option( 'indieauth_authorization_endpoint', MICROSUB_AUTHENTICATION_ENDPOINT ) . '>; rel="authorization_endpoint"' );
+			static::header( 'Link', '<' . get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ) . '>; rel="token_endpoint"' );
 	}
 	public static function html_header() {
-			printf( '<link rel="authorization_endpoint" href="%s" />' . PHP_EOL, esc_url( get_option( 'indieauth_authorization_endpoint', MICROPUB_AUTHENTICATION_ENDPOINT ) ) ); // phpcs:ignore
-			printf( '<link rel="token_endpoint" href="%s" />' . PHP_EOL, esc_url ( get_option( 'indieauth_token_endpoint', MICROPUB_TOKEN_ENDPOINT ) ) ); // phpcs:ignore
+			printf( '<link rel="authorization_endpoint" href="%s" />' . PHP_EOL, esc_url( get_option( 'indieauth_authorization_endpoint', MICROSUB_AUTHENTICATION_ENDPOINT ) ) ); // phpcs:ignore
+			printf( '<link rel="token_endpoint" href="%s" />' . PHP_EOL, esc_url ( get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ) ) ); // phpcs:ignore
 	}
 
 	public static function jrd_links( $array ) {
 		$array['links'][] = array(
 			'rel'  => 'authorization_endpoint',
-			'href' => get_option( 'indieauth_authorization_endpoint', MICROPUB_AUTHENTICATION_ENDPOINT ),
+			'href' => get_option( 'indieauth_authorization_endpoint', MICROSUB_AUTHENTICATION_ENDPOINT ),
 		);
 		$array['links'][] = array(
 			'rel'  => 'token_endpoint',
-			'href' => get_option( 'indieauth_token_endpoint', MICROPUB_TOKEN_ENDPOINT ),
+			'href' => get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ),
 		);
 
 		return $array;
@@ -229,17 +230,17 @@ class Micropub_Authorize {
 
 		// find the access token
 		$auth  = static::get_authorization_header();
-		$token = mp_get( $_POST, 'access_token' ); // phpcs:ignore
+		$token = ms_get( $_POST, 'access_token' ); // phpcs:ignore
 		if ( ! $auth && ! $token ) {
-			// Fail if micropub is in the requested path
-			if ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( MICROPUB_NAMESPACE, $_SERVER['REQUEST_URI'] ) ) {
-				static::$error = new WP_Micropub_Error( 'unauthorized', 'missing access token', 401 );
+			// Fail if microsub is in the requested path
+			if ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( YARNS_MICROSUB_NAMESPACE, $_SERVER['REQUEST_URI'] ) ) {
+				static::$error = new WP_Microsub_Error( 'unauthorized', 'missing access token', 401 );
 			}
 			return $user_id;
 		}
 
 		$resp = wp_remote_get(
-			get_option( 'indieauth_token_endpoint', MICROPUB_TOKEN_ENDPOINT ),
+			get_option( 'indieauth_token_endpoint', MICROSUB_TOKEN_ENDPOINT ),
 			array(
 				'headers' => array(
 					'Accept'        => 'application/json',
@@ -258,15 +259,15 @@ class Micropub_Authorize {
 		static::$scopes = explode( ' ', $params['scope'] );
 
 		if ( ( $code / 100 ) !== 2 ) {
-			static::$error = new WP_Micropub_Error( 'invalid_request', 'invalid access token', 403 );
+			static::$error = new WP_Microsub_Error( 'invalid_request', 'invalid access token', 403 );
 			return 0;
 		} elseif ( empty( static::$scopes ) ) {
-			static::$error = new WP_Micropub_Error( 'insufficient_scope', 'access token is missing scope', 401 );
+			static::$error = new WP_Microsub_Error( 'insufficient_scope', 'access token is missing scope', 401 );
 			return 0;
 		}
 
 		$me                             = untrailingslashit( $params['me'] );
-		static::$micropub_auth_response = $params;
+		static::$microsub_auth_response = $params;
 
 		// look for a user with the same url as the token's `me` value.
 		$user_id = static::url_to_user( $me );
@@ -281,7 +282,7 @@ class Micropub_Authorize {
 			return $user_id;
 		}
 		// Nothing was found return 0 to indicate no privileges given
-		static::$error = new WP_Micropub_Error( 'forbidden', 'user not found', 403, $me );
+		static::$error = new WP_Microsub_Error( 'forbidden', 'user not found', 403, $me );
 		return 0;
 	}
 

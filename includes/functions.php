@@ -52,6 +52,7 @@ function encode_array( $data ) {
  *
  * @return bool
  */
+
 function yarns_date_compare( $post, $storage_period ) {
 	if ( isset( $post['date'] ) && strtotime( $post['date'] ) ) {
 		if ( strtotime( $post['date'] ) < strtotime( '-' . $storage_period . ' days' ) ) {
@@ -60,3 +61,16 @@ function yarns_date_compare( $post, $storage_period ) {
 	}
 }
 
+
+if ( ! function_exists( 'ms_get' ) ) {
+	function ms_get( $array, $key, $default = array(), $index = false ) {
+		$return = $default;
+		if ( is_array( $array ) && isset( $array[ $key ] ) ) {
+			$return = $array[ $key ];
+		}
+		if ( $index && wp_is_numeric_array( $return ) ) {
+			$return = $return[0];
+		}
+		return $return;
+	}
+}
