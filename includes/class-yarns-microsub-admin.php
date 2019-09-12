@@ -375,11 +375,22 @@ class Yarns_Microsub_Admin {
 	 */
 	public static function add_channel() {
 		if ( isset( $_POST['channel'] ) ) {
-			$channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
-			Yarns_Microsub_Channels::add( $channel );
-			echo static::list_channels();
+			$new_channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
+			// Return message if channel already exists
+			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+			// check if the channel already exists.
+			foreach ( $channels as $item ) {
+				if ( $item ) {
+					if ( $item->name === $new_channel ) {
+						wp_die( wp_json_encode( new WP_Microsub_Error( 'invalid_request', sprintf( 'A channel with name %1$s already exists', $new_channel ), 400 ) ) );
+					}
+				}
+			}
+			Yarns_Microsub_Channels::add( $new_channel );
+			wp_die( wp_json_encode( new WP_HTTP_Response( 'Successfully added new channel', 200 ) ) );
 		}
-		wp_die();
+		wp_die( wp_json_encode( new WP_Microsub_Error( 'invalid_request', 'No channel name was submitted', 400 ) ) );
+
 	}
 
 	/**

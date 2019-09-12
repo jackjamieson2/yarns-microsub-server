@@ -80,12 +80,13 @@
 									channel: channel,
 								},
 								success: function ( response ) {
-									console.log( 'success' )
 									done_loading( button )
-									button.text( '+ Add channel' )
-									$( '#yarns-new-channel-name' ).hide()
-
-									$( '#yarns-channels' ).html( response )
+									response = JSON.parse( response )
+									if ( response['status'] === 200 ) {
+										window.location.reload()
+									} else {
+										display_error( button, response['data']['error_description'] )
+									}
 								}
 							}
 						)
