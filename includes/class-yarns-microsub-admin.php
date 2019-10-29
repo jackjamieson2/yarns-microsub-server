@@ -23,7 +23,6 @@ class Yarns_Microsub_Admin {
 		$args = array_merge( $default_args, $args );
 
 		return add_query_arg( $args, admin_url() . 'admin.php' );
-		//return add_query_arg( array( 'page' => static::$options_page_name ), admin_url() . 'admin.php' );
 	}
 
 	public static function admin_channel_settings_link( $uid, $args = [] ) {
@@ -205,8 +204,8 @@ class Yarns_Microsub_Admin {
 		$html = '';
 
 		foreach ( $channels as $channel ) {
-			$name  = $channel['name'];
-			$uid   = $channel['uid'];
+			$name = $channel['name'];
+			$uid  = $channel['uid'];
 			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
 			$html .= '</li>';
 		}
@@ -242,7 +241,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for the debug log
 	 */
 	private static function debug_log() {
-		$html  = '<h2> Debug log </h2>';
+		$html = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
 		$log = json_decode( get_site_option( 'debug_log' ), true );
@@ -264,7 +263,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for debug commands.
 	 */
 	private static function debug_commands() {
-		$html  = '<h2> Debug commands </h2>';
+		$html = '<h2> Debug commands </h2>';
 		$html .= '<a class="button" id="yarns_force_poll">Force poll</a><br><br>';
 		$html .= '<a class="button" id="yarns_delete_posts">Delete all posts</a>';
 
@@ -459,7 +458,5 @@ class Yarns_Microsub_Admin {
 		}
 		wp_die();
 	}
-
-
 
 }
