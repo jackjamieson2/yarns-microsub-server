@@ -155,6 +155,9 @@ class Yarns_MicroSub_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/autoload.php';
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/functions.php';
 
+		// Display nag notice if IndieAuth Plugin is not installed
+		add_action( 'admin_notices', array('Yarns_MicroSub_Plugin','indieauth_plugin_notice' ));
+
 
 
 	}
@@ -199,4 +202,18 @@ class Yarns_MicroSub_Plugin {
 		}
 		update_option( 'debug_log', wp_json_encode( $debug_log ) );
 	}
+
+	/**
+	 * Display nag notice if IndieAuth plugin is not installed
+	 *
+	 * @return string
+	 */
+	public static function indieauth_plugin_notice() {
+		if (! class_exists('IndieAuth_Plugin')) {
+			$class   = 'notice notice-error';
+			$message = __( '<b>Yarns Microsub Server notice:</b> WordPress IndieAuth Plugin is not active. Yarns Microsub Server requires this plugin to authorize microsub clients.', 'yarns-microsub-server' );
+			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ),  $message  );
+		}
+	}
+
 }
