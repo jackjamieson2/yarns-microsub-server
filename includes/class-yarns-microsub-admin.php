@@ -341,7 +341,7 @@ class Yarns_Microsub_Admin {
 		// @@todo: Return success message when fo
 		if ( isset( $_POST['uid'] ) && isset( $_POST['url'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
+			$url = sanitize_text_field( wp_unslash(urldecode( $_POST['url'] )) );
 			Yarns_Microsub_Channels::follow( $uid, $url );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
 			echo static::admin_channel_feeds_link( $uid );
