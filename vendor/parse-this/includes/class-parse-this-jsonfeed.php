@@ -9,25 +9,37 @@ class Parse_This_JSONFeed {
 		if ( ! isset( $array['author'] ) ) {
 			return array();
 		}
-		$array = $array['author'];
-		return array_filter(
-			array(
-				'name'  => self::ifset( 'name', $array ),
-				'url'   => self::ifset( 'url', $array ),
-				'photo' => self::ifset( 'avatar', $array ),
-			)
-		);
+		$author = $array['author'];
+		if ( ! wp_is_numeric_array( $author ) ) {
+			$author = array( $author );
+		}
+		foreach ( $author as $element ) {
+			$return[] = array_filter(
+				array(
+					'name'  => self::ifset( 'name', $element ),
+					'url'   => self::ifset( 'url', $element ),
+					'photo' => self::ifset( 'avatar', $element ),
+				)
+			);
+		}
+		$return = array_filter( $return );
+		if ( 1 === count( $return ) ) {
+			return $return[0];
+		}
+		return $return;
 	}
 
 	public static function to_jf2( $content, $url ) {
 		$return          = array_filter(
 			array(
-				'type'    => 'jsonfeed',
-				'name'    => self::ifset( 'title', $content ),
-				'url'     => $url,
-				'summary' => self::ifset( 'description', $content ),
-				'photo'   => self::ifset( 'icon', $content ),
-				'author'  => self::get_author( $content ),
+				'type'       => 'feed',
+				'_feed_type' => 'jsonfeed',
+				'name'       => self::ifset( 'title', $content ),
+				'url'        => $url,
+				'summary'    => self::ifset( 'description', $content ),
+				'photo'      => self::ifset( 'icon', $content ),
+				'author'     => self::get_author( $content ),
+				'language'   => self::ifset( 'language', $content ),
 			)
 		);
 		$return['items'] = array();
@@ -40,7 +52,7 @@ class Parse_This_JSONFeed {
 					'name'        => self::ifset( 'title', $item ),
 					'content'     => array_filter(
 						array(
-							'html' => self::ifset( 'content_html', $item ),
+							'html' => Parse_This::clean_content( self::ifset( 'content_html', $item ) ),
 							'text' => self::ifset( 'content_text', $item ),
 						)
 					),
@@ -50,6 +62,7 @@ class Parse_This_JSONFeed {
 					'updated'     => normalize_iso8601( self::ifset( 'date_modified', $item ) ),
 					'author'      => self::get_author( $item ),
 					'category'    => self::ifset( 'tags', $item ),
+					'language'    => self::ifset( 'language', $item ),
 				)
 			);
 			if ( array_key_exists( 'attachments', $item ) ) {

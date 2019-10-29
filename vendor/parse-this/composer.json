@@ -25,7 +25,8 @@
       "phpcompatibility/phpcompatibility-wp": "^1.0",
       "wpreadme2markdown/wp2md": "^3.0",
       "simplepie/simplepie": "*",
-      "masterminds/html5": "^2.6"
+      "masterminds/html5": "^2.6",
+      "symfony/polyfill-mbstring": "^1.12"
     },
     "prefer-stable" : true,
     "scripts": {
@@ -43,7 +44,8 @@
 		"cp -u -r vendor/simplepie/simplepie/autoloader.php lib/simplepie",
 		"cp -u -r vendor/masterminds/html5/src/HTML5.php lib/html5",
 		"cp -u -r vendor/masterminds/html5/*.md lib/html5",
-		"cp -u -r vendor/masterminds/html5/src/HTML5 lib/html5"
+		"cp -u -r vendor/masterminds/html5/src/HTML5 lib/html5",
+		"cp -u -r vendor/symfony/polyfill-mbstring lib"
 
 	],
 	"post-update-cmd": [

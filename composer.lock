@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.6.0",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b"
+                "reference": "141b272484481432cda342727a427dc1e206bfa0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b",
+                "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
+                "reference": "141b272484481432cda342727a427dc1e206bfa0",
                 "shasum": ""
             },
             "require": {
@@ -73,6 +73,7 @@
                 "RadPHP",
                 "SMF",
                 "Thelia",
+                "Whmcs",
                 "WolfCMS",
                 "agl",
                 "aimeos",
@@ -95,6 +96,7 @@
                 "installer",
                 "itop",
                 "joomla",
+                "known",
                 "kohana",
                 "laravel",
                 "lavalite",
@@ -124,7 +126,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2018-08-27T06:10:37+00:00"
+            "time": "2019-08-12T15:00:31+00:00"
         },
         {
             "name": "dshanske/parse-this",
@@ -132,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dshanske/parse-this.git",
-                "reference": "e4a4af206fbbe5526e144f4649f7932ac4203b5e"
+                "reference": "957414e7c17bb781db66ba4a1b2034f6afe359f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/e4a4af206fbbe5526e144f4649f7932ac4203b5e",
-                "reference": "e4a4af206fbbe5526e144f4649f7932ac4203b5e",
+                "url": "https://api.github.com/repos/dshanske/parse-this/zipball/957414e7c17bb781db66ba4a1b2034f6afe359f1",
+                "reference": "957414e7c17bb781db66ba4a1b2034f6afe359f1",
                 "shasum": ""
             },
             "require": {
@@ -152,6 +154,7 @@
                 "phpcompatibility/phpcompatibility-wp": "^1.0",
                 "simplepie/simplepie": "*",
                 "squizlabs/php_codesniffer": "*",
+                "symfony/polyfill-mbstring": "^1.12",
                 "wp-coding-standards/wpcs": "*",
                 "wpreadme2markdown/wp2md": "^3.0"
             },
@@ -170,7 +173,7 @@
                 }
             ],
             "description": "Parse This Library for WordPress",
-            "time": "2019-06-15T05:40:35+00:00"
+            "time": "2019-09-28T15:25:18+00:00"
         },
         {
             "name": "mf2/mf2",
@@ -358,16 +361,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.4.2",
+            "version": "3.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8"
+                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
-                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
                 "shasum": ""
             },
             "require": {
@@ -405,7 +408,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-04-10T23:49:02+00:00"
+            "time": "2019-10-28T04:36:32+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",

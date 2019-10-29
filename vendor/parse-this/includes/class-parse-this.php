@@ -28,12 +28,60 @@ class Parse_This {
 
 	public function get( $key = 'jf2' ) {
 		if ( 'mf2' === $key ) {
-			return jf2_to_mf2( $key );
+			return jf2_to_mf2( $this->jf2 );
 		}
 		if ( ! in_array( $key, get_object_vars( $this ), true ) ) {
 			$key = 'jf2';
 		}
 		return $this->$key;
+	}
+
+
+	public static function clean_content( $content ) {
+		if ( ! is_string( $content ) ) {
+			return $content;
+		}
+		$allowed = array(
+			'a'          => array(
+				'href' => array(),
+				'name' => array(),
+			),
+			'abbr'       => array(),
+			'b'          => array(),
+			'br'         => array(),
+			'code'       => array(),
+			'ins'        => array(),
+			'del'        => array(),
+			'em'         => array(),
+			'i'          => array(),
+			'q'          => array(),
+			'strike'     => array(),
+			'strong'     => array(),
+			'time'       => array(),
+			'blockquote' => array(),
+			'pre'        => array(),
+			'p'          => array(),
+			'h1'         => array(),
+			'h2'         => array(),
+			'h3'         => array(),
+			'h4'         => array(),
+			'h5'         => array(),
+			'h6'         => array(),
+			'ul'         => array(),
+			'li'         => array(),
+			'ol'         => array(),
+			'span'       => array(),
+			'img'        => array(
+				'src'   => array(),
+				'alt'   => array(),
+				'title' => array(),
+			),
+			'video'      => array(),
+			'audio'      => array(),
+			'track'      => array(),
+			'source'     => array(),
+		);
+		return trim( wp_kses( $content, $allowed ) );
 	}
 
 	/**
@@ -56,26 +104,6 @@ class Parse_This {
 			$this->jf2 = $source_content;
 		} elseif ( is_string( $this->content ) ) {
 			$this->doc = pt_load_domdocument( $this->content );
-		}
-	}
-
-	private function get_feed_type( $type ) {
-		switch ( $type ) {
-			case 'application/json':
-				return 'jsonfeed';
-			case 'application/rss+xml':
-				return 'rss';
-			case 'application/atom+xml':
-				return 'atom';
-			case 'application/jf2feed+json':
-				return 'jf2feed';
-			case 'application/json+oembed':
-			case 'text/xml+oembed':
-				return '';
-			case 'text/html':
-				return 'microformats';
-			default:
-				return 'microformats';
 		}
 	}
 
@@ -139,6 +167,7 @@ class Parse_This {
 			'application/mf2+json',
 			'text/html',
 			'application/json',
+			'application/feed+json',
 			'application/xml',
 			'text/xml',
 			'application/jf2+json',
@@ -147,101 +176,6 @@ class Parse_This {
 			'application/atom+xml',
 		);
 		return in_array( $content_type, $types, true );
-	}
-
-	/**
-	 * Fetches a list of feeds
-	 *
-	 * @param string $url URL to scan
-	 */
-	public function fetch_feeds( $url = null ) {
-		if ( ! $url ) {
-			$url = $this->url;
-		}
-		if ( empty( $url ) ) {
-			return new WP_Error( 'invalid-url', __( 'A valid URL was not provided.', 'indieweb-post-kinds' ) );
-		}
-		$fetch = $this->fetch( $url );
-		if ( is_wp_error( $fetch ) ) {
-			return $fetch;
-		}
-		// A feed was given
-		if ( $this->content instanceof SimplePie ) {
-			return array(
-				'results' => array(
-					array(
-						'url'        => $url,
-						'type'       => 'feed',
-						'_feed_type' => Parse_This_RSS::get_type( $this->content ),
-						'name'       => $this->content->get_title(),
-					),
-				),
-			);
-		}
-		if ( $this->doc instanceof DOMDocument ) {
-			$xpath = new DOMXPath( $this->doc );
-			// Fetch and gather <link> data.
-			$links = array();
-			foreach ( $xpath->query( '(//link|//a)[@rel and @href]' ) as $link ) {
-				$rel   = $link->getAttribute( 'rel' );
-				$href  = $link->getAttribute( 'href' );
-				$title = $link->getAttribute( 'title' );
-				$type  = self::get_feed_type( $link->getAttribute( 'type' ) );
-				if ( in_array( $rel, array( 'alternate', 'feed' ), true ) && ! empty( $type ) ) {
-					$links[] = array_filter(
-						array(
-							'url'        => WP_Http::make_absolute_url( $href, $url ),
-							'type'       => 'feed',
-							'_feed_type' => $type,
-							'name'       => $title,
-						)
-					);
-				}
-			}
-			// Check to see if the current page is an h-feed
-			$this->parse( array( 'return' => 'feed' ) );
-
-			if ( isset( $this->jf2['type'] ) && 'feed' === $this->jf2['type'] ) {
-				$links[] = array_filter(
-					array(
-						'url'        => $url,
-						'type'       => 'feed',
-						'_feed_type' => 'microformats',
-						'name'       => $this->jf2['name'],
-					)
-				);
-			} elseif ( isset( $this->jf2['items'] ) ) {
-				foreach ( $this->jf2['items'] as $item ) {
-					if ( 'feed' === $item['type'] && isset( $item['uid'] ) ) {
-						$links[] = array_filter(
-							array(
-								'url'        => $item['uid'],
-								'type'       => 'feed',
-								'_feed_type' => 'microformats',
-								'name'       => ifset( $item['name'] ),
-							)
-						);
-					}
-				}
-			}
-			// Sort feeds by priority
-			$rank = array(
-				'jf2feed'      => 0,
-				'microformats' => 1,
-				'jsonfeed'     => 2,
-				'atom'         => 3,
-				'rss'          => 4,
-			);
-			usort(
-				$links,
-				function( $a, $b ) use ( $rank ) {
-					return $rank[ $a['_feed_type'] ] > $rank[ $b['_feed_type'] ];
-				}
-			);
-
-			return array( 'results' => $links );
-		}
-		return new WP_Error( 'unknown error', null, $this->content );
 	}
 
 	/**
@@ -302,7 +236,7 @@ class Parse_This {
 
 		$content = wp_remote_retrieve_body( $response );
 		// This is an RSS or Atom Feed URL and if it is not we do not know how to deal with XML anyway
-		if ( ( in_array( $content_type, array( 'application/rss+xml', 'application/atom+xml', 'text/xml', 'application/xml', 'text/xml' ), true ) ) ) {
+		if ( class_exists( 'Parse_This_RSS' ) && ( in_array( $content_type, array( 'application/rss+xml', 'application/atom+xml', 'text/xml', 'application/xml', 'text/xml' ), true ) ) ) {
 			// Get a SimplePie feed object from the specified feed source.
 			$content = self::fetch_feed( $url );
 			if ( is_wp_error( $content ) ) {
@@ -317,9 +251,9 @@ class Parse_This {
 			$content = json_decode( $content, true );
 			return true;
 		}
-		if ( 'application/json' === $content_type ) {
+		if ( in_array( $content_type, array( 'application/feed+json', 'application/json' ) ) ) {
 			$content = json_decode( $content, true );
-			if ( $content && isset( $content['version'] ) && 'https://jsonfeed.org/version/1' === $content['version'] ) {
+			if ( class_exists( 'Parse_This_JSONFeed' ) && $content && isset( $content['version'] ) && 'https://jsonfeed.org/version/1' === $content['version'] ) {
 				$content = Parse_This_JSONFeed::to_jf2( $content, $url );
 				$this->set( $content, $url, true );
 			}
@@ -347,7 +281,7 @@ class Parse_This {
 		if ( $this->content instanceof WP_Post ) {
 			$this->jf2 = self::wp_post( $this->content );
 			return;
-		} elseif ( $this->content instanceof SimplePie ) {
+		} elseif ( class_exists( 'Parse_This_RSS' ) && $this->content instanceof SimplePie ) {
 			$this->jf2 = Parse_This_RSS::parse( $this->content, $this->url );
 			return;
 		} elseif ( $this->doc instanceof DOMDocument ) {
@@ -388,7 +322,7 @@ class Parse_This {
 
 	public static function wp_post( $post ) {
 		$mf2 = new MF2_Post( $post );
-		return $mf2->get( null, true );
+		return mf2_to_jf2( $mf2->get() );
 	}
 
 }
