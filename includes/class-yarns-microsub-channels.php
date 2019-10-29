@@ -21,6 +21,9 @@ class Yarns_Microsub_Channels {
 		if ( get_site_option( 'yarns_channels' ) ) {
 			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
 		}
+
+
+
 		if ( ! empty( $channels ) ) {
 			// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
 			if ( false === $details ) {
@@ -34,20 +37,18 @@ class Yarns_Microsub_Channels {
 					}
 				}
 			}
-		} else {
-			$channels = '';
-		}
 
+			foreach ( $channels as $key => $channel ) {
+				if ( false === $details ) {
+					// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
+					$channels[ $key ] = static::strip_channel_details( $channel );
+				}
 
-		foreach ( $channels as $key => $channel ) {
-			if ( false === $details ) {
-				// The channels list also includes lists of feeds and post-types filter options, so remove them if details === false.
-				$channels[ $key ] = static::strip_channel_details( $channel );
+				$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
 			}
-
-			$channels[ $key ]['unread'] = static::get_unread_count( $channel['uid'] );
+		} else {
+			return false;
 		}
-
 
 		$results = [
 			'channels' => $channels,
@@ -259,10 +260,8 @@ class Yarns_Microsub_Channels {
 			}
 		}
 
-
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
-
 
 		update_option( 'yarns_channels', wp_json_encode( $current_channels ) );
 
@@ -276,7 +275,6 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function save_filters() {
 		$response = '';
-
 
 		if ( isset( $_POST['uid'] ) && isset( $_POST['options'] ) ) {
 			$uid            = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
@@ -294,7 +292,6 @@ class Yarns_Microsub_Channels {
 				// If options is not an array, something went wrong. In this case, reset to all post types.
 				$options = $all_post_types;
 			}
-
 
 			// Update the channel name.
 			if ( isset( $_POST['channel'] ) ) {
@@ -317,9 +314,9 @@ class Yarns_Microsub_Channels {
 					}
 				}
 			}
-
-
 		}
+		// Poll the channel.
+		Yarns_Microsub_Aggregator::poll( true, $uid );
 		echo $response;
 		wp_die();
 
@@ -383,7 +380,6 @@ class Yarns_Microsub_Channels {
 	private static function get_timeline_query( $args ) {
 		$valid_types = static::get_post_types( $args['channel'] );
 
-
 		$query_args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'post_status'    => 'yarns_unread',
@@ -405,16 +401,14 @@ class Yarns_Microsub_Channels {
 			),
 		);
 
-
 		if ( isset( $args['is_read'] ) && 'false' === $args['is_read'] ) {
 			$query_args['post_status'] = 'yarns_unread';
 		} else {
 			$query_args['post_status'] = array( 'yarns_unread', 'yarns_read' );
 		}
 
-
 		// If we are fetching a limited number of posts, then handle pagination.
-		if ( -1 !== $args['num_posts']  ) {
+		if ( -1 !== $args['num_posts'] ) {
 			$id_list = [];
 
 			if ( $args['after'] ) {
@@ -439,7 +433,6 @@ class Yarns_Microsub_Channels {
 		// notes for paging: https://stackoverflow.com/questions/10827671/how-to-get-posts-greater-than-x-id-using-get-posts.
 		$query = new WP_Query( $query_args );
 
-
 		return $query;
 	}
 
@@ -454,7 +447,8 @@ class Yarns_Microsub_Channels {
 	 *
 	 * @return string
 	 */
-	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 20 ) {
+	public static function timeline( $channel, $after, $before, $is_read, $num_posts = 40, $before_date = null ) {
+
 		$args = array(
 			'channel'   => $channel,
 			'after'     => $after,
@@ -463,8 +457,11 @@ class Yarns_Microsub_Channels {
 			'num_posts' => $num_posts,
 		);
 
-		$query = static::get_timeline_query( $args );
+		if (isset($before_date)) {
+			$args['date_query'] = array( 'before' => $before_date );
+		}
 
+		$query = static::get_timeline_query( $args );
 
 		$timeline_items = array();
 		while ( $query->have_posts() ) {
@@ -477,10 +474,19 @@ class Yarns_Microsub_Channels {
 
 		wp_reset_postdata();
 
-		// Filter out posts that should be omitted. Add paging variable.
 		if ( $timeline_items ) {
 			if ( is_array( $timeline_items ) ) {
-				$timeline['items']            = array_filter( $timeline_items );
+				$timeline['items'] = array_filter( $timeline_items ); // remove null items if any exist.
+
+				// Sort by published date in descending order.
+				usort(
+					$timeline['items'],
+					function ( $a, $b ) {
+						return strtotime( $b['published'] ) - strtotime( $a['published'] );
+					}
+				);
+
+				// Add 'before' variable.
 				$timeline['paging']['before'] = (string) max( $ids );
 				// Only add 'after' if there are older posts.
 				if ( self::older_posts_exist( min( $ids ), $channel ) ) {
@@ -496,6 +502,7 @@ class Yarns_Microsub_Channels {
 		}
 
 	}
+
 
 
 	/**
@@ -579,7 +586,6 @@ class Yarns_Microsub_Channels {
 									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
 									update_option( 'yarns_channels', wp_json_encode( $channels ) );
-
 
 									return;
 								} else {

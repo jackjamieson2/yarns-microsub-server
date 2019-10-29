@@ -1,6 +1,5 @@
 
 
-<h2>Channel settings</h2>
 <label for="yarns-channel-update-name">Name: </label><input type="text" id="yarns-channel-update-name" name="yarns-channel-update-name" value="<?php echo $channel['name']; ?>" size="30" ></input>
 
 

@@ -23,5 +23,5 @@
 
 	<rule ref="WordPress-Extra" />
         <rule ref="WordPress.WP.I18n"/>
-	<config name="text_domain" value="yarns_microsub,default"/>
+	<config name="text_domain" value="yarns-microsub-server,default"/>
 </ruleset>

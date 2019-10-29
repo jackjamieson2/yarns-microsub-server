@@ -8,8 +8,6 @@
 
 function test() {
 
-
-
 	return Yarns_Microsub_Parser::load_parse_this();
 	// Return poll log for review.
 	return json_decode( get_site_option( 'yarns_poll_log' ), true );

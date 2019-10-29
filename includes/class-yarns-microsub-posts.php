@@ -19,8 +19,8 @@ class Yarns_Microsub_Posts {
 			// CPT Options.
 			array(
 				'labels'      => array(
-					'name'          => __( 'Yarns Microsub Posts' ),
-					'singular_name' => __( 'Yarns Microsub Post' ),
+					'name'          => __( 'Yarns Microsub Posts', 'yarns-microsub-server' ),
+					'singular_name' => __( 'Yarns Microsub Post', 'yarns-microsub-server' ),
 				),
 				'public'      => false,
 				'has_archive' => false,
@@ -33,7 +33,7 @@ class Yarns_Microsub_Posts {
 			'yarns_microsub_post_channel',  // The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces).
 			'yarns_microsub_post',       // post type name.
 			array(
-				'public'      => false,
+				'public'       => false,
 				'hierarchical' => false,
 				'label'        => 'Channel',  // Display name.
 				'query_var'    => true,
@@ -48,7 +48,7 @@ class Yarns_Microsub_Posts {
 			'yarns_microsub_post_type',  // The name of the taxonomy. Name should be in slug form (must not contain capital letters or spaces)..
 			'yarns_microsub_post',       // post type name.
 			array(
-				'public'      => false,
+				'public'       => false,
 				'hierarchical' => false,
 				'label'        => 'Type',  // Display name.
 				'query_var'    => true,
@@ -59,23 +59,31 @@ class Yarns_Microsub_Posts {
 		);
 
 		// register post statuses for 'read' and 'unread'
-		register_post_status( 'yarns_unread', array(
-			'label'                     => _x( 'Unread', 'post' ),
-			'public'                    => false,
-			'exclude_from_search'       => true,
-			'show_in_admin_all_list'    => false,
-			'show_in_admin_status_list' => false,
-			'label_count'               => _n_noop( 'Unread (%s)', 'Unread (%s)' ),
-		) );
+		register_post_status(
+			'yarns_unread',
+			array(
+				'label'                     => _x( 'Unread', 'post', 'yarns-microsub-server' ),
+				'public'                    => false,
+				'exclude_from_search'       => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => false,
+				// translators: 1. Singular Unread 2. Plural Unread
+				'label_count'               => _n_noop( 'Unread (%s)', 'Unread (%s)', 'yarns-microsub-server' ),
+			)
+		);
 
-		register_post_status( 'yarns_read', array(
-			'label'                     => _x( 'Read', 'post' ),
-			'public'                    => false,
-			'exclude_from_search'       => true,
-			'show_in_admin_all_list'    => false,
-			'show_in_admin_status_list' => false,
-			'label_count'               => _n_noop( 'Read (%s)', 'Read (%s)' ),
-		) );
+		register_post_status(
+			'yarns_read',
+			array(
+				'label'                     => _x( 'Read', 'post', 'yarns-microsub-server' ),
+				'public'                    => false,
+				'exclude_from_search'       => true,
+				'show_in_admin_all_list'    => false,
+				'show_in_admin_status_list' => false,
+				// translators: 1. Singular Read 2. Plural Read
+				'label_count'               => _n_noop( 'Read (%s)', 'Read (%s)', 'yarns-microsub-server' ),
+			)
+		);
 
 	}
 
@@ -102,10 +110,12 @@ class Yarns_Microsub_Posts {
 
 		if ( isset( $post['published'] ) ) {
 			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
+		} else {
+			// If there is no published date, then fall back to the current time.
+			$post['published'] = date( 'Y-m-d\TH:i:sP' );
 		}
 		if ( isset( $post['updated'] ) ) {
 			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
-
 		}
 
 		// Create the post.
@@ -116,7 +126,6 @@ class Yarns_Microsub_Posts {
 
 		// Mark the post as 'unread'.
 		$post['_is_read'] = false;
-
 
 		$post = encode_array( $post );
 
@@ -135,8 +144,7 @@ class Yarns_Microsub_Posts {
 			'ID'          => $post_id,
 			'post_status' => 'yarns_unread',
 		);
-		wp_update_post($update_post_args);
-
+		wp_update_post( $update_post_args );
 
 		// Save the post JSON as a custom meta field.
 		update_post_meta( $post_id, 'yarns_microsub_json', $post );
@@ -162,16 +170,18 @@ class Yarns_Microsub_Posts {
 			$post = self::get_single_post( $entry_id );
 			// Set '_is_read' to the new status if (a) the post exists, and (b) $read_status has changed
 			if ( $post ) {
-				if ( $post['_is_read'] !== $read_status ) {
-					$post['_is_read'] = $read_status;
-					update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
+				if ( isset( $post['_is_read'] ) ) {
+					if ( $post['_is_read'] !== $read_status ) {
+						$post['_is_read'] = $read_status;
+						update_post_meta( $entry_id, 'yarns_microsub_json', $post ); // Update meta (JSON feed sent to client)
 
-					$read_status_string = ($read_status) ? 'yarns_read' : 'yarns_unread';
-					$update_post_args = array(
-						'ID'          => $entry_id,
-						'post_status' => $read_status_string,
-					);
-					wp_update_post($update_post_args);
+						$read_status_string = ( $read_status ) ? 'yarns_read' : 'yarns_unread';
+						$update_post_args   = array(
+							'ID'          => $entry_id,
+							'post_status' => $read_status_string,
+						);
+						wp_update_post( $update_post_args );
+					}
 				}
 			}
 			$response = array(
@@ -186,7 +196,7 @@ class Yarns_Microsub_Posts {
 
 
 	/**
-	 * Toggle read status of a single post and everythign before it.
+	 * Toggle read status of a single post and everything before it.
 	 *
 	 * @param int    $entry_id      The ID of the post to toggle.
 	 * @param string $channel       The channel containing the post.
@@ -195,29 +205,34 @@ class Yarns_Microsub_Posts {
 	 * @return string
 	 */
 	public static function toggle_last_read( $entry_id, $channel, $read_status ) {
-		// Get the timeline.
-		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = $entry_id + 1, $after = null, $num_posts = - 1 );
+		// Get the timeline of all feed items published before $entry_id.
+		$read_before_post = self::get_single_post( $entry_id );
+		if ( ! isset( $read_before_post['published'] ) ) {
+			return;
+		}
+		$before_date = $read_before_post['published'];
+		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
+
 		foreach ( $timeline['items'] as $item ) {
 			if ( $item['_id'] ) {
 				static::toggle_read( $item['_id'], $read_status );
 			}
 		}
+		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null );
+
 		return $timeline;
 	}
 
 
 	/**
 	 * Delete all posts -- for debugging only.
-	 *
 	 */
-	public static function delete_all_posts( ) {
-
+	public static function delete_all_posts() {
 		$args = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,
 			'post_status'    => array( 'yarns_read', 'yarns_unread', 'publish' ), // 'publish' is no longer used, but this will ensure posts are removed from previous versions of yarns.
 		);
-
 
 		$query = new WP_Query( $args );
 
@@ -232,9 +247,9 @@ class Yarns_Microsub_Posts {
 	 *
 	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
 	 */
-	public static function delete_old_posts ( $storage_period ) {
+	public static function delete_old_posts( $storage_period ) {
 		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
-		$args = array(
+		$args        = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,
 			'post_status'    => array( 'yarns_read', 'yarns_unread' ),

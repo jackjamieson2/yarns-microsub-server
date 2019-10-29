@@ -7,8 +7,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
-			'channel_name' => __( 'Channel Name', 'yarns_microsub' ),
-			'n_feeds'      => __( 'Number of feeds', 'yarns_microsub' ),
+			'channel_name' => __( 'Channel Name', 'yarns-microsub-server' ),
+			'n_feeds'      => __( 'Number of feeds', 'yarns-microsub-server' ),
 
 		);
 	}
@@ -27,8 +27,8 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 		$this->_column_headers = array( $columns, $hidden, $this->get_sortable_columns() );
 		$this->items           = array();
 
-
 		$channels = Yarns_Microsub_Channels::get( true )['channels'];
+		if (!$channels){return;}
 		foreach ( $channels as $channel ) {
 			if ( isset( $channel['name'] ) ) {
 				$value['channel_name'] = $channel['name'];
@@ -67,14 +67,18 @@ class Yarns_Microsub_Channel_List_Table extends WP_List_Table {
 	public function column_channel_name( $item ) {
 
 		$uid  = $item['channel_uid'];
-		$link = esc_url( add_query_arg( array(
-				'page'    => Yarns_Microsub_Admin::$options_page_name,
-				'channel' => $uid,
-				'mode'    => 'channel-feeds'
-			), Yarns_Microsub_Admin::admin_page_link() )
+		$link = esc_url(
+			add_query_arg(
+				array(
+					'page'    => Yarns_Microsub_Admin::$options_page_name,
+					'channel' => $uid,
+					'mode'    => 'channel-feeds',
+				),
+				Yarns_Microsub_Admin::admin_page_link()
+			)
 		);
 
-		$html = '<strong><a data-uid="'.$uid.'" href ="' . $link . '">' . $item['channel_name'] . '</a></strong>';
+		$html = '<strong><a data-uid="' . $uid . '" href ="' . $link . '">' . $item['channel_name'] . '</a></strong>';
 
 		//return $item['channel_name'];
 		return $html;
