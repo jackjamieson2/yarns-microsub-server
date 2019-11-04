@@ -7,6 +7,14 @@ $yarns_channels = json_decode( get_site_option( 'yarns_channels' ) , true);
 ?>
 
 
+<h2> Yarns options </h2>
+<label for="yarns-storage-period">Store posts published within the past  <input type="number" min="1" id="yarns-storage-period" name="yarns-storage-period" value="<?php echo $storage_period; ?>" size="3" ></input> days.</label>
+<br>(Feed items older than this will be removed, and posts older than this will not be saved to your feeds).
+<br><br>
+<label for="yarns-toggle-debug">Show debug options: <input id="yarns-toggle-debug" type="checkbox" <?php echo $debug_checked; ?> ></input></label>
+<br><br><a class="button" id="yarns-save-options">Save options</a>
+
+
 <h2> Channels </h2>
 
 <div id='yarns-channels'>
@@ -29,14 +37,9 @@ $yarns_channels = json_decode( get_site_option( 'yarns_channels' ) , true);
 <a class="button" id="yarns-channel-add">+ Add channel</a>
 
 
-<h2> Yarns options </h2>
-<label for="yarns-storage-period">Number of days to store feed items before deleting: <input type="number" min="1" id="yarns-storage-period" name="yarns-storage-period" value="<?php echo $storage_period; ?>" size="3" ></input></label>
-<br><br>
-<label for="yarns-toggle-debug">Show debug options: <input id="yarns-toggle-debug" type="checkbox" <?php echo $debug_checked; ?> ></input></label>
 
 
 
-<br><br><a class="button" id="yarns-save-options">Save options</a>
 
 
 
