@@ -5,7 +5,7 @@
  * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogethernow.io or monocle.p3k.io).
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
- * Version: 1.0.2
+ * Version: 1.0.3
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: yarns-microsub-server
@@ -34,6 +34,13 @@ function load_microsub_auth() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-authorize.php';
 }
 
+function load_microsub_error() {
+	// Initialize Microsub Error Handling Class.
+	require_once dirname( __FILE__ ) . '/includes/class-microsub-error.php';
+}
+
+// Load error class at the plugins loaded stage before auth is loaded
+add_action( 'plugins_loaded', 'load_microsub_error', 29 );
 // Load auth at the plugins loaded stage in order to ensure it occurs after the IndieAuth plugin is loaded and the Micropub Plugin
 add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
 
@@ -54,6 +61,9 @@ class Yarns_MicroSub_Plugin {
 	 * Run when plugins are loaded.
 	 */
 	public static function plugins_loaded() {
+		// list of various public helper functions.
+		require_once dirname( __FILE__ ) . '/includes/functions.php';
+
 		if ( WP_DEBUG ) {
 			require_once dirname( __FILE__ ) . '/includes/debug.php';
 		}
@@ -108,8 +118,6 @@ class Yarns_MicroSub_Plugin {
 	 */
 	public static function init() {
 
-		// Initialize Microsub Error Handling Class.
-		require_once dirname( __FILE__ ) . '/includes/class-microsub-error.php';
 
 		// Initialize Microsub endpoint.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
@@ -147,11 +155,10 @@ class Yarns_MicroSub_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/autoload.php';
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/functions.php';
 
-		// Set timezone for plugin date functions.
-		//date_default_timezone_set( get_option( 'timezone_string' ) );
+		// Display nag notice if IndieAuth Plugin is not installed
+		add_action( 'admin_notices', array('Yarns_MicroSub_Plugin','indieauth_plugin_notice' ));
 
-		// list of various public helper functions.
-		require_once dirname( __FILE__ ) . '/includes/functions.php';
+
 
 	}
 
@@ -195,4 +202,18 @@ class Yarns_MicroSub_Plugin {
 		}
 		update_option( 'debug_log', wp_json_encode( $debug_log ) );
 	}
+
+	/**
+	 * Display nag notice if IndieAuth plugin is not installed
+	 *
+	 * @return string
+	 */
+	public static function indieauth_plugin_notice() {
+		if (! class_exists('IndieAuth_Plugin')) {
+			$class   = 'notice notice-error';
+			$message = __( '<b>Yarns Microsub Server notice:</b> WordPress IndieAuth Plugin is not active. Yarns Microsub Server requires this plugin to authorize microsub clients.', 'yarns-microsub-server' );
+			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ),  $message  );
+		}
+	}
+
 }

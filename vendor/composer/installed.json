@@ -1,0 +1,461 @@
+[
+    {
+        "name": "composer/installers",
+        "version": "v1.7.0",
+        "version_normalized": "1.7.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/composer/installers.git",
+            "reference": "141b272484481432cda342727a427dc1e206bfa0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
+            "reference": "141b272484481432cda342727a427dc1e206bfa0",
+            "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0"
+        },
+        "replace": {
+            "roundcube/plugin-installer": "*",
+            "shama/baton": "*"
+        },
+        "require-dev": {
+            "composer/composer": "1.0.*@dev",
+            "phpunit/phpunit": "^4.8.36"
+        },
+        "time": "2019-08-12T15:00:31+00:00",
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Composer\\Installers\\Plugin",
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Composer\\Installers\\": "src/Composer/Installers"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Kyle Robinson Young",
+                "email": "kyle@dontkry.com",
+                "homepage": "https://github.com/shama"
+            }
+        ],
+        "description": "A multi-framework Composer library installer",
+        "homepage": "https://composer.github.io/installers/",
+        "keywords": [
+            "Craft",
+            "Dolibarr",
+            "Eliasis",
+            "Hurad",
+            "ImageCMS",
+            "Kanboard",
+            "Lan Management System",
+            "MODX Evo",
+            "Mautic",
+            "Maya",
+            "OXID",
+            "Plentymarkets",
+            "Porto",
+            "RadPHP",
+            "SMF",
+            "Thelia",
+            "Whmcs",
+            "WolfCMS",
+            "agl",
+            "aimeos",
+            "annotatecms",
+            "attogram",
+            "bitrix",
+            "cakephp",
+            "chef",
+            "cockpit",
+            "codeigniter",
+            "concrete5",
+            "croogo",
+            "dokuwiki",
+            "drupal",
+            "eZ Platform",
+            "elgg",
+            "expressionengine",
+            "fuelphp",
+            "grav",
+            "installer",
+            "itop",
+            "joomla",
+            "known",
+            "kohana",
+            "laravel",
+            "lavalite",
+            "lithium",
+            "magento",
+            "majima",
+            "mako",
+            "mediawiki",
+            "modulework",
+            "modx",
+            "moodle",
+            "osclass",
+            "phpbb",
+            "piwik",
+            "ppi",
+            "puppet",
+            "pxcms",
+            "reindex",
+            "roundcube",
+            "shopware",
+            "silverstripe",
+            "sydes",
+            "symfony",
+            "typo3",
+            "wordpress",
+            "yawik",
+            "zend",
+            "zikula"
+        ]
+    },
+    {
+        "name": "dealerdirect/phpcodesniffer-composer-installer",
+        "version": "v0.4.4",
+        "version_normalized": "0.4.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
+            "reference": "2e41850d5f7797cbb1af7b030d245b3b24e63a08"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/2e41850d5f7797cbb1af7b030d245b3b24e63a08",
+            "reference": "2e41850d5f7797cbb1af7b030d245b3b24e63a08",
+            "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0",
+            "php": "^5.3|^7",
+            "squizlabs/php_codesniffer": "*"
+        },
+        "require-dev": {
+            "composer/composer": "*",
+            "wimg/php-compatibility": "^8.0"
+        },
+        "suggest": {
+            "dealerdirect/qa-tools": "All the PHP QA tools you'll need"
+        },
+        "time": "2017-12-06T16:27:17+00:00",
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Franck Nijhof",
+                "email": "f.nijhof@dealerdirect.nl",
+                "homepage": "http://workingatdealerdirect.eu",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP_CodeSniffer Standards Composer Installer Plugin",
+        "homepage": "http://workingatdealerdirect.eu",
+        "keywords": [
+            "PHPCodeSniffer",
+            "PHP_CodeSniffer",
+            "code quality",
+            "codesniffer",
+            "composer",
+            "installer",
+            "phpcs",
+            "plugin",
+            "qa",
+            "quality",
+            "standard",
+            "standards",
+            "style guide",
+            "stylecheck",
+            "tests"
+        ]
+    },
+    {
+        "name": "dshanske/parse-this",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dshanske/parse-this.git",
+            "reference": "957414e7c17bb781db66ba4a1b2034f6afe359f1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dshanske/parse-this/zipball/957414e7c17bb781db66ba4a1b2034f6afe359f1",
+            "reference": "957414e7c17bb781db66ba4a1b2034f6afe359f1",
+            "shasum": ""
+        },
+        "require": {
+            "composer/installers": "~1.0",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+            "masterminds/html5": "^2.6",
+            "mf2/mf2": "dev-master",
+            "phpcompatibility/php-compatibility": "*",
+            "phpcompatibility/phpcompatibility-wp": "^1.0",
+            "simplepie/simplepie": "*",
+            "squizlabs/php_codesniffer": "*",
+            "symfony/polyfill-mbstring": "^1.12",
+            "wp-coding-standards/wpcs": "*",
+            "wpreadme2markdown/wp2md": "^3.0"
+        },
+        "time": "2019-09-28T15:25:18+00:00",
+        "type": "wordpress-plugin",
+        "extra": {
+            "installer-name": "parse-this"
+        },
+        "installation-source": "source",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "David Shanske",
+                "email": "david@shanske.com"
+            }
+        ],
+        "description": "Parse This Library for WordPress"
+    },
+    {
+        "name": "mf2/mf2",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/microformats/php-mf2.git",
+            "reference": "c503c4744e09efba083f0d652963ffde4ed013ae"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/c503c4744e09efba083f0d652963ffde4ed013ae",
+            "reference": "c503c4744e09efba083f0d652963ffde4ed013ae",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "mf2/tests": "@dev",
+            "phpdocumentor/phpdocumentor": "v2.8.4",
+            "phpunit/phpunit": "4.8.*"
+        },
+        "suggest": {
+            "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
+            "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
+        },
+        "time": "2019-05-22T07:44:18+00:00",
+        "bin": [
+            "bin/fetch-mf2",
+            "bin/parse-mf2"
+        ],
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "Mf2/Parser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "CC0-1.0"
+        ],
+        "authors": [
+            {
+                "name": "Barnaby Walters",
+                "homepage": "http://waterpigs.co.uk"
+            }
+        ],
+        "description": "A pure, generic microformats2 parser — makes HTML as easy to consume as a JSON API",
+        "keywords": [
+            "html",
+            "microformats",
+            "microformats 2",
+            "parser",
+            "semantic"
+        ]
+    },
+    {
+        "name": "phpcompatibility/php-compatibility",
+        "version": "9.1.0",
+        "version_normalized": "9.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
+            "reference": "a898db5410e365eeb658c63a76bd08d211769321"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/a898db5410e365eeb658c63a76bd08d211769321",
+            "reference": "a898db5410e365eeb658c63a76bd08d211769321",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3",
+            "squizlabs/php_codesniffer": "^2.3 || ^3.0.2"
+        },
+        "conflict": {
+            "squizlabs/php_codesniffer": "2.6.2"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.5 || ^5.0 || ^6.0 || ^7.0"
+        },
+        "suggest": {
+            "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically.",
+            "roave/security-advisories": "dev-master || Helps prevent installing dependencies with known security issues."
+        },
+        "time": "2018-12-16T19:16:39+00:00",
+        "type": "phpcodesniffer-standard",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Contributors",
+                "homepage": "https://github.com/PHPCompatibility/PHPCompatibility/graphs/contributors"
+            },
+            {
+                "name": "Wim Godden",
+                "homepage": "https://github.com/wimg",
+                "role": "lead"
+            },
+            {
+                "name": "Juliette Reinders Folmer",
+                "homepage": "https://github.com/jrfnl",
+                "role": "lead"
+            }
+        ],
+        "description": "A set of sniffs for PHP_CodeSniffer that checks for PHP cross-version compatibility.",
+        "homepage": "http://techblog.wimgodden.be/tag/codesniffer/",
+        "keywords": [
+            "compatibility",
+            "phpcs",
+            "standards"
+        ]
+    },
+    {
+        "name": "squizlabs/php_codesniffer",
+        "version": "3.5.2",
+        "version_normalized": "3.5.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
+            "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+            "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+            "shasum": ""
+        },
+        "require": {
+            "ext-simplexml": "*",
+            "ext-tokenizer": "*",
+            "ext-xmlwriter": "*",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
+        },
+        "time": "2019-10-28T04:36:32+00:00",
+        "bin": [
+            "bin/phpcs",
+            "bin/phpcbf"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Greg Sherwood",
+                "role": "lead"
+            }
+        ],
+        "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
+        "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
+        "keywords": [
+            "phpcs",
+            "standards"
+        ]
+    },
+    {
+        "name": "wp-coding-standards/wpcs",
+        "version": "1.2.1",
+        "version_normalized": "1.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
+            "reference": "f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c",
+            "reference": "f328bcafd97377e8e5e5d7b244d5ddbf301a3a5c",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3",
+            "squizlabs/php_codesniffer": "^2.9.0 || ^3.0.2"
+        },
+        "require-dev": {
+            "phpcompatibility/php-compatibility": "^9.0"
+        },
+        "suggest": {
+            "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
+        },
+        "time": "2018-12-18T09:43:51+00:00",
+        "type": "phpcodesniffer-standard",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Contributors",
+                "homepage": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/graphs/contributors"
+            }
+        ],
+        "description": "PHP_CodeSniffer rules (sniffs) to enforce WordPress coding conventions",
+        "keywords": [
+            "phpcs",
+            "standards",
+            "wordpress"
+        ]
+    }
+]
