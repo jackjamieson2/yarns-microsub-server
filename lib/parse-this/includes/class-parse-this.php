@@ -41,6 +41,8 @@ class Parse_This {
 		if ( ! is_string( $content ) ) {
 			return $content;
 		}
+		// Decode escaped entities so that they can be stripped
+		$content = html_entity_decode( $content );
 		$allowed = array(
 			'a'          => array(
 				'href' => array(),

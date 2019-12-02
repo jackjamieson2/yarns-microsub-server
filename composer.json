@@ -15,11 +15,11 @@
       "vendor/parse-this" : ["dshanske/parse-this"]
     },
     "copy-file" : {
-      "vendor/parse-this/parse-this.php": "lib/parse-this/",
-      "vendor/parse-this/readme.txt": "lib/parse-this/",
-      "vendor/parse-this/readme.md": "lib/parse-this/",
-      "vendor/parse-this/includes/": "lib/parse-this/includes/",
-      "vendor/parse-this/lib/": "lib/parse-this/lib/"
+      "vendor/dshanske/parse-this/parse-this.php": "lib/parse-this/",
+      "vendor/dshanske/parse-this/readme.txt": "lib/parse-this/",
+      "vendor/dshanske/parse-this/readme.md": "lib/parse-this/",
+      "vendor/dshanske/parse-this/includes/": "lib/parse-this/includes/",
+      "vendor/dshanske/parse-this/lib/": "lib/parse-this/lib/"
     }
   },
   "require": {
