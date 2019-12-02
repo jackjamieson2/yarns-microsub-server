@@ -36,7 +36,7 @@ class Parse_This_MF2 {
 			$textcontent = $content;
 		} elseif ( ! is_string( $content ) && is_array( $content ) && array_key_exists( 'value', $content ) ) {
 			if ( array_key_exists( 'html', $content ) ) {
-				$htmlcontent = trim( wp_kses_post( $content['html'] ) );
+				$htmlcontent = trim( Parse_This::clean_content( $content['html'] ) );
 				$textcontent = wp_strip_all_tags( $content['value'] );
 			} else {
 				$textcontent = trim( $content['value'] );
@@ -778,7 +778,7 @@ class Parse_This_MF2 {
 		$data['author']    = self::parse_hcard( $author, $mf, $args, $data['url'] );
 		$data['content']   = self::parse_html_value( $entry, 'content' );
 		$data['summary']   = self::get_summary( $entry, $data['content'] );
-		
+
 		// If name and content are equal remove name
 		if ( self::compare( $data['name'], $data['content']['text'] ) ) {
 			unset( $data['name'] );
