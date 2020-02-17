@@ -4,6 +4,9 @@ $storage_period = get_site_option('yarns_storage_period');
 $yarns_show_debug = get_site_option('yarns_show_debug');
 $debug_checked = $show_debug ? 'checked' : '';
 $yarns_channels = json_decode( get_site_option( 'yarns_channels' ) , true);
+
+$OPML_import_page_link = Yarns_Microsub_Admin::admin_OPML_import_link();
+
 ?>
 
 
@@ -37,9 +40,13 @@ $yarns_channels = json_decode( get_site_option( 'yarns_channels' ) , true);
 <a class="button" id="yarns-channel-add">+ Add channel</a>
 
 
-
-
-
+<br><br>
+<h3>Import OPML file</h3>
+<p>OPML is a format used to import/export lists of feeds. If you have an OPML file (e.g. exported from an RSS reader) you can import it into Yarns.</p>
+<form id="yarns-opml-import-form" action="<?php echo $OPML_import_page_link ?>" enctype="multipart/form-data" method="post" target="messages">
+	<p><input name="yarns-opml-import-file" type="file" multiple="false" accept="text/opml" /><input id="yarns-opml-import-submit" class="button" type="submit" value="Submit" /></p>
+	<?php wp_nonce_field( 'yarns-opml-import-file', 'yarns-opml-import-file-nonce' ); ?>
+</form>
 
 
 

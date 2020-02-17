@@ -47,6 +47,14 @@ class Yarns_Microsub_Admin {
 		return static::admin_page_link( $args );
 	}
 
+	public static function admin_OPML_import_link(  ) {
+		$args = array(
+			'mode'    => 'OPML-import',
+		);
+
+		return static::admin_page_link( $args );
+	}
+
 
 	/**
 	 *  Initialize the admin screen by adding actions for ajax calls.

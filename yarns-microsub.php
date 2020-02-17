@@ -156,11 +156,21 @@ class Yarns_MicroSub_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/functions.php';
 
 		// Display nag notice if IndieAuth Plugin is not installed
-		add_action( 'admin_notices', array('Yarns_MicroSub_Plugin','indieauth_plugin_notice' ));
+		add_action( 'admin_notices', array( 'Yarns_MicroSub_Plugin', 'indieauth_plugin_notice' ) );
 
-
-
+		// Allow .xml uploads (for importing OPML files)
+		add_action( 'upload_mimes', array( 'Yarns_Microsub_Plugin', 'yarns_upload_mimes' ) );
 	}
+
+
+	public static function yarns_upload_mimes( $mimes = array() ) {
+
+	// Add a key and value for the XML file type
+		$mimes['opml'] = "text/opml";
+
+		return $mimes;
+	}
+
 
 
 	/**

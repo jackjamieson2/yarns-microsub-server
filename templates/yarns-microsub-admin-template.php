@@ -23,6 +23,11 @@ $show_debug = get_site_option( 'yarns_show_debug' );
 			}
 			include 'yarns-microsub-channel-template.php';
 
+		} else if ( isset( $_GET['mode'] ) ) {
+			if ( "OPML-import" === $_GET['mode'] )  {
+				include 'yarns-microsub-OPML-import.php';
+
+			}
 		} else {
 			// Show general settings if no channel is selected.
 			//echo static::yarns_general_options();
