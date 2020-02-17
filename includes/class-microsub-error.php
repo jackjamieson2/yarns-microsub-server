@@ -31,7 +31,7 @@ class WP_Microsub_Error extends WP_REST_Response {
 	public function to_log() {
 		$data   = $this->get_data();
 		$status = $this->get_status();
-		$debug  = mp_get( $data, 'debug', array() );
+		$debug  = ms_get( $data, 'debug', array() );
 		return sprintf( 'Microsub Error: %1$s %2$s - %3$s', $status, $data['error'], $data['error_description'], wp_json_encode( $debug ) );
 	}
 
