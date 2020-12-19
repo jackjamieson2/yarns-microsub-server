@@ -295,9 +295,9 @@ class Yarns_Microsub_Aggregator {
 		$this_poll['_n_posts_added']    = $n_posts_added;
 		$this_poll['_parse_time']       = $parse_time;
 		$poll_log[]                     = $this_poll;
-		update_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
+		update_site_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
 
-		update_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Yarns_Microsub_Aggregator {
 		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s P' );
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours.
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = 0;
-		update_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['url'] ) ) {
 			$url         = $channels[ $channel_key ]['items'][ $feed_key ]['url'];
 			$channel_uid = $channels[ $channel_key ]['uid'];

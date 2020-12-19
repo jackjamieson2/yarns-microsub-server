@@ -175,14 +175,14 @@ class Yarns_Microsub_Admin {
 			// Validate individual options, and save them if valid.
 			if ( isset( $options['storage_period'] ) ) {
 				if ( (int) $options['storage_period'] >= 1 ) { // Validate that the value is an integer > 0.
-					update_option( 'yarns_storage_period', (int) $options['storage_period'] );
+					update_site_option( 'yarns_storage_period', (int) $options['storage_period'] );
 					$results .= 'updated storage period.  ';
 				}
 			}
 
 			if ( isset( $options['show_debug'] ) ) {
 				$show_debug = 'true' === $options['show_debug'] ? true : false;
-				update_option( 'yarns_show_debug', $show_debug );
+				update_site_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
 			echo $results;

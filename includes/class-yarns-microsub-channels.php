@@ -116,7 +116,7 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-		update_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
+		update_site_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
 
 		return 'deleted';
 	}
@@ -156,7 +156,7 @@ class Yarns_Microsub_Channels {
 		];
 
 		$channels[] = $new_channel;
-		update_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 		return $new_channel;
 	}
@@ -178,7 +178,7 @@ class Yarns_Microsub_Channels {
 				if ( $item ) {
 					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
-						update_option( 'yarns_channels', wp_json_encode( $channels ) );
+						update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 						return $channels[ $key ];
 					}
@@ -263,7 +263,7 @@ class Yarns_Microsub_Channels {
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
-		update_option( 'yarns_channels', wp_json_encode( $current_channels ) );
+		update_site_option( 'yarns_channels', wp_json_encode( $current_channels ) );
 
 		return true;
 	}
@@ -308,7 +308,7 @@ class Yarns_Microsub_Channels {
 					if ( $item ) {
 						if ( $item['uid'] === $uid ) {
 							$channels[ $key ]['post-types'] = $options;
-							update_option( 'yarns_channels', wp_json_encode( $channels ) );
+							update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 							$response .= 'Updated filters.  ';
 						}
 					}
@@ -585,7 +585,7 @@ class Yarns_Microsub_Channels {
 								if ( true === $unfollow ) {
 									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
-									update_option( 'yarns_channels', wp_json_encode( $channels ) );
+									update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 									return;
 								} else {
@@ -599,7 +599,7 @@ class Yarns_Microsub_Channels {
 					// Add the new follow to the selected channel.
 					if ( false === $unfollow ) {
 						$channels[ $key ]['items'][] = $new_follow;
-						update_option( 'yarns_channels', wp_json_encode( $channels ) );
+						update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
 						// Now that the new feed is added, poll it right away.
 						// Get the channel and feed keys.
 						Yarns_Microsub_Aggregator::poll_site( $url, $query_channel );

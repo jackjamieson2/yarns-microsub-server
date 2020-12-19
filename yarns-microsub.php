@@ -104,12 +104,12 @@ class Yarns_MicroSub_Plugin {
 	private static function set_yarns_defaults() {
 		// Set default period for storing aggregated posts.
 		if ( ! get_site_option( 'yarns_storage_period' ) ) {
-			update_option( 'yarns_storage_period', 14 );  // in days.
+			update_site_option( 'yarns_storage_period', 14 );  // in days.
 		}
 
 		// Set debug to false.
 		if ( ! get_site_option( 'yarns_show_debug' ) ) {
-			update_option( 'yarns_show_debug', false );  // in days.
+			update_site_option( 'yarns_show_debug', false );  // in days.
 		}
 	}
 
@@ -200,7 +200,7 @@ class Yarns_MicroSub_Plugin {
 		} else {
 			$debug_log[] = $debug_entry;
 		}
-		update_option( 'debug_log', wp_json_encode( $debug_log ) );
+		update_site_option( 'debug_log', wp_json_encode( $debug_log ) );
 	}
 
 	/**
