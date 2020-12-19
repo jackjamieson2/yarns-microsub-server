@@ -175,14 +175,14 @@ class Yarns_Microsub_Admin {
 			// Validate individual options, and save them if valid.
 			if ( isset( $options['storage_period'] ) ) {
 				if ( (int) $options['storage_period'] >= 1 ) { // Validate that the value is an integer > 0.
-					update_site_option( 'yarns_storage_period', (int) $options['storage_period'] );
+					update_option( 'yarns_storage_period', (int) $options['storage_period'] );
 					$results .= 'updated storage period.  ';
 				}
 			}
 
 			if ( isset( $options['show_debug'] ) ) {
 				$show_debug = 'true' === $options['show_debug'] ? true : false;
-				update_site_option( 'yarns_show_debug', $show_debug );
+				update_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
 			echo $results;
@@ -244,7 +244,7 @@ class Yarns_Microsub_Admin {
 		$html = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
-		$log = json_decode( get_site_option( 'debug_log' ), true );
+		$log = json_decode( get_option( 'debug_log' ), true );
 		if ( is_array( $log ) ) {
 			foreach ( $log as $item ) {
 				$html .= htmlspecialchars( $item ) . '<br>';
@@ -376,7 +376,7 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['channel'] ) ) {
 			$new_channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			// Return message if channel already exists
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {

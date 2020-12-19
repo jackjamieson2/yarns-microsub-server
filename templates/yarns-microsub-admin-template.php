@@ -1,5 +1,5 @@
 <?php
-$show_debug = get_site_option( 'yarns_show_debug' );
+$show_debug = get_option( 'yarns_show_debug' );
 ?>
 
 <div class='wrap'>

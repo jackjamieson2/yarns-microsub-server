@@ -18,8 +18,8 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function get( $details = false ) {
 
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 		}
 
 
@@ -102,8 +102,8 @@ class Yarns_Microsub_Channels {
 	public static function delete( $uid ) {
 		// Rewrite the channel list with the selected channel removed.
 		$new_channel_list = [];
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
@@ -116,7 +116,7 @@ class Yarns_Microsub_Channels {
 				}
 			}
 		}
-		update_site_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
+		update_option( 'yarns_channels', wp_json_encode( $new_channel_list ) );
 
 		return 'deleted';
 	}
@@ -130,8 +130,8 @@ class Yarns_Microsub_Channels {
 	 * @return array
 	 */
 	public static function add( $new_channel_name ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
@@ -156,7 +156,7 @@ class Yarns_Microsub_Channels {
 		];
 
 		$channels[] = $new_channel;
-		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 		return $new_channel;
 	}
@@ -171,14 +171,14 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function update( $uid, $name ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			// check if the channel already exists.
 			foreach ( $channels as $key => $item ) {
 				if ( $item ) {
 					if ( $item['uid'] === $uid ) {
 						$channels[ $key ]['name'] = $name;
-						update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+						update_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 						return $channels[ $key ];
 					}
@@ -226,7 +226,7 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function order( $input ) {
 
-		$current_channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		$current_channels = json_decode( get_option( 'yarns_channels' ), true );
 
 		$current_channel_uids = static::get_channel_uids( $current_channels );
 		// Validate that all items in $channels refer to channels that exist.
@@ -263,7 +263,7 @@ class Yarns_Microsub_Channels {
 		// Sort channel list by 'order'
 		usort( $current_channels, array( 'Yarns_Microsub_Channels', 'sort_by_order' ) );
 
-		update_site_option( 'yarns_channels', wp_json_encode( $current_channels ) );
+		update_option( 'yarns_channels', wp_json_encode( $current_channels ) );
 
 		return true;
 	}
@@ -301,14 +301,14 @@ class Yarns_Microsub_Channels {
 			}
 
 			// update channel filters
-			if ( get_site_option( 'yarns_channels' ) ) {
-				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+			if ( get_option( 'yarns_channels' ) ) {
+				$channels = json_decode( get_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
 				foreach ( $channels as $key => $item ) {
 					if ( $item ) {
 						if ( $item['uid'] === $uid ) {
 							$channels[ $key ]['post-types'] = $options;
-							update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+							update_option( 'yarns_channels', wp_json_encode( $channels ) );
 							$response .= 'Updated filters.  ';
 						}
 					}
@@ -330,8 +330,8 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function get_post_types( $query_channel ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
 					// This is the channel to be returned.
@@ -538,8 +538,8 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function list_follows( $query_channel ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
 					// This is the channel to be returned.
@@ -568,8 +568,8 @@ class Yarns_Microsub_Channels {
 			'type' => 'feed',
 			'url'  => $url,
 		];
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			// Check if the channel has any subscriptions yet.
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
@@ -585,7 +585,7 @@ class Yarns_Microsub_Channels {
 								if ( true === $unfollow ) {
 									// if $unfollow == true then remove the feed.
 									unset( $channels[ $key ]['items'][ $channel_key ] );
-									update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+									update_option( 'yarns_channels', wp_json_encode( $channels ) );
 
 									return;
 								} else {
@@ -599,7 +599,7 @@ class Yarns_Microsub_Channels {
 					// Add the new follow to the selected channel.
 					if ( false === $unfollow ) {
 						$channels[ $key ]['items'][] = $new_follow;
-						update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+						update_option( 'yarns_channels', wp_json_encode( $channels ) );
 						// Now that the new feed is added, poll it right away.
 						// Get the channel and feed keys.
 						Yarns_Microsub_Aggregator::poll_site( $url, $query_channel );
@@ -723,8 +723,8 @@ class Yarns_Microsub_Channels {
 		$uid = uniqid();
 
 		// Confirm the uid is unique (it always should be, but just in case).
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {

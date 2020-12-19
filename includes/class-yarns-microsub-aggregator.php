@@ -65,11 +65,11 @@ class Yarns_Microsub_Aggregator {
 
 		$poll_start_time = time();
 		/*$poll_time_limit = 600; // execution time limit in seconds.*/
-		$storage_period  = get_site_option( 'yarns_storage_period' );
+		$storage_period  = get_option( 'yarns_storage_period' );
 
 		$results = [];
 
-		$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		$channels = json_decode( get_option( 'yarns_channels' ), true );
 		if ( $channels ) {
 			foreach ( $channels as $channel_key => $channel ) {
 				$channel_uid = $channel['uid'];
@@ -78,7 +78,7 @@ class Yarns_Microsub_Aggregator {
 					if ( isset( $channel['items'] ) ) {
 						foreach ( $channel['items'] as $feed_key => $feed ) {
 							// reload channels because it changes every iteration.
-							$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+							$channels = json_decode( get_option( 'yarns_channels' ), true );
 							if ( isset( $feed['url'] ) ) {
 								if ( ! array_key_exists( '_last_polled', $feed ) ) {
 									// New subscriptions do not have _last_polled (and other polling frequency variables),
@@ -127,7 +127,7 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function poll_site( $url, $channel_uid, $storage_period = null ) {
 		if ( null === $storage_period ) {
-			$storage_period = get_site_option( 'yarns_storage_period' );
+			$storage_period = get_option( 'yarns_storage_period' );
 		}
 		$site_results             = [];
 		$site_results['feed url'] = $url;
@@ -234,7 +234,7 @@ class Yarns_Microsub_Aggregator {
 	 */
 	public static function update_polling_frequencies( $channel_uid, $url, $n_posts_added, $parse_time ) {
 		//@@todo: Change this to update_feed_meta.  This should (1) update polling frequencies and (2) update the feed name, summary, and _feed_type
-		$channels    = json_decode( get_site_option( 'yarns_channels' ), true );
+		$channels    = json_decode( get_option( 'yarns_channels' ), true );
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
 
@@ -283,8 +283,8 @@ class Yarns_Microsub_Aggregator {
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = $poll_frequency;
 
 		// Log each poll attempt for debugging.
-		if ( get_site_option( 'yarns_poll_log' ) ) {
-			$poll_log = json_decode( get_site_option( 'yarns_poll_log' ), true );
+		if ( get_option( 'yarns_poll_log' ) ) {
+			$poll_log = json_decode( get_option( 'yarns_poll_log' ), true );
 		}
 		$this_poll                      = [];
 		$this_poll['date']              = date( 'Y-m-d H:i:s P' );
@@ -295,9 +295,9 @@ class Yarns_Microsub_Aggregator {
 		$this_poll['_n_posts_added']    = $n_posts_added;
 		$this_poll['_parse_time']       = $parse_time;
 		$poll_log[]                     = $this_poll;
-		update_site_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
+		update_option( 'yarns_poll_log', wp_json_encode( $poll_log ) );
 
-		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Yarns_Microsub_Aggregator {
 		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s P' );
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours.
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = 0;
-		update_site_option( 'yarns_channels', wp_json_encode( $channels ) );
+		update_option( 'yarns_channels', wp_json_encode( $channels ) );
 		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['url'] ) ) {
 			$url         = $channels[ $channel_key ]['items'][ $feed_key ]['url'];
 			$channel_uid = $channels[ $channel_key ]['uid'];
