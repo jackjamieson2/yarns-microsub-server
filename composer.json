@@ -11,41 +11,57 @@
   ],
   "extra": {
     "installer-name": "yarns-microsub-server",
-    "installer-paths":{
-      "vendor/parse-this" : ["dshanske/parse-this"]
+    "installer-paths": {
+         "vendor/{$name}": ["dshanske/parse-this"]
     },
-    "copy-file" : {
-      "vendor/dshanske/parse-this/parse-this.php": "lib/parse-this/",
-      "vendor/dshanske/parse-this/readme.txt": "lib/parse-this/",
-      "vendor/dshanske/parse-this/readme.md": "lib/parse-this/",
-      "vendor/dshanske/parse-this/includes/": "lib/parse-this/includes/",
-      "vendor/dshanske/parse-this/lib/": "lib/parse-this/lib/"
+    "copy-file-dev" : {
+      "vendor/parse-this/parse-this.php": "lib/parse-this/",
+      "vendor/parse-this/readme.txt": "lib/parse-this/",
+      "vendor/parse-this/readme.md": "lib/parse-this/",
+      "vendor/parse-this/includes/": "lib/parse-this/includes/",
+      "vendor/parse-this/lib/": "lib/parse-this/lib/"
     }
   },
   "require": {
     "php": ">=5.6.0",
-    "composer/installers": "~1.0",
-    "slowprog/composer-copy-file": "~0.3"
+    "composer/installers": "~1.0"
   },
   "require-dev": {
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
+    "dshanske/parse-this": "dev-trunk",
+    "slowprog/composer-copy-file": "~0.3",
+    "dealerdirect/phpcodesniffer-composer-installer": "*",
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "^1.0",
-    "phpcompatibility/php-compatibility": "9.1.0",
-    "wpreadme2markdown/wp2md": "^3.0",
-    "dshanske/parse-this": "dev-master"
+    "phpcompatibility/php-compatibility": "*",
+    "phpcompatibility/phpcompatibility-wp": "*",
+    "php-parallel-lint/php-parallel-lint": "^1.2",
+    "wp-cli/i18n-command": "^2.2",
+    "sebastian/phpcpd": "^3.0 || ^5.0 || ^6.0",
+    "phpunit/phpunit": "^5.0 || ^6.0 || ^7.5",
+    "wpreadme2markdown/wp2md": "^3.0"
+  },
+  "autoload-dev": {
+     "psr-4": { "SlowProg\\CopyFile\\": "" }
   },
   "scripts": {
-    "lint": "phpcs",
+    "lint:phpcpd": "./vendor/bin/phpcpd --fuzzy --exclude .git --exclude vendor --exclude lib .",
+    "lint:wpcs": "./vendor/bin/phpcs -s --runtime-set ignore_warnings_on_exit 1",
+    "lint:wpcs-fix": "./vendor/bin/phpcbf",
+    "lint": "./vendor/bin/phpcs -n -q",
+    "phpunit": "./vendor/bin/phpunit",
+    "setup-local-tests": "bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest",
+    "make-pot": "./vendor/bin/wp i18n make-pot . languages/yarns-microsub-server.pot",
+    "lint:php": "@php ./vendor/bin/parallel-lint --exclude .git --exclude vendor --exclude lib .",
+    "copy-files": "SlowProg\\CopyFile\\ScriptHandler::copy",
     "install-codestandards": [
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
     "post-install-cmd": [
-      "SlowProg\\CopyFile\\ScriptHandler::copy",
-      "@update-readme"
+      "@update-readme",
+      "@copy-files"
     ],
     "post-update-cmd": [
-      "SlowProg\\CopyFile\\ScriptHandler::copy",
+      "@copy-files",
       "@update-readme"
     ],
     "update-readme": [

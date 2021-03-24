@@ -1,0 +1,94 @@
+# Copyright (C) 2021 Jack Jamieson
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Yarns Microsub Server 1.0.5\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/yarns-microsub-server\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-03-24T03:52:14+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: yarns-microsub-server\n"
+
+#. Plugin Name of the plugin
+#: includes/class-yarns-microsub-admin.php:107
+#: includes/class-yarns-microsub-admin.php:108
+#: includes/class-yarns-microsub-admin.php:116
+msgid "Yarns Microsub Server"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://github.com/jackjamieson2/yarns-microsub-server"
+msgstr ""
+
+#. Description of the plugin
+msgid "Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogethernow.io or monocle.p3k.io)."
+msgstr ""
+
+#. Author of the plugin
+msgid "Jack Jamieson"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://jackjamieson.net"
+msgstr ""
+
+#: includes/class-yarns-microsub-channel-list-table.php:10
+msgid "Channel Name"
+msgstr ""
+
+#: includes/class-yarns-microsub-channel-list-table.php:11
+msgid "Number of feeds"
+msgstr ""
+
+#: includes/class-yarns-microsub-feed-list-table.php:10
+msgid "Feed URL"
+msgstr ""
+
+#: includes/class-yarns-microsub-feed-list-table.php:13
+msgid "Last Polled"
+msgstr ""
+
+#: includes/class-yarns-microsub-posts.php:22
+msgid "Yarns Microsub Posts"
+msgstr ""
+
+#: includes/class-yarns-microsub-posts.php:23
+msgid "Yarns Microsub Post"
+msgstr ""
+
+#: includes/class-yarns-microsub-posts.php:65
+msgctxt "post"
+msgid "Unread"
+msgstr ""
+
+#. translators: 1. Singular Unread 2. Plural Unread
+#: includes/class-yarns-microsub-posts.php:71
+msgid "Unread (%s)"
+msgid_plural "Unread (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-yarns-microsub-posts.php:78
+msgctxt "post"
+msgid "Read"
+msgstr ""
+
+#. translators: 1. Singular Read 2. Plural Read
+#: includes/class-yarns-microsub-posts.php:84
+msgid "Read (%s)"
+msgid_plural "Read (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: yarns-microsub.php:178
+msgid "Once Every 15 Minutes"
+msgstr ""
+
+#: yarns-microsub.php:215
+msgid "<b>Yarns Microsub Server notice:</b> WordPress IndieAuth Plugin is not active. Yarns Microsub Server requires this plugin to authorize microsub clients."
+msgstr ""
