@@ -244,7 +244,7 @@ class Yarns_Microsub_Admin {
 		$html = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
-		$log = json_decode( get_site_option( 'debug_log' ), true );
+		$log = json_decode( get_option( 'debug_log' ), true );
 		if ( is_array( $log ) ) {
 			foreach ( $log as $item ) {
 				$html .= htmlspecialchars( $item ) . '<br>';
@@ -376,7 +376,7 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['channel'] ) ) {
 			$new_channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			// Return message if channel already exists
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {

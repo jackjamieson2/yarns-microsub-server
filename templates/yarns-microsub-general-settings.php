@@ -1,9 +1,9 @@
 
 <?php
-$storage_period = get_site_option('yarns_storage_period');
-$yarns_show_debug = get_site_option('yarns_show_debug');
+$storage_period = get_option('yarns_storage_period');
+$yarns_show_debug = get_option('yarns_show_debug');
 $debug_checked = $show_debug ? 'checked' : '';
-$yarns_channels = json_decode( get_site_option( 'yarns_channels' ) , true);
+$yarns_channels = json_decode( get_option( 'yarns_channels' ) , true);
 ?>
 
 

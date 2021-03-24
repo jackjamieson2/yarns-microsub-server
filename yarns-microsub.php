@@ -104,12 +104,12 @@ class Yarns_MicroSub_Plugin {
 	 */
 	private static function set_yarns_defaults() {
 		// Set default period for storing aggregated posts.
-		if ( ! get_site_option( 'yarns_storage_period' ) ) {
+		if ( ! get_option( 'yarns_storage_period' ) ) {
 			update_option( 'yarns_storage_period', 14 );  // in days.
 		}
 
 		// Set debug to false.
-		if ( ! get_site_option( 'yarns_show_debug' ) ) {
+		if ( ! get_option( 'yarns_show_debug' ) ) {
 			update_option( 'yarns_show_debug', false );  // in days.
 		}
 	}
@@ -187,8 +187,8 @@ class Yarns_MicroSub_Plugin {
 	 * @param string $message Message to be written to the log.
 	 */
 	public static function debug_log( $message ) {
-		if ( get_site_option( 'debug_log' ) ) {
-			$debug_log = json_decode( get_site_option( 'debug_log' ), true );
+		if ( get_option( 'debug_log' ) ) {
+			$debug_log = json_decode( get_option( 'debug_log' ), true );
 		} else {
 			$debug_log = [];
 		}

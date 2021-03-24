@@ -18,8 +18,8 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function get( $details = false ) {
 
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 		}
 
 
@@ -102,8 +102,8 @@ class Yarns_Microsub_Channels {
 	public static function delete( $uid ) {
 		// Rewrite the channel list with the selected channel removed.
 		$new_channel_list = [];
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
@@ -130,8 +130,8 @@ class Yarns_Microsub_Channels {
 	 * @return array
 	 */
 	public static function add( $new_channel_name ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
@@ -171,8 +171,8 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function update( $uid, $name ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			// check if the channel already exists.
 			foreach ( $channels as $key => $item ) {
 				if ( $item ) {
@@ -226,7 +226,7 @@ class Yarns_Microsub_Channels {
 	 */
 	public static function order( $input ) {
 
-		$current_channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		$current_channels = json_decode( get_option( 'yarns_channels' ), true );
 
 		$current_channel_uids = static::get_channel_uids( $current_channels );
 		// Validate that all items in $channels refer to channels that exist.
@@ -301,8 +301,8 @@ class Yarns_Microsub_Channels {
 			}
 
 			// update channel filters
-			if ( get_site_option( 'yarns_channels' ) ) {
-				$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+			if ( get_option( 'yarns_channels' ) ) {
+				$channels = json_decode( get_option( 'yarns_channels' ), true );
 				// check if the channel already exists.
 				foreach ( $channels as $key => $item ) {
 					if ( $item ) {
@@ -330,8 +330,8 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function get_post_types( $query_channel ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
 					// This is the channel to be returned.
@@ -538,8 +538,8 @@ class Yarns_Microsub_Channels {
 	 * @return mixed
 	 */
 	public static function list_follows( $query_channel ) {
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
 					// This is the channel to be returned.
@@ -568,8 +568,8 @@ class Yarns_Microsub_Channels {
 			'type' => 'feed',
 			'url'  => $url,
 		];
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ), true );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ), true );
 			// Check if the channel has any subscriptions yet.
 			foreach ( $channels as $key => $channel ) {
 				if ( $channel['uid'] === $query_channel ) {
@@ -723,8 +723,8 @@ class Yarns_Microsub_Channels {
 		$uid = uniqid();
 
 		// Confirm the uid is unique (it always should be, but just in case).
-		if ( get_site_option( 'yarns_channels' ) ) {
-			$channels = json_decode( get_site_option( 'yarns_channels' ) );
+		if ( get_option( 'yarns_channels' ) ) {
+			$channels = json_decode( get_option( 'yarns_channels' ) );
 			// check if the channel already exists.
 			foreach ( $channels as $item ) {
 				if ( $item ) {
