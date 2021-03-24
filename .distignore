@@ -1,0 +1,15 @@
+/.wordpress-org
+/.git
+/.github
+/bin
+/vendor
+/test
+readme.md
+composer.json
+composer.lock
+phpunit.xml
+phpcs.xml
+README.md
+readme.md
+.distignore
+.gitignore
