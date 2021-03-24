@@ -2,8 +2,8 @@
 Contributors: jackjamieson2, dshanske
 Tags: microsub, indieweb, reader
 Requires at least: 4.7
-Tested up to: 5.2.4
-Stable tag: trunk
+Tested up to: 5.7
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
