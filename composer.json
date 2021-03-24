@@ -44,14 +44,14 @@
      "psr-4": { "SlowProg\\CopyFile\\": "" }
   },
   "scripts": {
-    "lint:phpcpd": "./vendor/bin/phpcpd --fuzzy --exclude .git --exclude vendor --exclude node_modules .",
+    "lint:phpcpd": "./vendor/bin/phpcpd --fuzzy --exclude .git --exclude vendor --exclude lib .",
     "lint:wpcs": "./vendor/bin/phpcs -s --runtime-set ignore_warnings_on_exit 1",
     "lint:wpcs-fix": "./vendor/bin/phpcbf",
     "lint": "./vendor/bin/phpcs -n -q",
     "phpunit": "./vendor/bin/phpunit",
     "setup-local-tests": "bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest",
     "make-pot": "./vendor/bin/wp i18n make-pot . languages/yarns-microsub-server.pot",
-    "lint:php": "@php ./vendor/bin/parallel-lint --exclude .git --exclude vendor --exclude node_modules .",
+    "lint:php": "@php ./vendor/bin/parallel-lint --exclude .git --exclude vendor --exclude lib .",
     "copy-files": "SlowProg\\CopyFile\\ScriptHandler::copy",
     "install-codestandards": [
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
