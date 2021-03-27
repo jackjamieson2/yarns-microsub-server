@@ -15,7 +15,7 @@ $show_debug = get_option( 'yarns_show_debug' );
 
 		if ( isset( $_GET['channel'] ) ) {
 			// Show settings for specific channel if selected.
-			if ( isset ( $_GET['action'] ) ) {
+			if ( isset( $_GET['action'] ) ) {
 				if ( 'unfollow' === $_GET['action'] ) {
 					$response = Yarns_Microsub_Channels::follow( $_GET['channel'], $_GET['feed_url'], $unfollow = true );
 					echo $response;

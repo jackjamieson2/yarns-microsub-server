@@ -8,7 +8,7 @@
 
 <!-- Channel filters -->
 <?php
-$all_types = Yarns_Microsub_Channels::all_post_types();
+$all_types     = Yarns_Microsub_Channels::all_post_types();
 $channel_types = Yarns_Microsub_Channels::channel_post_types( $channel );
 
 if ( isset( $channel['post-types'] ) ) {
@@ -29,7 +29,7 @@ foreach ( $all_types as $type ) {
 	} else {
 		$checked = '';
 	}
-	echo sprintf('<label><input type="checkbox" %s >%s</input></label>',$checked,$type);
+	echo sprintf( '<label><input type="checkbox" %s >%s</input></label>', $checked, $type );
 }
 ?>
 </div>

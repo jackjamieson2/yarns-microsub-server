@@ -119,7 +119,6 @@ class Yarns_MicroSub_Plugin {
 	 */
 	public static function init() {
 
-
 		// Initialize Microsub endpoint.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
 		Yarns_Microsub_Endpoint::init();
@@ -157,9 +156,7 @@ class Yarns_MicroSub_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . 'lib/parse-this/includes/functions.php';
 
 		// Display nag notice if IndieAuth Plugin is not installed
-		add_action( 'admin_notices', array('Yarns_MicroSub_Plugin','indieauth_plugin_notice' ));
-
-
+		add_action( 'admin_notices', array( 'Yarns_MicroSub_Plugin', 'indieauth_plugin_notice' ) );
 
 	}
 
@@ -190,7 +187,7 @@ class Yarns_MicroSub_Plugin {
 		if ( get_option( 'debug_log' ) ) {
 			$debug_log = json_decode( get_option( 'debug_log' ), true );
 		} else {
-			$debug_log = [];
+			$debug_log = array();
 		}
 
 		$debug_entry = date( 'Y-m-d H:i:s' ) . '  ' . $message;
@@ -210,10 +207,10 @@ class Yarns_MicroSub_Plugin {
 	 * @return string
 	 */
 	public static function indieauth_plugin_notice() {
-		if (! class_exists('IndieAuth_Plugin')) {
+		if ( ! class_exists( 'IndieAuth_Plugin' ) ) {
 			$class   = 'notice notice-error';
 			$message = __( '<b>Yarns Microsub Server notice:</b> WordPress IndieAuth Plugin is not active. Yarns Microsub Server requires this plugin to authorize microsub clients.', 'yarns-microsub-server' );
-			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ),  $message  );
+			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), $message );
 		}
 	}
 

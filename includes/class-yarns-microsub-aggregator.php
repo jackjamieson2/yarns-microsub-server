@@ -65,9 +65,9 @@ class Yarns_Microsub_Aggregator {
 
 		$poll_start_time = time();
 		/*$poll_time_limit = 600; // execution time limit in seconds.*/
-		$storage_period  = get_option( 'yarns_storage_period' );
+		$storage_period = get_option( 'yarns_storage_period' );
 
-		$results = [];
+		$results = array();
 
 		$channels = json_decode( get_option( 'yarns_channels' ), true );
 		if ( $channels ) {
@@ -111,7 +111,6 @@ class Yarns_Microsub_Aggregator {
 		$results['polling end time']       = time();
 		$results['polling execution time'] = time() - $poll_start_time;
 
-
 		Yarns_Microsub_Posts::delete_old_posts( $storage_period ); // Clear old posts.
 
 		return $results;
@@ -129,7 +128,7 @@ class Yarns_Microsub_Aggregator {
 		if ( null === $storage_period ) {
 			$storage_period = get_option( 'yarns_storage_period' );
 		}
-		$site_results             = [];
+		$site_results             = array();
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
 
@@ -137,9 +136,6 @@ class Yarns_Microsub_Aggregator {
 		if ( '_preview' === $channel_uid ) {
 			return $feed;
 		}
-
-
-
 
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
@@ -157,7 +153,6 @@ class Yarns_Microsub_Aggregator {
 					return strtotime( $a['published'] ) - strtotime( $b['published'] );
 				}
 			);
-
 
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
@@ -286,7 +281,7 @@ class Yarns_Microsub_Aggregator {
 		if ( get_option( 'yarns_poll_log' ) ) {
 			$poll_log = json_decode( get_option( 'yarns_poll_log' ), true );
 		}
-		$this_poll                      = [];
+		$this_poll                      = array();
 		$this_poll['date']              = date( 'Y-m-d H:i:s P' );
 		$this_poll['url']               = $url;
 		$this_poll['channel_uid']       = $channel_uid;

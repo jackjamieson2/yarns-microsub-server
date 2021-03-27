@@ -1,9 +1,8 @@
-
 <?php
-$storage_period = get_option('yarns_storage_period');
-$yarns_show_debug = get_option('yarns_show_debug');
-$debug_checked = $show_debug ? 'checked' : '';
-$yarns_channels = json_decode( get_option( 'yarns_channels' ) , true);
+$storage_period   = get_option( 'yarns_storage_period' );
+$yarns_show_debug = get_option( 'yarns_show_debug' );
+$debug_checked    = $show_debug ? 'checked' : '';
+$yarns_channels   = json_decode( get_option( 'yarns_channels' ), true );
 ?>
 
 
@@ -19,7 +18,7 @@ $yarns_channels = json_decode( get_option( 'yarns_channels' ) , true);
 
 <div id='yarns-channels'>
 	<?php
-	if (!empty($yarns_channels)){
+	if ( ! empty( $yarns_channels ) ) {
 		echo 'Drag each item into the order you prefer. Click the channel name to manage feeds and access other options.';
 		echo static::list_channels();
 	} else {
@@ -46,7 +45,7 @@ $yarns_channels = json_decode( get_option( 'yarns_channels' ) , true);
 <?php
 // Only show debug options if option yarns_show_debug == true
 if ( $show_debug ) {
-	$debug_html = '<div id="yarns-debug-log-area">';
+	$debug_html  = '<div id="yarns-debug-log-area">';
 	$debug_html .= static::debug_log();
 	$debug_html .= '</div>';
 

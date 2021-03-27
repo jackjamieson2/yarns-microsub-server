@@ -160,7 +160,7 @@ class Yarns_Microsub_Posts {
 	 * @return array
 	 */
 	public static function toggle_read( $entry_id, $read_status ) {
-		$response = [];
+		$response = array();
 		// If $entry_id is an array, recursively process each item.
 		if ( is_array( $entry_id ) ) {
 			foreach ( $entry_id as $single_entry ) {
@@ -211,7 +211,7 @@ class Yarns_Microsub_Posts {
 			return;
 		}
 		$before_date = $read_before_post['published'];
-		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
+		$timeline    = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
 
 		foreach ( $timeline['items'] as $item ) {
 			if ( $item['_id'] ) {

@@ -214,7 +214,7 @@ class Yarns_Microsub_Endpoint {
 			return $load;
 		}
 		$response = new WP_REST_Response();
-		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
+		$response->set_headers( array( 'Content-Type' => 'application/json' ) );
 
 		/* Validate that the query includes required arguments given its action*/
 		$missing_args = static::check_required_args( 'GET' );
@@ -265,7 +265,7 @@ class Yarns_Microsub_Endpoint {
 			return $load;
 		}
 		$response = new WP_REST_Response();
-		$response->set_headers( [ 'Content-Type' => 'application/json' ] );
+		$response->set_headers( array( 'Content-Type' => 'application/json' ) );
 
 		/* Validate that the query includes required arguments given its action*/
 		$missing_args = static::check_required_args( 'POST' );

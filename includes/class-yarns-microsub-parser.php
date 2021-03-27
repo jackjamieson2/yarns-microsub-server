@@ -161,8 +161,8 @@ class Yarns_Microsub_Parser {
 		// Check if $query is a valid URL, if not try to generate one
 		$url = static::validate_url( $query );
 		// Search using Parse-This.
-		$search  = new Parse_This_Discovery( );
-		$results = $search->fetch($url);
+		$search  = new Parse_This_Discovery();
+		$results = $search->fetch( $url );
 
 		Yarns_MicroSub_Plugin::debug_log( 'Searched ' . $url . ': ' . wp_json_encode( $results ) );
 
