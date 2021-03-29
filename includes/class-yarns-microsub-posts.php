@@ -109,13 +109,13 @@ class Yarns_Microsub_Posts {
 		);
 
 		if ( isset( $post['published'] ) ) {
-			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
+			$my_post['post_date'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['published'] );
 		} else {
 			// If there is no published date, then fall back to the current time.
-			$post['published'] = date( 'Y-m-d\TH:i:sP' );
+			$post['published'] = current_date( 'Y-m-d\TH:i:sP' );
 		}
 		if ( isset( $post['updated'] ) ) {
-			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
+			$my_post['post_modified'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['updated'] );
 		}
 
 		// Create the post.
@@ -248,7 +248,7 @@ class Yarns_Microsub_Posts {
 	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
 	 */
 	public static function delete_old_posts( $storage_period ) {
-		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
+		$date_before = yarns_convert_date( 'Y-m-d h:m:s', '-' . $storage_period . 'days' );
 		$args        = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,

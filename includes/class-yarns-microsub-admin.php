@@ -185,7 +185,7 @@ class Yarns_Microsub_Admin {
 				update_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
-			echo $results;
+			echo wp_kses_post( $results );
 			wp_die();
 		}
 
@@ -343,7 +343,7 @@ class Yarns_Microsub_Admin {
 			$url = sanitize_text_field( wp_unslash( urldecode( $_POST['url'] ) ) );
 			Yarns_Microsub_Channels::follow( $uid, $url );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link( $uid );
+			echo esc_url( static::admin_channel_feeds_link( $uid ) );
 			//echo static::yarns_list_feeds( $channel );
 		}
 
@@ -360,7 +360,7 @@ class Yarns_Microsub_Admin {
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url, $unfollow = true );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link( $uid );
+			echo esc_url( static::admin_channel_feeds_link( $uid ) );
 
 			//echo static::yarns_list_feeds( $channel );
 		}
@@ -402,7 +402,7 @@ class Yarns_Microsub_Admin {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			Yarns_Microsub_Channels::update( $uid, $channel );
-			echo static::list_channels();
+			echo wp_kses_post( static::list_channels() );
 		}
 		wp_die();
 	}
@@ -416,7 +416,7 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['uid'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			Yarns_Microsub_Channels::delete( $uid );
-			echo static::list_channels();
+			echo wp_kses_post( static::list_channels() );
 		}
 		wp_die();
 	}
@@ -437,7 +437,7 @@ class Yarns_Microsub_Admin {
 
 		$preview      = new Yarns_Microsub_Preview( $preview_data );
 		$preview_html = $preview->html();
-		echo $preview_html;
+		echo wp_kses_post( $preview_html );
 
 		wp_die();
 	}

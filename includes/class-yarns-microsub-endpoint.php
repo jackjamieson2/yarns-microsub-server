@@ -467,7 +467,14 @@ class Yarns_Microsub_Endpoint {
 	 * The Microsub autodiscovery meta-tags
 	 */
 	public static function html_header() {
-		printf( '<link rel="microsub" href="%s" />' . PHP_EOL, static::get_microsub_endpoint() );
+		echo wp_kses(
+			sprintf( '<link rel="microsub" href="%s" />' . PHP_EOL, static::get_microsub_endpoint() ),
+			array(
+				'link' => array(
+					'rel' => array(),
+				),
+			)
+		);
 
 	}
 

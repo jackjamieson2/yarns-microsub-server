@@ -60,3 +60,17 @@ function yarns_date_compare( $post, $storage_period ) {
 	}
 }
 
+/**
+ * Converts one time format to another.
+ *
+ * @param string $format Format to Output To. It defaults to ISO8601
+ * @param string $time Time String. Defaults to now.
+ * @return false|string Properly formatted string or false if unable.
+ */
+function yarns_convert_date( $format = DATE_W3C, $time = 'now' ) {
+	$datetime = new DateTime( $time, wp_timezone() );
+	if ( ! $datetime ) {
+		return false;
+	}
+	return $datetime->format( $format );
+}
