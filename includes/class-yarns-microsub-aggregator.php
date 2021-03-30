@@ -65,9 +65,9 @@ class Yarns_Microsub_Aggregator {
 
 		$poll_start_time = time();
 		/*$poll_time_limit = 600; // execution time limit in seconds.*/
-		$storage_period  = get_option( 'yarns_storage_period' );
+		$storage_period = get_option( 'yarns_storage_period' );
 
-		$results = [];
+		$results = array();
 
 		$channels = json_decode( get_option( 'yarns_channels' ), true );
 		if ( $channels ) {
@@ -111,7 +111,6 @@ class Yarns_Microsub_Aggregator {
 		$results['polling end time']       = time();
 		$results['polling execution time'] = time() - $poll_start_time;
 
-
 		Yarns_Microsub_Posts::delete_old_posts( $storage_period ); // Clear old posts.
 
 		return $results;
@@ -129,7 +128,7 @@ class Yarns_Microsub_Aggregator {
 		if ( null === $storage_period ) {
 			$storage_period = get_option( 'yarns_storage_period' );
 		}
-		$site_results             = [];
+		$site_results             = array();
 		$site_results['feed url'] = $url;
 		$feed                     = Yarns_Microsub_Parser::parse_feed( $url, 20 );
 
@@ -138,9 +137,6 @@ class Yarns_Microsub_Aggregator {
 			return $feed;
 		}
 
-
-
-
 		// Otherwise (this is not a preview) check if each post exists and add accordingly.
 		if ( isset( $feed['items'] ) ) {
 			// Sort $feed['items'] oldest to newest.
@@ -148,16 +144,15 @@ class Yarns_Microsub_Aggregator {
 				$feed['items'],
 				function ( $a, $b ) {
 					if ( ! isset( $a['published'] ) ) {
-						$a['published'] = date( 'Y-m-d\TH:i:sP' );
+						$a['published'] = current_date( 'Y-m-d\TH:i:sP' );
 					}
 					if ( ! isset( $b['published'] ) ) {
-						$b['published'] = date( 'Y-m-d\TH:i:sP' );
+						$b['published'] = current_date( 'Y-m-d\TH:i:sP' );
 					}
 
 					return strtotime( $a['published'] ) - strtotime( $b['published'] );
 				}
 			);
-
 
 			foreach ( $feed['items'] as $post ) {
 				if ( isset( $post['url'] ) && isset( $post['type'] ) ) {
@@ -213,7 +208,7 @@ class Yarns_Microsub_Aggregator {
 
 			$valid_types = Yarns_Microsub_Channels::get_post_types( $channel_uid );
 			if ( isset( $post['post-type'] ) ) {
-				if ( ! in_array( strtolower( $post['post-type'] ), $valid_types ) ) {
+				if ( ! in_array( strtolower( $post['post-type'] ), $valid_types, true ) ) {
 					return false; // Do not save if it's a post type that is not excluded by the channel.
 				}
 			}
@@ -247,7 +242,7 @@ class Yarns_Microsub_Aggregator {
 			$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ++;
 		}
 
-		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = date( 'Y-m-d H:i:s P' );
+		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled'] = current_date( 'Y-m-d H:i:s P' );
 
 		if ( isset( $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] ) ) {
 			$empty_poll_count = $channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'];
@@ -286,8 +281,8 @@ class Yarns_Microsub_Aggregator {
 		if ( get_option( 'yarns_poll_log' ) ) {
 			$poll_log = json_decode( get_option( 'yarns_poll_log' ), true );
 		}
-		$this_poll                      = [];
-		$this_poll['date']              = date( 'Y-m-d H:i:s P' );
+		$this_poll                      = array();
+		$this_poll['date']              = current_date( 'Y-m-d H:i:s P' );
 		$this_poll['url']               = $url;
 		$this_poll['channel_uid']       = $channel_uid;
 		$this_poll['_empty_poll_count'] = $empty_poll_count;
@@ -311,7 +306,7 @@ class Yarns_Microsub_Aggregator {
 		$channel_key = Yarns_Microsub_Channels::get_channel_key( $channels, $channel_uid );
 		$feed_key    = Yarns_Microsub_Channels::get_feed_key( $channels, $channel_key, $url );
 
-		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = date( 'Y-m-d H:i:s P' );
+		$channels[ $channel_key ]['items'][ $feed_key ]['_last_polled']      = current_date( 'Y-m-d H:i:s P' );
 		$channels[ $channel_key ]['items'][ $feed_key ]['_poll_frequency']   = 1; // measured in hours.
 		$channels[ $channel_key ]['items'][ $feed_key ]['_empty_poll_count'] = 0;
 		update_option( 'yarns_channels', wp_json_encode( $channels ) );

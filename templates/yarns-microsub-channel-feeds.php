@@ -17,7 +17,7 @@
 <!-- List of feeds in this channel -->
 <div id="yarns-channel-feeds"><h2>Following:</h2>
 	<ul id="yarns-following-list">
-		<?php Yarns_Microsub_Admin::list_feeds($channel);?>
+		<?php Yarns_Microsub_Admin::list_feeds( $channel ); ?>
 
 	</ul><!--#yarns-following-list-->
 </div><!--#yarns-channel-feeds-->

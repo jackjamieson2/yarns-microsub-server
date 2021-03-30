@@ -109,13 +109,13 @@ class Yarns_Microsub_Posts {
 		);
 
 		if ( isset( $post['published'] ) ) {
-			$my_post['post_date'] = date( 'Y-m-d H:i:s P', strtotime( $post['published'] ) );
+			$my_post['post_date'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['published'] );
 		} else {
 			// If there is no published date, then fall back to the current time.
-			$post['published'] = date( 'Y-m-d\TH:i:sP' );
+			$post['published'] = current_date( 'Y-m-d\TH:i:sP' );
 		}
 		if ( isset( $post['updated'] ) ) {
-			$my_post['post_modified'] = date( 'Y-m-d H:i:s P', strtotime( $post['updated'] ) );
+			$my_post['post_modified'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['updated'] );
 		}
 
 		// Create the post.
@@ -160,7 +160,7 @@ class Yarns_Microsub_Posts {
 	 * @return array
 	 */
 	public static function toggle_read( $entry_id, $read_status ) {
-		$response = [];
+		$response = array();
 		// If $entry_id is an array, recursively process each item.
 		if ( is_array( $entry_id ) ) {
 			foreach ( $entry_id as $single_entry ) {
@@ -211,7 +211,7 @@ class Yarns_Microsub_Posts {
 			return;
 		}
 		$before_date = $read_before_post['published'];
-		$timeline = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
+		$timeline    = Yarns_Microsub_Channels::timeline( $channel, $before = null, $after = null, $is_read = null, $num_posts = - 1, $before_date );
 
 		foreach ( $timeline['items'] as $item ) {
 			if ( $item['_id'] ) {
@@ -248,7 +248,7 @@ class Yarns_Microsub_Posts {
 	 * @param int $storage_period   The number of days to store aggregated posts before deletion.
 	 */
 	public static function delete_old_posts( $storage_period ) {
-		$date_before = date( 'Y-m-d h:m:s', strtotime( '-' . $storage_period . 'days' ) );
+		$date_before = yarns_convert_date( 'Y-m-d h:m:s', '-' . $storage_period . 'days' );
 		$args        = array(
 			'post_type'      => 'yarns_microsub_post',
 			'posts_per_page' => - 1,

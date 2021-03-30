@@ -15,7 +15,7 @@ class Yarns_Microsub_Admin {
 	 */
 	public static $options_page_name = 'yarns_microsub_options';
 
-	public static function admin_page_link( $args = [] ) {
+	public static function admin_page_link( $args = array() ) {
 		$default_args = array(
 			'page' => static::$options_page_name,
 		);
@@ -25,7 +25,7 @@ class Yarns_Microsub_Admin {
 		return add_query_arg( $args, admin_url() . 'admin.php' );
 	}
 
-	public static function admin_channel_settings_link( $uid, $args = [] ) {
+	public static function admin_channel_settings_link( $uid, $args = array() ) {
 		$default_args = array(
 			'mode'    => 'channel-settings',
 			'channel' => $uid,
@@ -36,7 +36,7 @@ class Yarns_Microsub_Admin {
 		return static::admin_page_link( $args );
 	}
 
-	public static function admin_channel_feeds_link( $uid, $args = [] ) {
+	public static function admin_channel_feeds_link( $uid, $args = array() ) {
 		$default_args = array(
 			'mode'    => 'channel-feeds',
 			'channel' => $uid,
@@ -185,7 +185,7 @@ class Yarns_Microsub_Admin {
 				update_option( 'yarns_show_debug', $show_debug );
 				$results .= 'updated show_debug.  ';
 			}
-			echo $results;
+			echo wp_kses_post( $results );
 			wp_die();
 		}
 
@@ -204,8 +204,8 @@ class Yarns_Microsub_Admin {
 		$html = '';
 
 		foreach ( $channels as $channel ) {
-			$name = $channel['name'];
-			$uid  = $channel['uid'];
+			$name  = $channel['name'];
+			$uid   = $channel['uid'];
 			$html .= '<li class="yarns-channel" data-uid="' . $uid . '""><span>' . $name . '</span>';
 			$html .= '</li>';
 		}
@@ -241,7 +241,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for the debug log
 	 */
 	private static function debug_log() {
-		$html = '<h2> Debug log </h2>';
+		$html  = '<h2> Debug log </h2>';
 		$html .= '<div id="yarns-debug-log"><pre>';
 
 		$log = json_decode( get_option( 'debug_log' ), true );
@@ -263,7 +263,7 @@ class Yarns_Microsub_Admin {
 	 * Echoes HTML for debug commands.
 	 */
 	private static function debug_commands() {
-		$html = '<h2> Debug commands </h2>';
+		$html  = '<h2> Debug commands </h2>';
 		$html .= '<a class="button" id="yarns_force_poll">Force poll</a><br><br>';
 		$html .= '<a class="button" id="yarns_delete_posts">Delete all posts</a>';
 
@@ -340,10 +340,10 @@ class Yarns_Microsub_Admin {
 		// @@todo: Return success message when fo
 		if ( isset( $_POST['uid'] ) && isset( $_POST['url'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
-			$url = sanitize_text_field( wp_unslash(urldecode( $_POST['url'] )) );
+			$url = sanitize_text_field( wp_unslash( urldecode( $_POST['url'] ) ) );
 			Yarns_Microsub_Channels::follow( $uid, $url );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link( $uid );
+			echo esc_url( static::admin_channel_feeds_link( $uid ) );
 			//echo static::yarns_list_feeds( $channel );
 		}
 
@@ -360,7 +360,7 @@ class Yarns_Microsub_Admin {
 			$url = sanitize_text_field( wp_unslash( $_POST['url'] ) );
 			Yarns_Microsub_Channels::follow( $uid, $url, $unfollow = true );
 			//$channel = Yarns_Microsub_Channels::get_channel( $uid );
-			echo static::admin_channel_feeds_link( $uid );
+			echo esc_url( static::admin_channel_feeds_link( $uid ) );
 
 			//echo static::yarns_list_feeds( $channel );
 		}
@@ -402,7 +402,7 @@ class Yarns_Microsub_Admin {
 			$uid     = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			$channel = sanitize_text_field( wp_unslash( $_POST['channel'] ) );
 			Yarns_Microsub_Channels::update( $uid, $channel );
-			echo static::list_channels();
+			echo wp_kses_post( static::list_channels() );
 		}
 		wp_die();
 	}
@@ -416,7 +416,7 @@ class Yarns_Microsub_Admin {
 		if ( isset( $_POST['uid'] ) ) {
 			$uid = sanitize_text_field( wp_unslash( $_POST['uid'] ) );
 			Yarns_Microsub_Channels::delete( $uid );
-			echo static::list_channels();
+			echo wp_kses_post( static::list_channels() );
 		}
 		wp_die();
 	}
@@ -437,7 +437,7 @@ class Yarns_Microsub_Admin {
 
 		$preview      = new Yarns_Microsub_Preview( $preview_data );
 		$preview_html = $preview->html();
-		echo $preview_html;
+		echo wp_kses_post( $preview_html );
 
 		wp_die();
 	}
