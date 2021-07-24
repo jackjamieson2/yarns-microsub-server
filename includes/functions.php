@@ -74,3 +74,15 @@ function yarns_convert_date( $format = DATE_W3C, $time = 'now' ) {
 	}
 	return $datetime->format( $format );
 }
+
+
+function yarns_get( $array, $key, $default = array(), $index = false ) {
+	$return = $default;
+	if ( is_array( $array ) && isset( $array[ $key ] ) ) {
+		$return = $array[ $key ];
+	}
+	if ( $index && wp_is_numeric_array( $return ) && ! empty( $return ) ) {
+		$return = $return[0];
+	}
+	return $return;
+}

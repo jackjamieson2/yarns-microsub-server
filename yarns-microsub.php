@@ -5,7 +5,7 @@
  * Description: Run a Microsub server on your WordPress site. This plugin allows you to follow and reply to many different kinds of websites using a Microsub client (like alltogethernow.io or monocle.p3k.io).
  * Author: Jack Jamieson
  * Author URI: https://jackjamieson.net
- * Version: 1.0.5
+ * Version: 1.1.0
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: yarns-microsub-server
@@ -27,14 +27,6 @@ register_activation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'activate' )
 /* Functions to run upon deactivation */
 register_deactivation_hook( __FILE__, array( 'Yarns_MicroSub_Plugin', 'deactivate' ) );
 
-function load_microsub_auth() {
-	// Always disable local auth when the IndieAuth Plugin or the Micropub Auth Class is installed
-	if ( class_exists( 'IndieAuth_Plugin' ) || class_exists( 'Micropub_Authorize' ) ) {
-		return;
-	}
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-microsub-authorize.php';
-}
-
 function load_microsub_error() {
 	// Initialize Microsub Error Handling Class.
 	require_once dirname( __FILE__ ) . '/includes/class-microsub-error.php';
@@ -42,15 +34,12 @@ function load_microsub_error() {
 
 // Load error class at the plugins loaded stage before auth is loaded
 add_action( 'plugins_loaded', 'load_microsub_error', 29 );
-// Load auth at the plugins loaded stage in order to ensure it occurs after the IndieAuth plugin is loaded and the Micropub Plugin
-add_action( 'plugins_loaded', 'load_microsub_auth', 30 );
 
 // Add filter for polling cron job
 add_filter( 'cron_schedules', array( 'Yarns_Microsub_Plugin', 'cron_definer' ) );
 
 // Add actions to be triggered by cron hooks
 add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'poll' ) );
-
 
 /**
  * Class Yarns_MicroSub_Plugin
@@ -114,10 +103,23 @@ class Yarns_MicroSub_Plugin {
 		}
 	}
 
+	public static function indieauth_not_installed_notice() {
+		?>
+		<div class="notice notice-error">
+			<p>To use Microsub, you must have IndieAuth support. Please install the IndieAuth plugin.</p>
+		</div>
+		<?php
+	}
+
 	/**
 	 * Initialize Yarns Microsub Server plugin Plugin
 	 */
 	public static function init() {
+
+		if ( ! class_exists( 'IndieAuth_Plugin' ) ) {
+			add_action( 'admin_notices', array( __CLASS__, 'indieauth_not_installed_notice' ) );
+			return;
+		}
 
 		// Initialize Microsub endpoint.
 		require_once dirname( __FILE__ ) . '/includes/class-yarns-microsub-endpoint.php';
