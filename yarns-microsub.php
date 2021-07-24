@@ -45,7 +45,7 @@ add_action( 'yarns_microsub_server_cron', array( 'Yarns_Microsub_Aggregator', 'p
  * Class Yarns_MicroSub_Plugin
  */
 class Yarns_MicroSub_Plugin {
-	public static $version = '1.0.6';
+	public static $version = '1.1.0';
 
 	/**
 	 * Run when plugins are loaded.
