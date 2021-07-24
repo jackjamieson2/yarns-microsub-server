@@ -112,7 +112,7 @@ class Yarns_Microsub_Posts {
 			$my_post['post_date'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['published'] );
 		} else {
 			// If there is no published date, then fall back to the current time.
-			$post['published'] = current_date( 'Y-m-d\TH:i:sP' );
+			$post['published'] = yarns_convert_date( 'Y-m-d\TH:i:sP' );
 		}
 		if ( isset( $post['updated'] ) ) {
 			$my_post['post_modified'] = yarns_convert_date( 'Y-m-d H:i:s P', $post['updated'] );
