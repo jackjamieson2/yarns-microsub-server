@@ -97,6 +97,42 @@ if ( ! function_exists( 'mf2_to_jf2' ) ) {
 }
 
 
+if ( ! function_exists( 'jf2_location' ) ) {
+	/*
+	 Flatten nested location properties.
+	*/
+	function jf2_location( $data ) {
+		if ( ! array_key_exists( 'location', $data ) ) {
+			return $data;
+		}
+		$location = $data['location'];
+		if ( is_string( $location ) ) {
+			return $data;
+		}
+		foreach ( array( 'latitude', 'longitude', 'altitude' ) as $prop ) {
+			if ( array_key_exists( $prop, $location ) ) {
+				$data[ $prop ] = $location[ $prop ];
+			}
+		}
+		if ( array_key_exists( 'label', $location ) ) {
+			$data['location'] = $location['label'];
+		} elseif ( array_key_exists( 'name', $location ) ) {
+			$data['location'] = $location['name'];
+		} else {
+			unset( $data['location'] );
+		}
+		if ( array_key_exists( 'checkin', $data ) && is_array( $data['checkin'] ) ) {
+			foreach ( $location as $key => $value ) {
+				if ( ! array_key_exists( $key, $data['checkin'] ) ) {
+					$data['checkin'][ $key ] = $value;
+				}
+			}
+		}
+		return $data;
+	}
+}
+
+
 if ( ! function_exists( 'jf2_references' ) ) {
 	/*
 	 Turns nested properties into references per the jf2 spec
@@ -402,5 +438,41 @@ if ( ! function_exists( 'pt_load_domdocument' ) ) {
 			libxml_use_internal_errors( false );
 		}
 		return $doc;
+	}
+}
+if ( ! function_exists( 'pt_secure_rewrite' ) ) {
+	function pt_secure_rewrite( $url ) {
+		$host   = wp_parse_url( $url, PHP_URL_HOST );
+		$host   = preg_replace( '/^([a-zA-Z0-9].*\.)?([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z.]{2,})$/', '$2', $host );
+		$secure = array(
+			'blogger.com',
+			'creativecommons.org',
+			'dailymotion.com',
+			'debian.org',
+			'facebook.com',
+			'foursquare.com',
+			'feedburner.com',
+			'fsf.org',
+			'fsfe.org',
+			'github.com',
+			'gitlab.com',
+			'gnu.org',
+			'google.com',
+			'gravatar.com',
+			'gstatic.com',
+			'kernel.org',
+			'lwn.net',
+			'tumblr.com',
+			'twitter.com',
+			'vimeo.com',
+			'wikipedia.org',
+			'wordpress.com',
+			'youtube.com',
+		);
+		$secure = apply_filters( 'pt_rewrite_secure', $secure );
+		if ( in_array( $host, $secure, true ) ) {
+			$url = preg_replace( '/^http:/i', 'https:', $url );
+		}
+		return $url;
 	}
 }
