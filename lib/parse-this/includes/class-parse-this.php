@@ -22,7 +22,7 @@ class Parse_This {
 	 */
 	public function __construct( $url = null ) {
 		if ( wp_http_validate_url( $url ) ) {
-			$this->url = $url;
+			$this->url = pt_secure_rewrite( $url );
 		}
 	}
 
@@ -75,7 +75,9 @@ class Parse_This {
 			'q'          => array(),
 			'strike'     => array(),
 			'strong'     => array(),
-			'time'       => array(),
+			'time'       => array(
+				'datetime' => array(),
+			),
 			'blockquote' => array(),
 			'pre'        => array(),
 			'p'          => array(),
@@ -90,14 +92,40 @@ class Parse_This {
 			'ol'         => array(),
 			'span'       => array(),
 			'img'        => array(
-				'src'   => array(),
-				'alt'   => array(),
-				'title' => array(),
+				'src'    => array(),
+				'alt'    => array(),
+				'title'  => array(),
+				'width'  => array(),
+				'height' => array(),
+				'srcset' => array(),
 			),
-			'video'      => array(),
-			'audio'      => array(),
-			'track'      => array(),
-			'source'     => array(),
+			'figure'     => array(),
+			'figcaption' => array(),
+			'picture'    => array(
+				'srcset' => array(),
+				'type'   => array(),
+			),
+			'video'      => array(
+				'poster' => array(),
+				'src'    => array(),
+			),
+			'audio'      => array(
+				'duration' => array(),
+				'src'      => array(),
+			),
+			'track'      => array(
+				'label'   => array(),
+				'src'     => array(),
+				'srclang' => array(),
+				'kind'    => array(),
+			),
+			'source'     => array(
+				'src'    => array(),
+				'srcset' => array(),
+				'type'   => array(),
+
+			),
+			'hr'         => array(),
 		);
 		if ( ! empty( $strip ) ) {
 			$allowed = array_diff_key( $allowed, $strip );
@@ -118,7 +146,7 @@ class Parse_This {
 	public function set( $source_content, $url, $jf2 = false ) {
 		$this->content = $source_content;
 		if ( wp_http_validate_url( $url ) ) {
-			$this->url    = $url;
+			$this->url    = pt_secure_rewrite( $url );
 			$this->domain = wp_parse_url( $url, PHP_URL_HOST );
 		}
 		if ( $jf2 ) {
@@ -132,15 +160,9 @@ class Parse_This {
 	 Reproduced version of fetch_feed from core which calls bundled SimplePie instead of older version
 	*/
 	public static function fetch_feed( $url ) {
+		$url = pt_secure_rewrite( $url );
 		if ( ! class_exists( 'SimplePie', false ) ) {
-			// Try to use bundled SimplePie if not WordPress older SimplePie
-			$file = plugin_dir_path( __DIR__ ) . 'lib/simplepie/autoloader.php';
-			// SimplePie was updated to the latest version in WordPress 5.5. Use the bundled version for older installs only.
-			if ( version_compare( get_bloginfo( 'version' ), '5.5', '<' ) && file_exists( $file ) ) {
-				require_once $file;
-			} else {
-				require_once ABSPATH . WPINC . '/class-simplepie.php';
-			}
+			require_once ABSPATH . WPINC . '/class-simplepie.php';
 		}
 		require_once ABSPATH . WPINC . '/class-wp-feed-cache.php';
 		require_once ABSPATH . WPINC . '/class-wp-feed-cache-transient.php';
@@ -198,6 +220,7 @@ class Parse_This {
 		if ( empty( $url ) || ! wp_http_validate_url( $url ) ) {
 			return new WP_Error( 'invalid-url', __( 'A valid URL was not provided.', 'indieweb-post-kinds' ) );
 		}
+		$url        = pt_secure_rewrite( $url );
 		$domain     = wp_parse_url( $url, PHP_URL_HOST );
 		$shorteners = array( 'fb.me', 't.co', 'youtu.be', 'ow.ly', 'bit.ly', 'tinyurl.com' );
 		if ( ! $allowlist && ! in_array( $domain, $shorteners, true ) ) {
@@ -323,6 +346,7 @@ class Parse_This {
 			'jsonld'     => true,  // Try JSON-LD parsing
 			'html'       => true, // If mf2 parsing does not work look for html parsing which includes OGP, meta tags, and title tags
 			'references' => true, // Store nested citations as references per the JF2 spec
+			'location' => false, // Collapse location parameters in jf2. Specifically, location will be a string and latitude, longitude, and altitude will be set as h-entry properties.
 		);
 		$args     = wp_parse_args( $args, $defaults );
 		// If not an option then revert to single
@@ -404,6 +428,8 @@ class Parse_This {
 				}
 			}
 		}
-
+		if ( isset( $this->jf2['location'] ) && $args['location'] ) {
+			$this->jf2 = jf2_location( $this->jf2 );
+		}
 	}
 }
