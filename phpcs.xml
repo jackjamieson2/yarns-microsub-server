@@ -5,6 +5,10 @@
 	<file>./yarns-microsub.php</file>
 	<file>./includes/</file>
 	<file>./templates/</file>
+	<arg value="sp"/> <!-- Show sniff and progress -->
+	<arg name="colors"/>
+	<arg name="parallel" value="8"/><!-- Enables parallel processing when available for faster results. -->
+
 	<exclude-pattern>*/includes/*\.(inc|css|js|svg)</exclude-pattern>
 	<rule ref="PHPCompatibility"/>
 	<config name="testVersion" value="5.6-"/>
