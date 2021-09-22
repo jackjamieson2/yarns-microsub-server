@@ -39,7 +39,7 @@
     "sebastian/phpcpd": "^3.0 || ^5.0 || ^6.0",
     "phpunit/phpunit": "^5.0 || ^6.0 || ^7.5",
     "yoast/phpunit-polyfills": "^1.0",
-    "wpreadme2markdown/wp2md": "^4.0.1"
+    "wpreadme2markdown/wp2md": "*"
   },
   "autoload-dev": {
      "psr-4": { "SlowProg\\CopyFile\\": "" }
