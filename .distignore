@@ -3,7 +3,7 @@
 /.github
 /bin
 /vendor
-/test
+/tests
 readme.md
 composer.json
 composer.lock
